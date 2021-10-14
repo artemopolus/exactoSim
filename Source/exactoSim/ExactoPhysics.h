@@ -6,14 +6,10 @@
 #include "GameFramework/Actor.h"
 
 #include <functional>
-#include "Components/ShapeComponent.h"
 //Bullet
 #include "BulletSpec/BulletMinimal.h"
-#include "BulletSpec/BulletHelpers.h"
 #include "BulletSpec/BulletHeader.h"
-#include "BulletSpec/BulletCustomMotionState.h"
-#include "BulletSpec/BulletDebugDraw.h"
-#include "BulletSpec/BulletDynamicComponent.h"
+
 #include "ExactoPhysics.generated.h"
 
 UCLASS()

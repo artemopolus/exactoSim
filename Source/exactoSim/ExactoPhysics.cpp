@@ -2,6 +2,12 @@
 
 
 #include "ExactoPhysics.h"
+#include "Components/ShapeComponent.h"
+#include "BulletSpec/BulletHelpers.h"
+#include "BulletSpec/BulletCustomMotionState.h"
+#include "BulletSpec/BulletDebugDraw.h"
+#include "BulletSpec/BulletDynamicComponent.h"
+
 
 // Sets default values
 AExactoPhysics::AExactoPhysics()
