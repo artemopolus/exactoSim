@@ -174,7 +174,7 @@ void AExactoPhysics::ExtractPhysicsGeometry(UStaticMeshComponent* SMC, const FTr
 
 	// We want the complete transform from actor to this component, not just relative to parent
 	FTransform CompFullRelXForm = SMC->GetComponentTransform() * InvActorXform;
-	ExtractPhysicsGeometry(CompFullRelXForm, Mesh->BodySetup, CB);
+	ExtractPhysicsGeometry(CompFullRelXForm, Mesh->GetBodySetup(), CB);
 
 	// Not supporting complex collision shapes right now
 	// If we did, note that Mesh->ComplexCollisionMesh is WITH_EDITORONLY_DATA so not available at runtime
