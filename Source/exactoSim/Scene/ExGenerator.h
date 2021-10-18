@@ -4,18 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ExSmplBox.generated.h"
+#include "ExSmplBox.h"
+#include "ExGenerator.generated.h"
 
 UCLASS()
-class EXACTOSIM_API AExSmplBox : public AActor
+class EXACTOSIM_API AExGenerator : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		AActor * RenBody;
-	AExSmplBox();
+		TArray<AExSmplBox*> targets;
+	AExGenerator();
 
 protected:
 	// Called when the game starts or when spawned
