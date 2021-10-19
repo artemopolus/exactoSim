@@ -13,6 +13,8 @@ class EXACTOSIM_API AExScene : public AActor
 
 public:
 	// Sets default values for this actor's properties
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TArray<AActor*> DynObj;
 	AExScene();
 
 protected:
