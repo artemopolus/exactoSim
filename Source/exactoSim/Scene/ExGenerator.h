@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ExSmplBox.h"
+#include "exactoSim/ExactoPhysics.h"
 #include "ExGenerator.generated.h"
 
 UCLASS()
@@ -16,6 +17,8 @@ public:
 	// Sets default values for this actor's properties
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TArray<AExSmplBox*> targets;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		AExactoPhysics * ExPhyzX;
 	AExGenerator();
 
 protected:

@@ -4,6 +4,8 @@
 #include "ExScene.h"
 #include <string>
 
+#include "ExGenerator.h"
+
 
 // Sets default values
 AExScene::AExScene()
@@ -17,13 +19,24 @@ AExScene::AExScene()
 void AExScene::addSmplTestObject(FVector location, FRotator rotation)
 {
 	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
-	addObjByPath(location, rotation, path);
+	addObjByPath(location, rotation, path, "test");
 }
 
 void AExScene::addGenerator(FVector location, FRotator rotation)
 {
 	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExGenerator.BP_ExGenerator_C'";
-	addObjByPath(location, rotation, path);
+	FString fpath(path.c_str());
+	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
+	if (obj != nullptr)
+	{
+		FActorSpawnParameters params;
+   		params.Name = "TestGenerator";
+   		AExGenerator *spawned_obj = static_cast<AExGenerator*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		if (ExPhyzX)
+			spawned_obj->ExPhyzX = ExPhyzX;
+   		DynObj.Add(spawned_obj);
+    
+	}
 }
 
 // Called when the game starts or when spawned
@@ -34,6 +47,8 @@ void AExScene::BeginPlay()
 	FVector location(0,50,100);
 	FRotator rotation(0,0,0);
 	addSmplTestObject(location, rotation);
+	location.Z = 200;
+	addGenerator(location, rotation);
 }
 
 // Called every frame
@@ -42,20 +57,20 @@ void AExScene::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AExScene::addObjByPath(FVector location, FRotator rotation, std::string path)
+void AExScene::addObjByPath(FVector location, FRotator rotation, std::string path, std::string name)
 {
 	FString fpath(path.c_str());
 	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
 	if (obj != nullptr)
 	{
 			FActorSpawnParameters params;
-    		params.Name = "Test";
+    		params.Name = name.c_str();
     		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
     		DynObj.Add(spawned_obj);
     
-    		if (ExPhyX)
+    		if (ExPhyzX)
     		{
-    			ExPhyX->AddRigidBody(spawned_obj);
+    			ExPhyzX->AddRigidBody(spawned_obj);
     		}	
 	}	
 }

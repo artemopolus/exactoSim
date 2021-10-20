@@ -16,8 +16,8 @@ public:
 	// Sets default values for this actor's properties
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TArray<AActor*> DynObj;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		AExactoPhysics * ExPhyX;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		AExactoPhysics * ExPhyzX;
 	AExScene();
 
 	UFUNCTION(BlueprintCallable)
@@ -33,5 +33,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 private:
-	void addObjByPath(FVector location, FRotator rotation, std::string path);
+	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name);
 };
