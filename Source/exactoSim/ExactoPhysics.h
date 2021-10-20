@@ -9,7 +9,11 @@
 //Bullet
 #include "BulletSpec/BulletMinimal.h"
 #include "BulletSpec/BulletHeader.h"
-
+#include "Components/ShapeComponent.h"
+#include "BulletSpec/BulletHelpers.h"
+#include "BulletSpec/BulletCustomMotionState.h"
+#include "BulletSpec/BulletDebugDraw.h"
+#include "BulletSpec/BulletDynamicComponent.h"
 #include "ExactoPhysics.generated.h"
 
 UCLASS()
@@ -102,6 +106,7 @@ public:
 	void SetupStaticGeometryPhysics(TArray<AActor*> Actors, float Friction, float Restitution);
 	const CachedDynamicShapeData& GetCachedDynamicShapeData(AActor* Actor, float Mass);
 
+	btRigidBody* AddRigidBody(AActor* Actor);
 	btRigidBody* AddRigidBody(AActor* Actor, const CachedDynamicShapeData& ShapeData, float Friction, float Restitution);
 	btRigidBody* AddRigidBody(AActor* Actor, btCollisionShape* CollisionShape, btVector3 Inertia, float Mass, float Friction, float Restitution);
 

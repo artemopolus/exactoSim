@@ -14,30 +14,49 @@ AExScene::AExScene()
 
 }
 
+void AExScene::addSmplTestObject(FVector location, FRotator rotation)
+{
+	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
+	addObjByPath(location, rotation, path);
+}
+
+void AExScene::addGenerator(FVector location, FRotator rotation)
+{
+	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExGenerator.BP_ExGenerator_C'";
+	addObjByPath(location, rotation, path);
+}
+
 // Called when the game starts or when spawned
 void AExScene::BeginPlay()
 {
 	Super::BeginPlay();
 	//create object
-	std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
-	FString fpath(path.c_str());
-	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
-	if (obj == nullptr)
-		__nop();
-	else
-	{
-		FVector location(0,0,0);
-		FRotator rotation(0,0,0);
-		FActorSpawnParameters params;
-		params.Name = "Test";
-		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		__nop();
-	}	
+	FVector location(0,50,100);
+	FRotator rotation(0,0,0);
+	addSmplTestObject(location, rotation);
 }
 
 // Called every frame
 void AExScene::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AExScene::addObjByPath(FVector location, FRotator rotation, std::string path)
+{
+	FString fpath(path.c_str());
+	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
+	if (obj != nullptr)
+	{
+			FActorSpawnParameters params;
+    		params.Name = "Test";
+    		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+    		DynObj.Add(spawned_obj);
+    
+    		if (ExPhyX)
+    		{
+    			ExPhyX->AddRigidBody(spawned_obj);
+    		}	
+	}	
 }
 

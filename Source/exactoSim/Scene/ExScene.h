@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "exactoSim/ExactoPhysics.h"
 #include "GameFramework/Actor.h"
 #include "ExScene.generated.h"
 
@@ -15,7 +16,14 @@ public:
 	// Sets default values for this actor's properties
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TArray<AActor*> DynObj;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		AExactoPhysics * ExPhyX;
 	AExScene();
+
+	UFUNCTION(BlueprintCallable)
+		void addSmplTestObject(FVector location, FRotator rotation);
+	UFUNCTION(BlueprintCallable)
+		void addGenerator(FVector location, FRotator rotation);
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,4 +32,6 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+private:
+	void addObjByPath(FVector location, FRotator rotation, std::string path);
 };

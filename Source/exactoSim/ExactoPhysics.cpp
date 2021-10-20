@@ -2,11 +2,7 @@
 
 
 #include "ExactoPhysics.h"
-#include "Components/ShapeComponent.h"
-#include "BulletSpec/BulletHelpers.h"
-#include "BulletSpec/BulletCustomMotionState.h"
-#include "BulletSpec/BulletDebugDraw.h"
-#include "BulletSpec/BulletDynamicComponent.h"
+
 
 
 // Sets default values
@@ -91,6 +87,16 @@ AExactoPhysics::~AExactoPhysics()
 	// Clear our type-specific arrays (duplicate refs)
 	BtStaticObjects.Empty();
 	BtRigidBodies.Empty();
+}
+btRigidBody* AExactoPhysics::AddRigidBody(AActor* actor)
+{
+		if (actor != nullptr)
+		{
+			const CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, 1.0);
+			btRigidBody * body = AddRigidBody(actor, data, PhysicsStatic1Friction, PhysicsStatic1Restitution);
+			return  body;
+		}
+	return nullptr;
 }
 
 // Called when the game starts or when spawned
