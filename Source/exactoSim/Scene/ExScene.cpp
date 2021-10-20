@@ -33,7 +33,10 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
    		params.Name = "TestGenerator";
    		AExGenerator *spawned_obj = static_cast<AExGenerator*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
 		if (ExPhyzX)
+		{
 			spawned_obj->ExPhyzX = ExPhyzX;
+			spawned_obj->generateObj();
+		}
    		DynObj.Add(spawned_obj);
     
 	}
@@ -47,7 +50,7 @@ void AExScene::BeginPlay()
 	FVector location(0,50,100);
 	FRotator rotation(0,0,0);
 	addSmplTestObject(location, rotation);
-	location.Z = 200;
+	location.Z = 400; 
 	addGenerator(location, rotation);
 }
 

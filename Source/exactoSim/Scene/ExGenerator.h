@@ -21,6 +21,8 @@ public:
 		AExactoPhysics * ExPhyzX;
 	AExGenerator();
 
+	void generateObj();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -28,4 +30,7 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+private:
+	int GenObjectCount = 0;
+	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name);
 };
