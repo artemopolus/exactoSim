@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ExScene.h"
 #include "GameFramework/Actor.h"
 #include "ExSmplBox.h"
 #include "exactoSim/ExactoPhysics.h"
@@ -19,6 +20,8 @@ public:
 		TArray<AExSmplBox*> targets;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExactoPhysics * ExPhyzX;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+		AExScene * ParentScene;
 	AExGenerator();
 
 	void generateObj();
@@ -32,5 +35,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 private:
 	int GenObjectCount = 0;
-	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name);
+	TArray<btRigidBody*> GenBody;
 };

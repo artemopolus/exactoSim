@@ -13,12 +13,16 @@ AExGenerator::AExGenerator()
 
 void AExGenerator::generateObj()
 {
-	FVector my_loc =  this->GetActorLocation();
-	FRotator my_rot = this->GetActorRotation();
-	//my_loc.Y += 100;
-	std::string name = "gen_obj";
-	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
-	addObjByPath(my_loc, my_rot, path, name);
+	//addObjByPath(my_loc, my_rot, path, name);
+	if (ParentScene)
+	{
+		FVector my_loc =  this->GetActorLocation();
+		FRotator my_rot = this->GetActorRotation();
+		//my	_loc.Y += 100;
+		std::string name = "gen_obj_" + std::to_string(GenObjectCount);
+		const std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
+		ParentScene->addObjByPath(my_loc, my_rot, path, name);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -34,20 +38,5 @@ void AExGenerator::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AExGenerator::addObjByPath(FVector location, FRotator rotation, std::string path, std::string name)
-{
-	name += "_" + std::to_string(GenObjectCount);
-	FString fpath(path.c_str());
-	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
-	if (obj != nullptr)
-	{
-			FActorSpawnParameters params;
-    		params.Name = name.c_str();
-    		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-    		if (ExPhyzX)
-    		{
-    			ExPhyzX->AddRigidBody(spawned_obj);
-    		}	
-	}
-}
+
 

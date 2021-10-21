@@ -35,6 +35,7 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
 		if (ExPhyzX)
 		{
 			spawned_obj->ExPhyzX = ExPhyzX;
+			spawned_obj->ParentScene = this;
 			spawned_obj->generateObj();
 		}
    		DynObj.Add(spawned_obj);

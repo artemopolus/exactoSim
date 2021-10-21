@@ -90,12 +90,12 @@ AExactoPhysics::~AExactoPhysics()
 }
 btRigidBody* AExactoPhysics::AddRigidBody(AActor* actor)
 {
-		if (actor != nullptr)
-		{
-			const CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, 1.0);
-			btRigidBody * body = AddRigidBody(actor, data, PhysicsStatic1Friction, PhysicsStatic1Restitution);
-			return  body;
-		}
+	if (actor != nullptr)
+	{
+		const CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, 1.0);
+		btRigidBody* body = AddRigidBody(actor, data, PhysicsStatic1Friction, PhysicsStatic1Restitution);
+		return body;
+	}
 	return nullptr;
 }
 
