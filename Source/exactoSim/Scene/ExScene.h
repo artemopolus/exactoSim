@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "exactoSim/ExactoPhysics.h"
-#include "exactoSim/Common/ExSimStorage.h"
 #include "GameFramework/Actor.h"
 #include "ExScene.generated.h"
 
@@ -19,8 +18,6 @@ public:
 		TArray<AActor*> DynObj;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExactoPhysics * ExPhyzX;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		AExSimStorage * DataStorage;
 
 	AExScene();
 
@@ -28,6 +25,8 @@ public:
 		void addSmplTestObject(FVector location, FRotator rotation);
 	UFUNCTION(BlueprintCallable)
 		void addGenerator(FVector location, FRotator rotation);
+	UFUNCTION(BlueprintCallable)
+		void sendCmdToSelected(int type, float value);
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,4 +36,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name);
+private:
+	struct ActorBodyStorage
+	{
+		AActor * actor;
+		btRigidBody * body;
+	};
+	TArray<ActorBodyStorage> SceneObjects;
 };

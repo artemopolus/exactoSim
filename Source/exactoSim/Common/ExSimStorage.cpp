@@ -29,3 +29,11 @@ void AExSimStorage::updateDebugLog(FText text)
 	UE_LOG(LogTemp, Warning,TEXT("%s"),*text.ToString());
 }
 
+void AExSimStorage::registerCmdToSelected(int type, float value)
+{
+	if (CurrentScene)
+	{
+		CurrentScene->sendCmdToSelected(type,value);
+	}
+}
+

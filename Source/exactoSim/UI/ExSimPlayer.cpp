@@ -16,6 +16,7 @@ void AExSimPlayer::activateFunction()
 {
 	//some action
 	UE_LOG(LogTemp, Warning, TEXT("Activate function!"));
+	DataStorage->registerCmdToSelected(1,1.);
 }
 
 void AExSimPlayer::sendDataToStorage()

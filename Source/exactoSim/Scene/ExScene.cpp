@@ -32,15 +32,24 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
 		FActorSpawnParameters params;
    		params.Name = "TestGenerator";
    		AExGenerator *spawned_obj = static_cast<AExGenerator*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		ActorBodyStorage elem;
+		elem.actor = spawned_obj;
+		elem.body = nullptr;
 		if (ExPhyzX)
 		{
 			spawned_obj->ExPhyzX = ExPhyzX;
 			spawned_obj->ParentScene = this;
-			spawned_obj->generateObj();
+			//spawned_obj->generateObj();
 		}
-   		DynObj.Add(spawned_obj);
+		SceneObjects.Add(elem);
     
 	}
+}
+
+void AExScene::sendCmdToSelected(int type, float value)
+{
+	AExGenerator * target = static_cast<AExGenerator*>(SceneObjects[1].actor);
+	target->generateObj();
 }
 
 // Called when the game starts or when spawned
@@ -70,12 +79,15 @@ void AExScene::addObjByPath(FVector location, FRotator rotation, std::string pat
 			FActorSpawnParameters params;
     		params.Name = name.c_str();
     		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-    		DynObj.Add(spawned_obj);
-    
+		ActorBodyStorage elem;
+		elem.actor = spawned_obj;
+		elem.body = nullptr;
+		
     		if (ExPhyzX)
     		{
-    			ExPhyzX->AddRigidBody(spawned_obj);
-    		}	
+    			elem.body = ExPhyzX->AddRigidBody(spawned_obj);
+    		}
+		SceneObjects.Add(elem);
 	}	
 }
 
