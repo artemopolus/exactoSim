@@ -32,7 +32,7 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
 		FActorSpawnParameters params;
    		params.Name = "TestGenerator";
    		AExGenerator *spawned_obj = static_cast<AExGenerator*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		ActorBodyStorage elem;
+		actor_body_storage elem;
 		elem.actor = spawned_obj;
 		elem.body = nullptr;
 		if (ExPhyzX)
@@ -49,6 +49,7 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
 void AExScene::sendCmdToSelected(int type, float value)
 {
 	AExGenerator * target = static_cast<AExGenerator*>(SceneObjects[1].actor);
+	deleteSceneObjByPrefix(target->getGeneratedObjPrefix());
 	target->generateObj();
 }
 
@@ -79,7 +80,7 @@ void AExScene::addObjByPath(FVector location, FRotator rotation, std::string pat
 			FActorSpawnParameters params;
     		params.Name = name.c_str();
     		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		ActorBodyStorage elem;
+		actor_body_storage elem;
 		elem.actor = spawned_obj;
 		elem.body = nullptr;
 		
@@ -89,5 +90,21 @@ void AExScene::addObjByPath(FVector location, FRotator rotation, std::string pat
     		}
 		SceneObjects.Add(elem);
 	}	
+}
+
+void AExScene::deleteSceneObjByPrefix(std::string prefix)
+{
+	for (int32 i = 0; i < SceneObjects.Num(); i++)
+	{
+		auto elem = SceneObjects[i];
+		std::string name = TCHAR_TO_UTF8(*elem.actor->GetName());
+		if (name.rfind(prefix,0) == 0)
+		{
+			ExPhyzX->removeRigidBody(elem.body);
+			elem.actor->Destroy();
+			SceneObjects.RemoveAt(i);
+			break;
+		}		
+	}
 }
 

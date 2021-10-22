@@ -25,6 +25,8 @@ public:
 	AExGenerator();
 
 	void generateObj();
+	void setGeneratedObjPrefix(std::string name);
+	std::string getGeneratedObjPrefix();
 
 protected:
 	// Called when the game starts or when spawned
@@ -36,4 +38,5 @@ public:
 private:
 	int GenObjectCount = 0;
 	TArray<btRigidBody*> GenBody;
+	std::string GeneratedObjPrefix;
 };

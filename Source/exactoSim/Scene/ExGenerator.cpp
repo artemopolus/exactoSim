@@ -9,6 +9,8 @@ AExGenerator::AExGenerator()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	GeneratedObjPrefix = "gen_obj_";
 }
 
 void AExGenerator::generateObj()
@@ -19,10 +21,20 @@ void AExGenerator::generateObj()
 		FVector my_loc =  this->GetActorLocation();
 		FRotator my_rot = this->GetActorRotation();
 		//my	_loc.Y += 100;
-		std::string name = "gen_obj_" + std::to_string(GenObjectCount++);
+		const std::string name = GeneratedObjPrefix + std::to_string(GenObjectCount++);
 		const std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
 		ParentScene->addObjByPath(my_loc, my_rot, path, name);
 	}
+}
+
+void AExGenerator::setGeneratedObjPrefix(std::string name)
+{
+	GeneratedObjPrefix = name;
+}
+
+std::string AExGenerator::getGeneratedObjPrefix()
+{
+	return GeneratedObjPrefix;
 }
 
 // Called when the game starts or when spawned

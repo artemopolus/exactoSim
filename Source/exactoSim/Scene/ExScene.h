@@ -36,11 +36,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name);
+
+	void deleteSceneObjByPrefix(std::string prefix);	
+	
 private:
-	struct ActorBodyStorage
+	struct actor_body_storage
 	{
 		AActor * actor;
 		btRigidBody * body;
+		friend bool operator==(const actor_body_storage& left, const actor_body_storage& right)
+		{
+			return (left.actor == right.actor)&&(left.body == right.body);
+		}
 	};
-	TArray<ActorBodyStorage> SceneObjects;
+	TArray<actor_body_storage> SceneObjects;
 };

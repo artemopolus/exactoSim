@@ -105,14 +105,14 @@ void AExactoPhysics::BeginPlay()
 	Super::BeginPlay();
 	SetupStaticGeometryPhysics(PhysicsStaticActors1, PhysicsStatic1Friction, PhysicsStatic1Restitution);
 
-	for (AActor* actor : DynamicActors)
-	{
-		if (actor != nullptr)
-		{
-			CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, 1.0);
-			btRigidBody * body = AddRigidBody(actor, data, PhysicsStatic1Friction, PhysicsStatic1Restitution);
-		}
-	}	
+	// for (AActor* actor : DynamicActors)
+	// {
+	// 	if (actor != nullptr)
+	// 	{
+	// 		CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, 1.0);
+	// 		btRigidBody * body = AddRigidBody(actor, data, PhysicsStatic1Friction, PhysicsStatic1Restitution);
+	// 	}
+	// }	
 	
 }
 
@@ -443,4 +443,15 @@ btRigidBody* AExactoPhysics::AddRigidBody(AActor* Actor, btCollisionShape* Colli
 	BtRigidBodies.Add(Body);
 
 	return Body;
+}
+
+void AExactoPhysics::removeRigidBody(btRigidBody* body)
+{
+	BtWorld->removeRigidBody(body);
+	BtWorld->removeCollisionObject(body);
+	BtRigidBodies.Remove(body);
+	//delete body->getCollisionShape(); // <=== do not remove, используется далее при создании объектов
+	delete body->getMotionState();
+	delete body;
+	
 }
