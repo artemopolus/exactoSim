@@ -21,27 +21,27 @@ void AExSimPlayer::activateFunction()
 
 void AExSimPlayer::activateDifFunction() 
 {
-	DataStorage->registerCmdToSelected(3,-300.);
+	DataStorage->registerCmdToSelected(3,StartImpulse);
 }
 
 void AExSimPlayer::moveRight() 
 {
-	DataStorage->registerCmdToSelected(1,10.);
+	DataStorage->registerCmdToSelected(1, MoveHorizontalStepSz);
 }
 
 void AExSimPlayer::moveLeft() 
 {
-	DataStorage->registerCmdToSelected(1,-10.);
+	DataStorage->registerCmdToSelected(1,-MoveHorizontalStepSz);
 }
 
 void AExSimPlayer::rotateUp() 
 {
-	DataStorage->registerCmdToSelected(2,10.);
+	DataStorage->registerCmdToSelected(2,RotateStepSZ);
 }
 
 void AExSimPlayer::rotateDown() 
 {
-	DataStorage->registerCmdToSelected(2,-10.);
+	DataStorage->registerCmdToSelected(2,-RotateStepSZ);
 }
 
 void AExSimPlayer::sendDataToStorage()

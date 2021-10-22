@@ -27,6 +27,13 @@ public:
 		AExSimStorage * DataStorage;
 	UFUNCTION(BlueprintCallable)
 		void sendDataToStorage();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float StartImpulse = -300;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MoveHorizontalStepSz = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float RotateStepSZ = 10;
+	
 
 protected:
 	// Called when the game starts or when spawned
