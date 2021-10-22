@@ -16,6 +16,12 @@ AExGenerator::AExGenerator()
 void AExGenerator::generateObj()
 {
 	//addObjByPath(my_loc, my_rot, path, name);
+	generateObj(FVector(0,0,0));
+
+}
+
+void AExGenerator::generateObj(FVector impulse)
+{
 	if (ParentScene)
 	{
 		FVector my_loc =  this->GetActorLocation();
@@ -23,9 +29,8 @@ void AExGenerator::generateObj()
 		//my	_loc.Y += 100;
 		const std::string name = GeneratedObjPrefix + std::to_string(GenObjectCount++);
 		const std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
-		ParentScene->addObjByPath(my_loc, my_rot, path, name);
-	}
-}
+		ParentScene->addObjByPath(my_loc, my_rot, path, name, impulse);
+	}}
 
 void AExGenerator::setGeneratedObjPrefix(std::string name)
 {

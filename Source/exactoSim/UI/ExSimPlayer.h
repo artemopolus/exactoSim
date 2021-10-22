@@ -16,7 +16,12 @@ public:
 	// Sets default values for this pawn's properties
 	AExSimPlayer();
 
-	void activateFunction();
+	void activateFunction() ;
+	void activateDifFunction() ;
+	void moveRight() ;
+	void moveLeft() ;
+	void rotateUp() ;
+	void rotateDown() ;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExSimStorage * DataStorage;

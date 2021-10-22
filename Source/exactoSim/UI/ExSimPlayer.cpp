@@ -12,11 +12,36 @@ AExSimPlayer::AExSimPlayer()
 
 }
 
-void AExSimPlayer::activateFunction()
+void AExSimPlayer::activateFunction() 
 {
 	//some action
 	UE_LOG(LogTemp, Warning, TEXT("Activate function!"));
-	DataStorage->registerCmdToSelected(1,1.);
+	DataStorage->registerCmdToSelected(0,0.);
+}
+
+void AExSimPlayer::activateDifFunction() 
+{
+	DataStorage->registerCmdToSelected(3,-300.);
+}
+
+void AExSimPlayer::moveRight() 
+{
+	DataStorage->registerCmdToSelected(1,10.);
+}
+
+void AExSimPlayer::moveLeft() 
+{
+	DataStorage->registerCmdToSelected(1,-10.);
+}
+
+void AExSimPlayer::rotateUp() 
+{
+	DataStorage->registerCmdToSelected(2,10.);
+}
+
+void AExSimPlayer::rotateDown() 
+{
+	DataStorage->registerCmdToSelected(2,-10.);
 }
 
 void AExSimPlayer::sendDataToStorage()
@@ -46,5 +71,11 @@ void AExSimPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	InputComponent->BindAction("activateFunction", IE_Pressed, this, &AExSimPlayer::activateFunction);
+	InputComponent->BindAction("activateDifFunction", IE_Pressed, this, &AExSimPlayer::activateDifFunction);
+	InputComponent->BindAction("moveRight",IE_Pressed, this, &AExSimPlayer::moveRight);
+	InputComponent->BindAction("moveLeft",IE_Pressed, this, &AExSimPlayer::moveLeft);
+	InputComponent->BindAction("rotateUp",IE_Pressed, this, &AExSimPlayer::rotateUp);
+	InputComponent->BindAction("rotateDown",IE_Pressed, this, &AExSimPlayer::rotateDown);
+	
 }
 

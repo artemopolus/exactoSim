@@ -25,6 +25,7 @@ public:
 	AExGenerator();
 
 	void generateObj();
+	void generateObj(FVector impulse);
 	void setGeneratedObjPrefix(std::string name);
 	std::string getGeneratedObjPrefix();
 

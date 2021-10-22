@@ -36,6 +36,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name);
+	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name, FVector impulse);
 
 	void deleteSceneObjByPrefix(std::string prefix);	
 	

@@ -48,9 +48,32 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
 
 void AExScene::sendCmdToSelected(int type, float value)
 {
+	FVector loc;
+	FRotator rot;
 	AExGenerator * target = static_cast<AExGenerator*>(SceneObjects[1].actor);
-	deleteSceneObjByPrefix(target->getGeneratedObjPrefix());
-	target->generateObj();
+	switch (type)
+	{
+	case 0:
+		deleteSceneObjByPrefix(target->getGeneratedObjPrefix());
+		target->generateObj();		
+		break;
+	case 1:
+		loc = target->GetActorLocation();
+		loc.Y += value;
+		target->SetActorLocation(loc);
+		break;
+	case 2:
+		rot = target->GetActorRotation();
+		rot.Roll += value;
+		target->SetActorRotation(rot);
+		break;
+	case 3:
+		target->generateObj(FVector(0,0,value));
+		break;
+	default:
+		break;
+	}
+
 }
 
 // Called when the game starts or when spawned
@@ -73,21 +96,26 @@ void AExScene::Tick(float DeltaTime)
 
 void AExScene::addObjByPath(FVector location, FRotator rotation, std::string path, std::string name)
 {
+	addObjByPath(location, rotation, path, name, FVector(0,0,0));	
+}
+
+void AExScene::addObjByPath(FVector location, FRotator rotation, std::string path, std::string name, FVector impulse)
+{
 	FString fpath(path.c_str());
 	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
 	if (obj != nullptr)
 	{
-			FActorSpawnParameters params;
-    		params.Name = name.c_str();
-    		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		FActorSpawnParameters params;
+		params.Name = name.c_str();
+		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
 		actor_body_storage elem;
 		elem.actor = spawned_obj;
 		elem.body = nullptr;
-		
-    		if (ExPhyzX)
-    		{
-    			elem.body = ExPhyzX->AddRigidBody(spawned_obj);
-    		}
+		if (ExPhyzX)
+		{
+			elem.body = ExPhyzX->AddRigidBody(spawned_obj);
+			elem.body->applyCentralImpulse( BulletHelpers::ToBtSize(rotation.RotateVector(impulse)));
+		}
 		SceneObjects.Add(elem);
 	}	
 }
