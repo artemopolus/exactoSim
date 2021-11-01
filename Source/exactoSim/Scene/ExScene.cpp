@@ -55,7 +55,7 @@ void AExScene::sendCmdToSelected(int type, float value)
 	{
 	case 0:
 		deleteSceneObjByPrefix(target->getGeneratedObjPrefix());
-		target->generateObj();		
+		//target->generateObj();		
 		break;
 	case 1:
 		loc = target->GetActorLocation();

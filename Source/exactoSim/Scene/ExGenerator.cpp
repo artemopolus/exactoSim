@@ -28,9 +28,21 @@ void AExGenerator::generateObj(FVector impulse)
 		FRotator my_rot = this->GetActorRotation();
 		//my	_loc.Y += 100;
 		const std::string name = GeneratedObjPrefix + std::to_string(GenObjectCount++);
-		const std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
+		static uint8_t i = 0;
+		i++;
+		std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
+		//if (i%2)
+			path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Thin.BP_ExSmplBox_Thin_C'";
+		//else if (i%3)
+		//	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Clmn.BP_ExSmplBox_Clmn_C'";
+		path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Sphere.BP_ExSmplBox_Sphere_C'";
+		std::string prefix = "Class'/Game/Blueprint/Scene/";
+		std::string basis = "BP_ExSmplBox_Complex";
+		std::string suffix = "_C'";
+		path = prefix + basis + "." + basis + suffix;
 		ParentScene->addObjByPath(my_loc, my_rot, path, name, impulse);
-	}}
+	}
+}
 
 void AExGenerator::setGeneratedObjPrefix(std::string name)
 {

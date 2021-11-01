@@ -24,14 +24,16 @@ void AExSimPlayer::activateDifFunction()
 	DataStorage->registerCmdToSelected(3,StartImpulse);
 }
 
-void AExSimPlayer::moveRight() 
+void AExSimPlayer::moveRight(float value) 
 {
-	DataStorage->registerCmdToSelected(1, MoveHorizontalStepSz);
+	if (value != 0.f)
+		DataStorage->registerCmdToSelected(1, MoveHorizontalStepSz);
 }
 
-void AExSimPlayer::moveLeft() 
+void AExSimPlayer::moveLeft(float value) 
 {
-	DataStorage->registerCmdToSelected(1,-MoveHorizontalStepSz);
+	if (value != 0.f)
+		DataStorage->registerCmdToSelected(1,-MoveHorizontalStepSz);
 }
 
 void AExSimPlayer::rotateUp() 
@@ -72,8 +74,12 @@ void AExSimPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	InputComponent->BindAction("activateFunction", IE_Pressed, this, &AExSimPlayer::activateFunction);
 	InputComponent->BindAction("activateDifFunction", IE_Pressed, this, &AExSimPlayer::activateDifFunction);
-	InputComponent->BindAction("moveRight",IE_Pressed, this, &AExSimPlayer::moveRight);
-	InputComponent->BindAction("moveLeft",IE_Pressed, this, &AExSimPlayer::moveLeft);
+	//InputComponent->BindAction("moveRight",IE_Pressed, this, &AExSimPlayer::moveRight);
+	//InputComponent->BindAction("moveLeft",IE_Pressed, this, &AExSimPlayer::moveLeft);
+
+	InputComponent->BindAxis("moveRight", this, &AExSimPlayer::moveRight);
+	InputComponent->BindAxis("moveLeft", this, &AExSimPlayer::moveLeft);
+	
 	InputComponent->BindAction("rotateUp",IE_Pressed, this, &AExSimPlayer::rotateUp);
 	InputComponent->BindAction("rotateDown",IE_Pressed, this, &AExSimPlayer::rotateDown);
 	

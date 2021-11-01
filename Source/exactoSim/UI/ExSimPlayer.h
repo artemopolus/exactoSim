@@ -18,8 +18,8 @@ public:
 
 	void activateFunction() ;
 	void activateDifFunction() ;
-	void moveRight() ;
-	void moveLeft() ;
+	void moveRight(float value) ;
+	void moveLeft(float value) ;
 	void rotateUp() ;
 	void rotateDown() ;
 
