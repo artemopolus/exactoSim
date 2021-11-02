@@ -36,10 +36,14 @@ void AExGenerator::generateObj(FVector impulse)
 		//else if (i%3)
 		//	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Clmn.BP_ExSmplBox_Clmn_C'";
 		path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Sphere.BP_ExSmplBox_Sphere_C'";
-		std::string prefix = "Class'/Game/Blueprint/Scene/";
+		const std::string prefix = "Class'/Game/Blueprint/";
+		std::string folder_path = "Scene/";
 		std::string basis = "BP_ExSmplBox_Complex";
-		std::string suffix = "_C'";
-		path = prefix + basis + "." + basis + suffix;
+		const std::string suffix = "_C'";
+		basis = "BP_ExSmplBox_Shoes";
+		basis = "BP_ExSmplBox_Book";
+		basis = "BP_ExSmplBox_Folder";
+		path = prefix + folder_path + basis + "." + basis + suffix;
 		ParentScene->addObjByPath(my_loc, my_rot, path, name, impulse);
 	}
 }
