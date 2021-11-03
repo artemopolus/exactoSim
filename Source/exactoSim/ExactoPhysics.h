@@ -14,6 +14,7 @@
 #include "BulletSpec/BulletCustomMotionState.h"
 #include "BulletSpec/BulletDebugDraw.h"
 #include "BulletSpec/BulletDynamicComponent.h"
+#include "Scene/ExCollideResult.h"
 #include "ExactoPhysics.generated.h"
 
 UCLASS()
@@ -73,6 +74,10 @@ public:	//variables
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bullet Physics|Options")
 		bool bPhysicsShowDebug = false;
 	// I chose not to use spinning / rolling friction in the end since it had issues!
+private:
+	//ExCollideResult * TestCollider = nullptr;
+	ExCollideResult * cbbbb = nullptr;
+	ExSensorData OutputData;
 public: //functions
 	// Sets default values for this actor's properties
 	AExactoPhysics();

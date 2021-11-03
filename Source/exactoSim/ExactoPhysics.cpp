@@ -121,6 +121,17 @@ void AExactoPhysics::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	btDispatcher * dp = BtWorld->getDispatcher();
+	const int num_man = dp->getNumManifolds();
+	for (int m = 0; m < num_man; m++)
+	{
+		btPersistentManifold* man = dp->getManifoldByIndexInternal( m );
+		const int numc = man->getNumContacts();
+		if (numc > 0)
+		{
+			__nop();
+		}
+	}
 	StepPhysics(DeltaTime);
 }
 
@@ -146,8 +157,21 @@ btCollisionObject* AExactoPhysics::AddStaticCollision(btCollisionShape* Shape, c
 	Obj->setFriction(Friction);
 	Obj->setRestitution(Restitution);
 	Obj->setUserPointer(Actor);
+
+	Obj->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+	
 	BtWorld->addCollisionObject(Obj);
 	BtStaticObjects.Add(Obj);
+	//if (TestCollider == nullptr)
+	{
+	//	TestCollider = new ExCollideResult(&OutputData);
+		int flag = Obj->getCollisionFlags();
+		flag |= btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK;
+		Obj->setCollisionFlags(flag);
+		ExCollideResult TestCollider(&OutputData);
+		TestCollider.m_closestDistanceThreshold = 10;
+		BtWorld->contactTest(Obj,TestCollider);
+	}
 	return Obj;
 }
 
@@ -439,9 +463,15 @@ btRigidBody* AExactoPhysics::AddRigidBody(AActor* Actor, btCollisionShape* Colli
 	const btRigidBody::btRigidBodyConstructionInfo rbInfo(Mass, MotionState, CollisionShape, Inertia);
 	btRigidBody* Body = new btRigidBody(rbInfo);
 	Body->setUserPointer(Actor);
-	BtWorld->addRigidBody(Body);
-	BtRigidBodies.Add(Body);
+	Body->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT|btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	BtWorld->addRigidBody(Body,btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);
 
+
+	BtRigidBodies.Add(Body);
+	cbbbb = new ExCollideResult(&OutputData);
+	btCollisionObject * a = BtStaticObjects[0];
+	btCollisionObject * b = BtRigidBodies[0];
+	BtWorld->contactPairTest(a,b,*cbbbb);
 	return Body;
 }
 

@@ -51,4 +51,5 @@ private:
 		}
 	};
 	TArray<actor_body_storage> SceneObjects;
+
 };
