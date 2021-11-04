@@ -127,8 +127,22 @@ void AExactoPhysics::Tick(float DeltaTime)
 	{
 		btPersistentManifold* man = dp->getManifoldByIndexInternal( m );
 		const int numc = man->getNumContacts();
-		if (numc > 0)
+		const btRigidBody* body_a = static_cast<const btRigidBody*>(man->getBody0());
+		const btRigidBody * body_b = static_cast<const btRigidBody*> (man->getBody1());
+		const btRigidBody* trg = nullptr;
+		if (body_a == BtStaticObjects[0])
+			trg = body_a;
+		else if (body_b == BtStaticObjects[0])
+			trg = body_b;
+		if ((numc > 0)&&(trg != nullptr))
 		{
+			for (int c = 0; c < numc; ++c)
+			{
+				btManifoldPoint pt = man->getContactPoint(c);
+				btVector3 r =  pt.getPositionWorldOnA();
+				UE_LOG(LogTemp, Warning, TEXT("Text, %f %f %f"), r.x() , r.y(), r.z()  );
+				//здесь мы загружаем данные от датчиков и так далее
+			}
 			__nop();
 		}
 	}
@@ -165,12 +179,14 @@ btCollisionObject* AExactoPhysics::AddStaticCollision(btCollisionShape* Shape, c
 	//if (TestCollider == nullptr)
 	{
 	//	TestCollider = new ExCollideResult(&OutputData);
+		/*
 		int flag = Obj->getCollisionFlags();
 		flag |= btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK;
 		Obj->setCollisionFlags(flag);
 		ExCollideResult TestCollider(&OutputData);
-		TestCollider.m_closestDistanceThreshold = 10;
+		TestCollider.m_closestDistanceThreshold = 1;
 		BtWorld->contactTest(Obj,TestCollider);
+		*/
 	}
 	return Obj;
 }
@@ -468,10 +484,11 @@ btRigidBody* AExactoPhysics::AddRigidBody(AActor* Actor, btCollisionShape* Colli
 
 
 	BtRigidBodies.Add(Body);
-	cbbbb = new ExCollideResult(&OutputData);
+	/*cbbbb = new ExCollideResult(&OutputData);
+	cbbbb->m_closestDistanceThreshold = 0.1f;
 	btCollisionObject * a = BtStaticObjects[0];
 	btCollisionObject * b = BtRigidBodies[0];
-	BtWorld->contactPairTest(a,b,*cbbbb);
+	BtWorld->contactPairTest(a,b,*cbbbb);*/
 	return Body;
 }
 
