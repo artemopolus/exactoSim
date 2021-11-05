@@ -19,6 +19,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExScene * CurrentScene;
 
+	enum exsim_genobj_type
+	{
+		EXGT_SMPL = 0,
+		EXGT_SPHERE,
+		EXGT_ROCK_SMALL,
+		EXGT_ROCK_BIG,
+		EXGT_TREE_STICK,
+		EXGT_SHOE,
+
+		EXGT_END
+	};
+	enum exsim_cmd_type
+	{
+		EXCT_CREATE = 0,
+		EXCT_MOVE,
+		EXCT_ROTATE,
+		EXCT_DELETE,
+		EXCT_SWITCH
+	};
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -32,4 +52,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void registerCmdToSelected(int type, float value);
+
+	void registerExtendedCmd(int type, int value);
+
+	TMap<int, std::string> GenObjType;
+	
 };

@@ -3,6 +3,7 @@
 
 #include "ExSimMainWidget.h"
 
+#include "Components/Button.h"
 #include "Components/TextBlock.h"
 
 void UExSimMainWidget::NativeConstruct()
@@ -72,6 +73,8 @@ void UExSimMainWidget::testDrawFunction()
 }
 
 
+
+
 void UExSimMainWidget::setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha)
 {
 	*pointer = blue; //b
@@ -86,13 +89,65 @@ void UExSimMainWidget::drawPtOnCanvas(int32 x, int32 y, uint8 red, uint8 green, 
 	setPixelColor(canvasPxPtr, red, green, blue, alpha);
 }
 
-bool UExSimMainWidget::Initialize()
+void UExSimMainWidget::updateDebugText(const std::string str)
 {
 	if (DebugText)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Debug text is inited"));
-
-		DebugText->SetText(FText::FromString("Debug info:"));
+		const std::string output = std::string("Debug info: ") + str;
+		DebugText->SetText(FText::FromString(output.c_str()));
 	}
+}
+
+void UExSimMainWidget::updateSwitchObjText(const std::string str)
+{
+	if (SwitchObjText)
+	{
+		SwitchObjText->SetText(FText::FromString(str.c_str()));
+	}
+}
+
+void UExSimMainWidget::updateSwitchObjText(const FString str)
+{
+	if (SwitchObjText)
+	{
+		SwitchObjText->SetText(FText::FromString(str));
+	}
+}
+
+void UExSimMainWidget::onSwitchObjButtonClicked()
+{
+	std::string * str = nullptr;
+	while(str == nullptr)
+	{
+		str = DataStorage->GenObjType.Find(++GenObjKey);
+		if (GenObjKey >= AExSimStorage::exsim_genobj_type::EXGT_END)
+			GenObjKey = -1;
+	}
+	updateSwitchObjText(*str);
+	if (DataStorage)
+		DataStorage->registerExtendedCmd(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, GenObjKey);
+		//DataStorage->registerCmdToSelected(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, static_cast<float>(GenObjKey - 1));
+}
+
+bool UExSimMainWidget::Initialize()
+{
+	updateDebugText(std::string("test"));	
+	/*if (DebugText)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Debug text is inited"));
+		std::string str = "Debug Info";
+		DebugText->SetText(FText::FromString(str.c_str()));
+	}*/
+	if (SwitchObjButton)
+		SwitchObjButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onSwitchObjButtonClicked);
+	
+	//this->GetOwningPlayer()->Player->GetPlayerController(this->GetWorld())->bShowMouseCursor = true;
+
+	if (DataStorage)
+	{
+		std::string * str = DataStorage->GenObjType.Find(GenObjKey++);
+		updateSwitchObjText(*str);
+	}
+	
 	return Super::Initialize();
 }

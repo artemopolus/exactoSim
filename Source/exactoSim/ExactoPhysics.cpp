@@ -140,7 +140,7 @@ void AExactoPhysics::Tick(float DeltaTime)
 			{
 				btManifoldPoint pt = man->getContactPoint(c);
 				btVector3 r =  pt.getPositionWorldOnA();
-				UE_LOG(LogTemp, Warning, TEXT("Text, %f %f %f"), r.x() , r.y(), r.z()  );
+				//UE_LOG(LogTemp, Warning, TEXT("Text, %f %f %f"), r.x() , r.y(), r.z()  );
 				//здесь мы загружаем данные от датчиков и так далее
 			}
 			__nop();

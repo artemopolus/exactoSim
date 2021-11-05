@@ -19,6 +19,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExactoPhysics * ExPhyzX;
 
+	struct actor_cmd
+	{
+		int value_int;
+		float value_float;
+		std::string value_str;
+	};
+	
 	AExScene();
 
 	UFUNCTION(BlueprintCallable)
@@ -27,6 +34,8 @@ public:
 		void addGenerator(FVector location, FRotator rotation);
 	UFUNCTION(BlueprintCallable)
 		void sendCmdToSelected(int type, float value);
+
+	void sendExtendedCmdToSelected( actor_cmd cmd);
 
 protected:
 	// Called when the game starts or when spawned
@@ -41,6 +50,9 @@ public:
 	void deleteSceneObjByPrefix(std::string prefix);	
 	
 private:
+	int ValueInt;
+	float ValueFloat;
+	std::string ValueStr;
 	struct actor_body_storage
 	{
 		AActor * actor;
@@ -51,5 +63,27 @@ private:
 		}
 	};
 	TArray<actor_body_storage> SceneObjects;
+public:
+	struct actor_info
+	{
+		std::string name;
+		std::string name_prefix;
+		bool enabled;
+		std::string prefix;
+		std::string folder;
+		int genobjcnt;
+		std::string genobjname;
+		actor_info & operator = ( const actor_info & right)
+		{
+			this->name = right.name;
+			this->enabled = right.enabled;
+			this->prefix = right.prefix;
+			this->folder = right.folder;
+			this->prefix = right.prefix;
+			return *this;
+		}
+	};
+
+
 
 };

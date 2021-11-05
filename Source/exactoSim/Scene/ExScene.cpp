@@ -5,6 +5,7 @@
 #include <string>
 
 #include "ExGenerator.h"
+#include "exactoSim/Common/ExSimStorage.h"
 
 
 // Sets default values
@@ -37,7 +38,6 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
 		elem.body = nullptr;
 		if (ExPhyzX)
 		{
-			spawned_obj->ExPhyzX = ExPhyzX;
 			spawned_obj->ParentScene = this;
 			//spawned_obj->generateObj();
 		}
@@ -51,6 +51,9 @@ void AExScene::sendCmdToSelected(int type, float value)
 	FVector loc;
 	FRotator rot;
 	AExGenerator * target = static_cast<AExGenerator*>(SceneObjects[1].actor);
+
+	int value_int = value;
+	
 	switch (type)
 	{
 	case 0:
@@ -70,10 +73,28 @@ void AExScene::sendCmdToSelected(int type, float value)
 	case 3:
 		target->generateObj(FVector(0,0,value));
 		break;
+	case AExSimStorage::exsim_cmd_type::EXCT_SWITCH:
+		UE_LOG(LogTemp, Warning, TEXT("Switch to object number: %d "), value_int  );
+		break;
 	default:
 		break;
 	}
 
+}
+
+void AExScene::sendExtendedCmdToSelected(actor_cmd cmd)
+{
+
+	AExGenerator * target = static_cast<AExGenerator*> (SceneObjects[1].actor);
+	switch (cmd.value_int)
+	{
+	case AExSimStorage::exsim_cmd_type::EXCT_SWITCH:
+		UE_LOG(LogTemp, Warning, TEXT("Switch to object number: %s "), *FString(cmd.value_str.c_str() ) );
+		target->setGenObjInfo(cmd.value_str);
+		break;
+	default:
+		break;		
+	}
 }
 
 // Called when the game starts or when spawned

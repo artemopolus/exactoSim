@@ -3,8 +3,10 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "exactoSim/Common/ExSimStorage.h"
 
 #include "ExSimMainWidget.generated.h"
 
@@ -26,11 +28,15 @@ public:
 		void clearCanvas();
 	UFUNCTION(BlueprintCallable, Category = DrawingTools)
 		void testDrawFunction();
+	UFUNCTION()
+		void onSwitchObjButtonClicked();
 
 private:
 	void setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha);
 	void drawPtOnCanvas(int32 x, int32 y, uint8 red, uint8 green, uint8 blue, uint8 alpha);
-	
+	void updateDebugText(const std::string str);
+	void updateSwitchObjText(const std::string str);
+	void updateSwitchObjText(const FString str);
 protected:
 	bool Initialize() override;
 public:
@@ -39,6 +45,14 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UTexture2D * RawDataOutput;
+	
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * SwitchObjButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		class UTextBlock * SwitchObjText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		AExSimStorage * DataStorage;
 private:
 	std::unique_ptr<uint8[]> CanvasPixelData;
 	int CanvasWidth;
@@ -50,5 +64,6 @@ private:
 	std::unique_ptr<FUpdateTextureRegion2D> EchoUpdateTextureRegion;
 	std::unique_ptr<uint8[]> canvasBrushMask;
 	int radius;
-	int brushBufferSize;	
+	int brushBufferSize;
+	int GenObjKey = 0;
 };
