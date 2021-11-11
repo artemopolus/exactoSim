@@ -102,11 +102,9 @@ void AExScene::BeginPlay()
 {
 	Super::BeginPlay();
 	//create object
-	FVector location(0,50,100);
 	FRotator rotation(0,0,0);
-	addSmplTestObject(location, rotation);
-	location.Z = 400; 
-	addGenerator(location, rotation);
+	addSmplTestObject(SpawnObjectLoc, rotation);
+	addGenerator(SpawnGeneratorLoc, rotation);
 }
 
 // Called every frame
