@@ -5,7 +5,8 @@
 
 UUDPNetworkingWrapper* UUDPNetworkingWrapper::Constructor()
 {
-    return (UUDPNetworkingWrapper*)StaticConstructObject_Internal(UUDPNetworkingWrapper::StaticClass());
+    //return (UUDPNetworkingWrapper*)StaticConstructObject_Internal(UUDPNetworkingWrapper::StaticClass());
+    return NewObject<UUDPNetworkingWrapper>(UUDPNetworkingWrapper::StaticClass());
 }
 
 UUDPNetworkingWrapper* UUDPNetworkingWrapper::ConstructUDPWrapper(const FString& Description, const FString& SenderSocketName, const FString& TheIP, const int32 ThePort, const int32 BufferSize,

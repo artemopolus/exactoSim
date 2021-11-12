@@ -11,7 +11,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class EXACTOSIM_API UUDPNetworkingWrapper : public UObject
 {
 	GENERATED_BODY()
