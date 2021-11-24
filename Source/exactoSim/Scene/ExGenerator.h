@@ -18,8 +18,8 @@ class EXACTOSIM_API AExGenerator : public AActor
 public:
 	AExGenerator();
 
-	void generateObj();
-	void generateObj(FVector impulse);
+	virtual void generateObj();
+	virtual void generateObj(FVector impulse);
 	void setGeneratedObjPrefix(std::string name);
 	std::string getGeneratedObjPrefix();
 	void setGenObjInfo(AExScene::actor_info info);
