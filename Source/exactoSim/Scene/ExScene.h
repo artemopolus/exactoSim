@@ -36,6 +36,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void addGenerator(FVector location, FRotator rotation);
 	UFUNCTION(BlueprintCallable)
+		void addCarGen(FVector location, FRotator rotation);
+	UFUNCTION(BlueprintCallable)
 		void sendCmdToSelected(int type, float value);
 
 	void sendExtendedCmdToSelected( actor_cmd cmd);

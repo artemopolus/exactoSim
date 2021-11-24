@@ -6,6 +6,7 @@
 
 #include "ExGenerator.h"
 #include "exactoSim/Common/ExSimStorage.h"
+#include "Generators/CarGenerator.h"
 
 
 // Sets default values
@@ -43,6 +44,27 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
 		}
 		SceneObjects.Add(elem);
     
+	}
+}
+
+void AExScene::addCarGen(FVector location, FRotator rotation)
+{
+	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExGenerator.BP_ExGenerator_C'";
+	FString fpath(path.c_str());
+	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
+	if (obj != nullptr)
+	{
+		FActorSpawnParameters params;
+   		params.Name = "TestCarGenerator";
+   		ACarGenerator *spawned_obj = static_cast<ACarGenerator*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		actor_body_storage elem;
+		elem.actor = spawned_obj;
+		elem.body = nullptr;
+		if (ExPhyzX)
+		{
+			spawned_obj->ParentScene = this;
+		}
+		SceneObjects.Add(elem);
 	}
 }
 
