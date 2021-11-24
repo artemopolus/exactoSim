@@ -47,26 +47,7 @@ void AExScene::addGenerator(FVector location, FRotator rotation)
 	}
 }
 
-void AExScene::addCarGen(FVector location, FRotator rotation)
-{
-	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExGenerator.BP_ExGenerator_C'";
-	FString fpath(path.c_str());
-	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
-	if (obj != nullptr)
-	{
-		FActorSpawnParameters params;
-   		params.Name = "TestCarGenerator";
-   		ACarGenerator *spawned_obj = static_cast<ACarGenerator*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		actor_body_storage elem;
-		elem.actor = spawned_obj;
-		elem.body = nullptr;
-		if (ExPhyzX)
-		{
-			spawned_obj->ParentScene = this;
-		}
-		SceneObjects.Add(elem);
-	}
-}
+
 
 void AExScene::sendCmdToSelected(int type, float value)
 {
@@ -123,10 +104,13 @@ void AExScene::sendExtendedCmdToSelected(actor_cmd cmd)
 void AExScene::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Screen Message"));
 	//create object
 	FRotator rotation(0,0,0);
-	addSmplTestObject(SpawnObjectLoc, rotation);
-	addGenerator(SpawnGeneratorLoc, rotation);
+	//addSmplTestObject(SpawnObjectLoc, rotation);
+	//addGenerator(SpawnGeneratorLoc, rotation);
+	addCarGen(SpawnGeneratorLoc, rotation);
 }
 
 // Called every frame
@@ -160,7 +144,10 @@ void AExScene::addObjByPath(FVector location, FRotator rotation, std::string pat
 		SceneObjects.Add(elem);
 	}	
 }
+void AExScene::addCarGen(FVector location, FRotator rotation)
+{
 
+}
 void AExScene::deleteSceneObjByPrefix(std::string prefix)
 {
 	for (int32 i = 0; i < SceneObjects.Num(); i++)
@@ -175,5 +162,35 @@ void AExScene::deleteSceneObjByPrefix(std::string prefix)
 			break;
 		}		
 	}
+}
+
+void AExScene::generateCar()
+{
+	FActorSpawnParameters params;
+	FVector location(0,0,0);
+	FRotator rotation(0,0,0);
+	const std::string suffix = "_C'";
+	const std::string prefix = "Class'/Game/Blueprint/Scene/";
+	const std::string name_basis = "BP_ExSmplBox_";
+	std::string name_trg = "Simple";
+
+	std::string path = prefix + name_basis + name_trg + "." + name_basis + name_trg + suffix;
+	FString fpath(path.c_str());
+	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
+
+	TArray<AExactoPhysics::ConnectedBodies> system;
+	AExactoPhysics::ConnectedBodies elem;
+	if (obj != nullptr)
+	{
+		params.Name = "CarBasic";
+		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		elem.target = spawned_obj;
+		elem.parent = nullptr;
+		elem.trg_body = nullptr;
+	}
+	system.Add(elem);
+	name_trg = "Cylinder";
+	path = prefix + name_basis + name_trg + "." + name_basis + name_trg + suffix;
+	fpath = path.c_str();
 }
 

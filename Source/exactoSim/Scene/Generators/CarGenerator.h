@@ -16,6 +16,7 @@ public:
 	// Sets default values for this actor's properties
 	ACarGenerator();
 	virtual void generateObj() override;
+	virtual void generateObj(FVector impulse) override;
 
 protected:
 	// Called when the game starts or when spawned

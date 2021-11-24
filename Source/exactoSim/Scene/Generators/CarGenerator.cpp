@@ -13,7 +13,10 @@ ACarGenerator::ACarGenerator()
 
 void ACarGenerator::generateObj()
 {
-	Super::generateObj();
+}
+
+void ACarGenerator::generateObj(FVector impulse)
+{
 }
 
 // Called when the game starts or when spawned

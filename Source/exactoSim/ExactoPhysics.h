@@ -23,6 +23,14 @@ class EXACTOSIM_API AExactoPhysics : public AActor
 	GENERATED_BODY()
 	
 public:	//variables
+	//struct for body constructor
+	struct ConnectedBodies
+	{
+		AActor * target;
+		AActor * parent;
+		btRigidBody * trg_body;
+	};
+	
 	// Global objects
 	btCollisionConfiguration* BtCollisionConfig;
 	btCollisionDispatcher* BtCollisionDispatcher;
@@ -114,6 +122,8 @@ public:
 	btRigidBody* AddRigidBody(AActor* Actor);
 	btRigidBody* AddRigidBody(AActor* Actor, const CachedDynamicShapeData& ShapeData, float Friction, float Restitution);
 	btRigidBody* AddRigidBody(AActor* Actor, btCollisionShape* CollisionShape, btVector3 Inertia, float Mass, float Friction, float Restitution);
+
+	void AddComplexBody(TArray<ConnectedBodies> system);
 
 	void removeRigidBody(btRigidBody * body);
 };

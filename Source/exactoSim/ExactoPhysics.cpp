@@ -492,6 +492,43 @@ btRigidBody* AExactoPhysics::AddRigidBody(AActor* Actor, btCollisionShape* Colli
 	return Body;
 }
 
+void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
+{
+	//create all
+	TArray<btRigidBody*> body_list;
+	for (auto& component : system)
+	{
+		if (component.target != nullptr)
+		{
+			btRigidBody * one_body =  AddRigidBody(component.target);
+			body_list.Add(one_body);
+			component.trg_body = one_body;
+		}
+	}
+	//connect using list
+	for (const auto& component : system)
+	{
+		if (component.parent != nullptr)
+		{
+			for (auto & body : body_list)
+			{
+				AActor * actor = static_cast<AActor*>(body->getUserPointer());
+				if (actor == component.parent)
+				{
+					btVector3 parent_axis(0.f, 1.f, 0.f);
+					btVector3 child_axis(1.f, 0.f, 0.f);
+					btVector3 anchor(-20.f, 0.f, 0.f);
+					btHinge2Constraint* p_hinge2 = new btHinge2Constraint(*component.trg_body, *body, anchor, parent_axis, child_axis);
+					p_hinge2->setLowerLimit(-SIMD_PI);
+					p_hinge2->setUpperLimit(SIMD_PI);
+					BtWorld->addConstraint(p_hinge2);
+					p_hinge2->setDbgDrawSize(btScalar(5.f));
+				}
+			}
+		}
+	}
+}
+
 void AExactoPhysics::removeRigidBody(btRigidBody* body)
 {
 	BtWorld->removeRigidBody(body);

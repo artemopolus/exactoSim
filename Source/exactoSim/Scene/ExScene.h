@@ -52,7 +52,9 @@ public:
 	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name);
 	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name, FVector impulse);
 
-	void deleteSceneObjByPrefix(std::string prefix);	
+	void deleteSceneObjByPrefix(std::string prefix);
+
+	void generateCar();
 	
 private:
 	int ValueInt;
