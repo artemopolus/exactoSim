@@ -110,7 +110,8 @@ void AExScene::BeginPlay()
 	FRotator rotation(0,0,0);
 	//addSmplTestObject(SpawnObjectLoc, rotation);
 	//addGenerator(SpawnGeneratorLoc, rotation);
-	addCarGen(SpawnGeneratorLoc, rotation);
+	//addCarGen(SpawnGeneratorLoc, rotation);
+	generateCar();
 }
 
 // Called every frame
@@ -166,9 +167,10 @@ void AExScene::deleteSceneObjByPrefix(std::string prefix)
 
 void AExScene::generateCar()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Generate car"));
 	FActorSpawnParameters params;
-	FVector location(0,0,0);
-	FRotator rotation(0,0,0);
+	FVector location(0,0,150);
+	FRotator rotation(0,0,90);
 	const std::string suffix = "_C'";
 	const std::string prefix = "Class'/Game/Blueprint/Scene/";
 	const std::string name_basis = "BP_ExSmplBox_";
@@ -180,10 +182,12 @@ void AExScene::generateCar()
 
 	TArray<AExactoPhysics::ConnectedBodies> system;
 	AExactoPhysics::ConnectedBodies elem;
+	APawn * car_parent = nullptr;
 	if (obj != nullptr)
 	{
 		params.Name = "CarBasic";
 		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		car_parent = spawned_obj;
 		elem.target = spawned_obj;
 		elem.parent = nullptr;
 		elem.trg_body = nullptr;
@@ -192,5 +196,26 @@ void AExScene::generateCar()
 	name_trg = "Cylinder";
 	path = prefix + name_basis + name_trg + "." + name_basis + name_trg + suffix;
 	fpath = path.c_str();
+	if ((obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath)) != nullptr)
+	{
+		params.Name = "CarWheel0";
+		location.Y = -100;
+		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		elem.target = spawned_obj;
+		elem.parent = car_parent;
+		elem.trg_body = nullptr;
+	}
+	system.Add(elem);
+	if ((obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath)) != nullptr)
+	{
+		params.Name = "CarWheel1";
+		location.Y = 100;
+		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		elem.target = spawned_obj;
+		elem.parent = car_parent;
+		elem.trg_body = nullptr;
+	}
+	system.Add(elem);
+	ExPhyzX->AddComplexBody(system);
 }
 

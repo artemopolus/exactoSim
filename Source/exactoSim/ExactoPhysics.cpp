@@ -496,11 +496,13 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
 {
 	//create all
 	TArray<btRigidBody*> body_list;
+	TArray<btTypedConstraint*> const_list;
 	for (auto& component : system)
 	{
 		if (component.target != nullptr)
 		{
 			btRigidBody * one_body =  AddRigidBody(component.target);
+			one_body->setActivationState(DISABLE_DEACTIVATION);
 			body_list.Add(one_body);
 			component.trg_body = one_body;
 		}
@@ -512,17 +514,23 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
 		{
 			for (auto & body : body_list)
 			{
-				AActor * actor = static_cast<AActor*>(body->getUserPointer());
-				if (actor == component.parent)
+				AActor * parent = static_cast<AActor*>(body->getUserPointer());
+				AActor * child = static_cast<AActor*>(component.trg_body->getUserPointer());
+				if (parent == component.parent)
 				{
-					btVector3 parent_axis(0.f, 1.f, 0.f);
-					btVector3 child_axis(1.f, 0.f, 0.f);
-					btVector3 anchor(-20.f, 0.f, 0.f);
-					btHinge2Constraint* p_hinge2 = new btHinge2Constraint(*component.trg_body, *body, anchor, parent_axis, child_axis);
+					FString name_trg = child->GetName();
+					FString name_par = parent->GetName();
+					FString result = TEXT("Connect ") + name_trg + TEXT(" to ") + name_par;
+					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, result);
+					btVector3 parent_axis(0.f, 0.f, 1.f);
+					btVector3 child_axis(0.f, 1.f, 0.f);
+					btVector3 anchor(0.f, 0.f, 500.f);
+					btHinge2Constraint* p_hinge2 = new btHinge2Constraint(*body, *component.trg_body,  anchor, parent_axis, child_axis);
 					p_hinge2->setLowerLimit(-SIMD_PI);
 					p_hinge2->setUpperLimit(SIMD_PI);
 					BtWorld->addConstraint(p_hinge2);
 					p_hinge2->setDbgDrawSize(btScalar(5.f));
+					const_list.Add(p_hinge2);
 				}
 			}
 		}
