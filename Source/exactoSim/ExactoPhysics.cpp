@@ -522,12 +522,12 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
 					FString name_par = parent->GetName();
 					FString result = TEXT("Connect ") + name_trg + TEXT(" to ") + name_par;
 					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, result);
-					btVector3 parent_axis(0.f, 0.f, 1.f);
-					btVector3 child_axis(0.f, 1.f, 0.f);
-					btVector3 anchor(0.f, 0.f, 500.f);
-					btHinge2Constraint* p_hinge2 = new btHinge2Constraint(*body, *component.trg_body,  anchor, parent_axis, child_axis);
-					p_hinge2->setLowerLimit(-SIMD_PI);
-					p_hinge2->setUpperLimit(SIMD_PI);
+
+					btVector3 axisA = BulletHelpers::ToBtSize(component.axis_p);
+					btVector3 axisB = BulletHelpers::ToBtSize(component.axis_t);
+					btVector3 pivotA = BulletHelpers::ToBtSize(component.pivot_p);
+					btVector3 pivotB = BulletHelpers::ToBtSize(component.pivot_t);
+					btHingeConstraint* p_hinge2 = new btHingeConstraint(*body, *component.trg_body, pivotA, pivotB, axisA, axisB);
 					BtWorld->addConstraint(p_hinge2);
 					p_hinge2->setDbgDrawSize(btScalar(5.f));
 					const_list.Add(p_hinge2);
@@ -535,6 +535,10 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
 			}
 		}
 	}
+	btHingeConstraint * constr0 = static_cast<btHingeConstraint*>(const_list[0]);
+	constr0->enableAngularMotor(true, -1.f, 1.65f);
+	btHingeConstraint * constr1 = static_cast<btHingeConstraint*>(const_list[1]);
+	constr1->setLimit(0.f,0.f);
 }
 
 void AExactoPhysics::removeRigidBody(btRigidBody* body)

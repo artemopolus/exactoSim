@@ -29,6 +29,10 @@ public:	//variables
 		AActor * target;
 		AActor * parent;
 		btRigidBody * trg_body;
+		FVector axis_t;
+		FVector axis_p;
+		FVector pivot_t;
+		FVector pivot_p;
 	};
 	
 	// Global objects

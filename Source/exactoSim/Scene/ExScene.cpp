@@ -204,6 +204,14 @@ void AExScene::generateCar()
 		elem.target = spawned_obj;
 		elem.parent = car_parent;
 		elem.trg_body = nullptr;
+							/*btVector3 axisA(0.f, 0.f, 1.f);
+        					btVector3 axisB(0.f, 0.f, 1.f);
+        					btVector3 pivotA(-0.0f, -0.0f, -0.5f);
+        					btVector3 pivotB(0.f, 0.f, 0.f);*/
+		elem.axis_p =  FVector(0.f, 0.f, 100.f);
+		elem.axis_t =  FVector(0.f, 0.f, 100.f);
+		elem.pivot_p = FVector(0.f, 0.f, -50.0f);
+		elem.pivot_t = FVector(0.0f, 0.0f, 0.0f);
 	}
 	system.Add(elem);
 	if ((obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath)) != nullptr)
@@ -214,7 +222,10 @@ void AExScene::generateCar()
 		elem.target = spawned_obj;
 		elem.parent = car_parent;
 		elem.trg_body = nullptr;
-	}
+		elem.axis_p =  FVector(0.f, 0.f, 100.f);
+		elem.axis_t =  FVector(0.f, 0.f, 100.f);
+		elem.pivot_p = FVector(0.f, 0.f, 50.0f);
+		elem.pivot_t = FVector(0.0f, 0.0f, 0.0f);	}
 	system.Add(elem);
 	ExPhyzX->AddComplexBody(system);
 }
