@@ -56,8 +56,10 @@ public:
 	void deleteSceneObjByPrefix(std::string prefix);
 
 	void generateCar();
-
+	void removeCar();
+	
 	void removeConstrain();
+	
 	
 private:
 	int ValueInt;
@@ -74,6 +76,14 @@ private:
 	};
 	TArray<actor_body_storage> SceneObjects;
 	TArray<TArray<AExactoPhysics::ConnectedBodies>> SystemsList;	
+	enum stage
+	{
+		NONE,
+		BREAK,
+		REMOVE
+	};
+	stage CurrentStage = stage::NONE;
+	float Time = 0;
 public:
 	struct actor_info
 	{
@@ -94,6 +104,7 @@ public:
 			return *this;
 		}
 	};
+
 
 
 

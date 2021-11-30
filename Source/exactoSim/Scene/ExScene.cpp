@@ -83,6 +83,7 @@ void AExScene::sendCmdToSelected(int type, float value)
 	case 3:
 		if (target != nullptr)
 		target->generateObj(FVector(0,0,value));
+		removeCar();
 		break;
 	case AExSimStorage::exsim_cmd_type::EXCT_SWITCH:
 		UE_LOG(LogTemp, Warning, TEXT("Switch to object number: %d "), value_int  );
@@ -306,6 +307,25 @@ void AExScene::generateCar()
 
 }
 
+void AExScene::removeCar()
+{
+	for (int i = 0; i < SystemsList.Num(); i++)
+	{
+		auto & system = SystemsList[i];
+		UE_LOG(LogTemp, Warning, TEXT("System components :  %d "),  system.Num()  );
+		for(int j = 0; j < system.Num(); j++)
+		{
+			auto & component = system[j];
+			ExPhyzX->removeRigidBody(component.trg_body);
+			component.target->Destroy();
+			component.parent = nullptr;
+			UE_LOG(LogTemp, Warning, TEXT("Remove : %s == %d "), *component.name_t, j  );
+		}
+		system.Empty();
+	}
+	SystemsList.Empty();
+}
+
 void AExScene::removeConstrain()
 {
 	for (auto & system : SystemsList)
@@ -313,7 +333,10 @@ void AExScene::removeConstrain()
 		for (auto & component : system)
 		{
 			if (component.trg_constr != nullptr)
+			{
 				ExPhyzX->removeConstrain(component.trg_constr);
+				component.trg_constr = nullptr;
+			}
 		}
 	}
 }
