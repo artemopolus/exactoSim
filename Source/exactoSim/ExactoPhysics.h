@@ -29,10 +29,13 @@ public:	//variables
 		AActor * target;
 		AActor * parent;
 		btRigidBody * trg_body;
+		btTypedConstraint * trg_constr;
 		FVector axis_t;
 		FVector axis_p;
 		FVector pivot_t;
 		FVector pivot_p;
+		FString name_t;
+		FString name_p;
 	};
 	
 	// Global objects
@@ -130,4 +133,5 @@ public:
 	void AddComplexBody(TArray<ConnectedBodies> system);
 
 	void removeRigidBody(btRigidBody * body);
+	void removeConstrain(btTypedConstraint * constr);
 };

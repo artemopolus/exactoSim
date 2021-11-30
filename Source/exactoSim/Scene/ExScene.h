@@ -22,6 +22,7 @@ public:
 		FVector SpawnGeneratorLoc = FVector(0,50,300);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector SpawnObjectLoc = FVector(0, -100, 200);
+
 	struct actor_cmd
 	{
 		int value_int;
@@ -70,6 +71,7 @@ private:
 		}
 	};
 	TArray<actor_body_storage> SceneObjects;
+	TArray<TArray<AExactoPhysics::ConnectedBodies>> SystemsList;	
 public:
 	struct actor_info
 	{

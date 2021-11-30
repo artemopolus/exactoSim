@@ -1,0 +1,74 @@
+{
+	"DefaultPathToBP":
+	{
+		"Prefix":  "Class'/Game/Blueprint/",
+		"Folder": "Scene/",
+		"Suffix": "_C'",
+		"Basis": "BP_ExSmplBox_",
+		"Name": "Simple"
+	},
+	"Objects":
+	{
+		"Car":
+		{
+			"Body":
+			{
+				"Name": "CarBasic",
+				"Parent":
+				{ 
+					"enabled":  false
+				},
+				"Location": [0, -100, 150],
+				"Rotation": [0, 0, 90],
+				"PathToBP":
+				{
+					"Folder": "Scene/",
+					"Basis": "BP_ExSmplBox_",
+					"Name": "Simple"					
+				}
+			},
+			"WheelR":
+			{
+				"Name": "CarWheelR",
+				"Parent":
+				{
+					"enabled":  true,
+					"Name": "CarBasic",
+					"AxisTarget": [0,0,100],
+					"PivotTarget": [0,0,0],
+					"AxisParent": [0,0,100],
+					"PivotParent": [0,0,-50]
+				},
+				"Location": [0, 0, 150],
+				"Rotation": [0, 0, 90],
+				"PathToBP":
+				{
+					"Folder": "Scene/",
+					"Basis": "BP_ExSmplBox_",
+					"Name": "Cylinder"
+				}				
+			},
+			"WheelL":
+			{
+				"Name": "CarWheelL",
+				"Parent":
+				{
+					"enabled":  true,
+					"Name": "CarBasic",
+					"AxisTarget": [0,0,100],
+					"PivotTarget": [0,0,0],
+					"AxisParent": [0,0,100],
+					"PivotParent": [0,0,50]
+				},
+				"Location": [0, 100, 150],
+				"Rotation": [0, 0, 90],
+				"PathToBP":
+				{
+					"Folder": "Scene/",
+					"Basis": "BP_ExSmplBox_",
+					"Name": "Cylinder"
+				}
+			}
+		}
+	}
+}

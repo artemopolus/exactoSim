@@ -7,7 +7,7 @@
 #include "ExGenerator.h"
 #include "exactoSim/Common/ExSimStorage.h"
 #include "Generators/CarGenerator.h"
-
+#include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 
 // Sets default values
 AExScene::AExScene()
@@ -167,14 +167,142 @@ void AExScene::deleteSceneObjByPrefix(std::string prefix)
 
 void AExScene::generateCar()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Generate car"));
-	FActorSpawnParameters params;
+
+	FString path_to_config = FPaths::ProjectContentDir() + TEXT("Options/gen_object_config.json");
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, path_to_config);
+
+	if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*path_to_config))
+	{
+		return;
+	}
+
+	FString json;
+	FFileHelper::LoadFileToString(json, *path_to_config);
+	/*TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(JsonStr);
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+	FJsonSerializer::Deserialize(JsonReader, JsonObject);
+
+	TSharedPtr<FJsonObject> player = JsonObject->GetObjectField("player");*/
+	TSharedRef<TJsonReader<TCHAR>> json_reader = TJsonReaderFactory<TCHAR>::Create(json);
+	TSharedPtr<FJsonObject> json_object = MakeShareable(new FJsonObject);
+	FJsonSerializer::Deserialize(json_reader, json_object);
+	TSharedPtr<FJsonObject> obj_list = json_object->GetObjectField("Objects");
+	TSharedPtr<FJsonObject> default_path_to_bp = json_object->GetObjectField("DefaultPathToBP");
+	FString dflt_path_prefix = default_path_to_bp->GetStringField("Prefix");	
+	FString dflt_path_folder = default_path_to_bp->GetStringField("Folder");
+	FString dflt_path_suffix = default_path_to_bp->GetStringField("Suffix");
+	FString dflt_path_basis = default_path_to_bp->GetStringField("Basis");
+	FString dflt_path_name = default_path_to_bp->GetStringField("Name");
+
+
+	//Инициализация
+	std::string name_trg = "Simple";
+	int complex_obj_num;
+	complex_obj_num = obj_list->Values.Num();
+	auto complex_list = obj_list->Values;
+	UE_LOG(LogTemp, Warning, TEXT("Complex objects count : %d "), complex_obj_num  );
+	//перечисляем объекты
+	for (auto object_in_complex : complex_list)
+	{
+		FString obj_name = object_in_complex.Key;
+		TSharedPtr<FJsonObject> one_obj = obj_list->GetObjectField(obj_name);
+		auto elem_list = one_obj->Values;
+		int complex_elem_num = elem_list.Num();
+		UE_LOG(LogTemp, Warning, TEXT("elements : %s == %d "), *obj_name, complex_elem_num  );
+		//перечисляем элементы
+		TArray<AExactoPhysics::ConnectedBodies> system;
+		for(auto elem_in_object : elem_list)
+		{
+			FString elem_name = elem_in_object.Key;
+			TSharedPtr<FJsonObject> one_elem = one_obj->GetObjectField(elem_name);
+			auto param_list = one_elem->Values;
+			int param_elem_num = param_list.Num();
+			UE_LOG(LogTemp, Warning, TEXT("params : %s == %d "), *elem_name, param_elem_num  );
+			//перечисляем параметры
+			TSharedPtr<FJsonObject> path_params = one_elem->GetObjectField("PathToBP");
+			FString trg_folder = path_params->GetStringField("Folder");
+			FString trg_basis = path_params->GetStringField("Basis");
+			FString trg_name = path_params->GetStringField("Name");
+
+			FString res_name = trg_basis + trg_name;
+			FString res_path = dflt_path_prefix + trg_folder + res_name + TEXT(".") + res_name + dflt_path_suffix;
+			UE_LOG(LogTemp, Warning, TEXT("path : %s  "), *res_path  );
+
+			UClass * class_obj = StaticLoadClass(UObject::StaticClass(), nullptr, *res_path);
+			
+			if (class_obj != nullptr)
+			{
+				AExactoPhysics::ConnectedBodies elem;
+				FActorSpawnParameters spawn_params;
+				FVector location;
+        			
+				TArray<TSharedPtr<FJsonValue>> location_arr = one_elem->GetArrayField("Location");
+				location.X = location_arr[0]->AsNumber();
+				location.Y = location_arr[1]->AsNumber();
+				location.Z = location_arr[2]->AsNumber();
+				UE_LOG(LogTemp, Warning, TEXT("location : %s  "), *location.ToString()  );
+        
+				TSharedPtr<FJsonObject> parent_params = one_elem->GetObjectField("Parent");
+				if (parent_params->GetBoolField("enabled"))
+				{
+					TArray<TSharedPtr<FJsonValue>> arr;
+					elem.name_p = parent_params->GetStringField("Name");
+					arr = parent_params->GetArrayField("AxisTarget");
+					elem.axis_t = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());
+					arr = parent_params->GetArrayField("AxisParent");
+					elem.axis_p = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());
+					arr = parent_params->GetArrayField("PivotTarget");
+					elem.pivot_t = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());
+					arr = parent_params->GetArrayField("PivotParent");
+					elem.pivot_p = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());
+				}
+				else
+				{
+					elem.name_p = "";
+				}
+				TArray<TSharedPtr<FJsonValue>> rotation_arr = one_elem->GetArrayField("Rotation");
+				FRotator rotation(rotation_arr[0]->AsNumber(), rotation_arr[1]->AsNumber(), rotation_arr[2]->AsNumber());	
+				UE_LOG(LogTemp, Warning, TEXT("rotation : %s  "), *rotation.ToString()  );
+				elem.name_t = one_elem->GetStringField("Name");
+				spawn_params.Name = FName(obj_name + TEXT("_") + elem_name + TEXT("_") + FString::FromInt(SystemsList.Num()));
+				APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(class_obj,&location, &rotation, spawn_params));
+				elem.target = spawned_obj;
+				elem.parent = nullptr;
+				elem.trg_body = nullptr;
+				elem.trg_constr = nullptr;
+				system.Add(elem);
+			}
+		}
+		if ( system.Num() > 0 )
+		{
+			if (system.Num() > 1)
+			{
+				for (auto elem : system)
+				{
+					FString parent_name = elem.name_t;
+					AActor * parent_actor = elem.target;
+					for (auto & another_elem : system)
+					{
+						if (parent_name == another_elem.name_p)
+						{
+							another_elem.parent = parent_actor;
+						}
+					}
+				}
+			}
+			ExPhyzX->AddComplexBody(system);
+			SystemsList.Add(system);
+		}
+	}
+	
+	
+	/*FActorSpawnParameters params;
 	FVector location(0,0,150);
 	FRotator rotation(0,0,90);
 	const std::string suffix = "_C'";
 	const std::string prefix = "Class'/Game/Blueprint/Scene/";
 	const std::string name_basis = "BP_ExSmplBox_";
-	std::string name_trg = "Simple";
 
 	std::string path = prefix + name_basis + name_trg + "." + name_basis + name_trg + suffix;
 	FString fpath(path.c_str());
@@ -207,7 +335,7 @@ void AExScene::generateCar()
 							/*btVector3 axisA(0.f, 0.f, 1.f);
         					btVector3 axisB(0.f, 0.f, 1.f);
         					btVector3 pivotA(-0.0f, -0.0f, -0.5f);
-        					btVector3 pivotB(0.f, 0.f, 0.f);*/
+        					btVector3 pivotB(0.f, 0.f, 0.f);#1#
 		elem.axis_p =  FVector(0.f, 0.f, 100.f);
 		elem.axis_t =  FVector(0.f, 0.f, 100.f);
 		elem.pivot_p = FVector(0.f, 0.f, -50.0f);
@@ -227,6 +355,7 @@ void AExScene::generateCar()
 		elem.pivot_p = FVector(0.f, 0.f, 50.0f);
 		elem.pivot_t = FVector(0.0f, 0.0f, 0.0f);	}
 	system.Add(elem);
-	ExPhyzX->AddComplexBody(system);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Generate car"));
+	ExPhyzX->AddComplexBody(system);*/
 }
 

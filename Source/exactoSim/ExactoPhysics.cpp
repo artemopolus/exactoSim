@@ -508,7 +508,7 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
 		}
 	}
 	//connect using list
-	for (const auto& component : system)
+	for ( auto& component : system)
 	{
 		if (component.parent != nullptr)
 		{
@@ -531,14 +531,18 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
 					BtWorld->addConstraint(p_hinge2);
 					p_hinge2->setDbgDrawSize(btScalar(5.f));
 					const_list.Add(p_hinge2);
+					component.trg_constr = p_hinge2;
 				}
 			}
 		}
 	}
+	if (const_list.Num() > 0)
+	{
 	btHingeConstraint * constr0 = static_cast<btHingeConstraint*>(const_list[0]);
 	constr0->enableAngularMotor(true, -1.f, 1.65f);
 	btHingeConstraint * constr1 = static_cast<btHingeConstraint*>(const_list[1]);
-	constr1->setLimit(0.f,0.f);
+	constr1->setLimit(0.f,0.f);		
+	}
 }
 
 void AExactoPhysics::removeRigidBody(btRigidBody* body)
@@ -550,4 +554,10 @@ void AExactoPhysics::removeRigidBody(btRigidBody* body)
 	delete body->getMotionState();
 	delete body;
 	
+}
+
+void AExactoPhysics::removeConstrain(btTypedConstraint* constr)
+{
+	BtWorld->removeConstraint(constr);
+	delete constr;
 }
