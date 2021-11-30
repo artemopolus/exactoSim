@@ -492,12 +492,12 @@ btRigidBody* AExactoPhysics::AddRigidBody(AActor* Actor, btCollisionShape* Colli
 	return Body;
 }
 
-void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
+void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> * system)
 {
 	//create all
 	TArray<btRigidBody*> body_list;
 	TArray<btTypedConstraint*> const_list;
-	for (auto& component : system)
+	for (ConnectedBodies & component : *system)
 	{
 		if (component.target != nullptr)
 		{
@@ -508,7 +508,7 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> system)
 		}
 	}
 	//connect using list
-	for ( auto& component : system)
+	for ( auto& component : *system)
 	{
 		if (component.parent != nullptr)
 		{

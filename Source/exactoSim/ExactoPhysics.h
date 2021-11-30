@@ -130,7 +130,7 @@ public:
 	btRigidBody* AddRigidBody(AActor* Actor, const CachedDynamicShapeData& ShapeData, float Friction, float Restitution);
 	btRigidBody* AddRigidBody(AActor* Actor, btCollisionShape* CollisionShape, btVector3 Inertia, float Mass, float Friction, float Restitution);
 
-	void AddComplexBody(TArray<ConnectedBodies> system);
+	void AddComplexBody(TArray<ConnectedBodies> * system);
 
 	void removeRigidBody(btRigidBody * body);
 	void removeConstrain(btTypedConstraint * constr);

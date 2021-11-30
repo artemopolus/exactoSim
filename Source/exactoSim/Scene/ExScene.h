@@ -56,6 +56,8 @@ public:
 	void deleteSceneObjByPrefix(std::string prefix);
 
 	void generateCar();
+
+	void removeConstrain();
 	
 private:
 	int ValueInt;

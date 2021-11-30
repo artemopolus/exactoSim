@@ -53,27 +53,35 @@ void AExScene::sendCmdToSelected(int type, float value)
 {
 	FVector loc;
 	FRotator rot;
-	AExGenerator * target = static_cast<AExGenerator*>(SceneObjects[1].actor);
+	AExGenerator * target = nullptr;
+	if (SceneObjects.Num() > 0)
+		target = static_cast<AExGenerator*>(SceneObjects[1].actor);
 
 	int value_int = value;
 	
 	switch (type)
 	{
 	case 0:
-		deleteSceneObjByPrefix(target->getGeneratedObjPrefix());
-		//target->generateObj();		
+		// deleteSceneObjByPrefix(target->getGeneratedObjPrefix());
+		//target->generateObj();
+		removeConstrain();
 		break;
 	case 1:
+		if (target != nullptr)
 		loc = target->GetActorLocation();
 		loc.Y += value;
+		if (target != nullptr)
 		target->SetActorLocation(loc);
 		break;
 	case 2:
+		if (target != nullptr)
 		rot = target->GetActorRotation();
 		rot.Roll += value;
+		if (target != nullptr)
 		target->SetActorRotation(rot);
 		break;
 	case 3:
+		if (target != nullptr)
 		target->generateObj(FVector(0,0,value));
 		break;
 	case AExSimStorage::exsim_cmd_type::EXCT_SWITCH:
@@ -291,71 +299,22 @@ void AExScene::generateCar()
 					}
 				}
 			}
-			ExPhyzX->AddComplexBody(system);
+			ExPhyzX->AddComplexBody(&system);
 			SystemsList.Add(system);
 		}
 	}
-	
-	
-	/*FActorSpawnParameters params;
-	FVector location(0,0,150);
-	FRotator rotation(0,0,90);
-	const std::string suffix = "_C'";
-	const std::string prefix = "Class'/Game/Blueprint/Scene/";
-	const std::string name_basis = "BP_ExSmplBox_";
 
-	std::string path = prefix + name_basis + name_trg + "." + name_basis + name_trg + suffix;
-	FString fpath(path.c_str());
-	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
+}
 
-	TArray<AExactoPhysics::ConnectedBodies> system;
-	AExactoPhysics::ConnectedBodies elem;
-	APawn * car_parent = nullptr;
-	if (obj != nullptr)
+void AExScene::removeConstrain()
+{
+	for (auto & system : SystemsList)
 	{
-		params.Name = "CarBasic";
-		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		car_parent = spawned_obj;
-		elem.target = spawned_obj;
-		elem.parent = nullptr;
-		elem.trg_body = nullptr;
+		for (auto & component : system)
+		{
+			if (component.trg_constr != nullptr)
+				ExPhyzX->removeConstrain(component.trg_constr);
+		}
 	}
-	system.Add(elem);
-	name_trg = "Cylinder";
-	path = prefix + name_basis + name_trg + "." + name_basis + name_trg + suffix;
-	fpath = path.c_str();
-	if ((obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath)) != nullptr)
-	{
-		params.Name = "CarWheel0";
-		location.Y = -100;
-		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		elem.target = spawned_obj;
-		elem.parent = car_parent;
-		elem.trg_body = nullptr;
-							/*btVector3 axisA(0.f, 0.f, 1.f);
-        					btVector3 axisB(0.f, 0.f, 1.f);
-        					btVector3 pivotA(-0.0f, -0.0f, -0.5f);
-        					btVector3 pivotB(0.f, 0.f, 0.f);#1#
-		elem.axis_p =  FVector(0.f, 0.f, 100.f);
-		elem.axis_t =  FVector(0.f, 0.f, 100.f);
-		elem.pivot_p = FVector(0.f, 0.f, -50.0f);
-		elem.pivot_t = FVector(0.0f, 0.0f, 0.0f);
-	}
-	system.Add(elem);
-	if ((obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath)) != nullptr)
-	{
-		params.Name = "CarWheel1";
-		location.Y = 100;
-		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		elem.target = spawned_obj;
-		elem.parent = car_parent;
-		elem.trg_body = nullptr;
-		elem.axis_p =  FVector(0.f, 0.f, 100.f);
-		elem.axis_t =  FVector(0.f, 0.f, 100.f);
-		elem.pivot_p = FVector(0.f, 0.f, 50.0f);
-		elem.pivot_t = FVector(0.0f, 0.0f, 0.0f);	}
-	system.Add(elem);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Generate car"));
-	ExPhyzX->AddComplexBody(system);*/
 }
 
