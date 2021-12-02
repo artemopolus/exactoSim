@@ -8,6 +8,7 @@ AExactoWorld::AExactoWorld()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	Mesh = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("Test111111111"));
 
 }
 
@@ -25,6 +26,25 @@ void AExactoWorld::BeginPlay()
 	if (object != nullptr)
 	{
 		ExFileManager = static_cast<AExSimFileManager*>(this->GetWorld()->SpawnActor(object));
+	}
+
+	ExFileManager->openModel(ExFileManager->getPathToModel("smpl_box.fbx"));
+
+
+	if (Mesh)
+	{
+		Mesh->CastShadow = true;
+		Mesh->SetCollisionObjectType(ECC_WorldStatic);
+		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		Mesh->UpdateCollisionProfile();
+		RootComponent = Mesh;
+
+		ExFileManager->loadMeshInComponent(Mesh);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Can't create mesh"));
 	}
 }
 

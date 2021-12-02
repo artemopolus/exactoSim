@@ -13,6 +13,7 @@ public class exactoSim : ModuleRules
 
 		PublicDependencyModuleNames.AddRange(new string[]{"Json", "JsonUtilities"});
 		PublicDependencyModuleNames.AddRange(new string[]{"Networking", "Sockets"});
+		PublicDependencyModuleNames.AddRange(new string[]{"ProceduralMeshComponent"});
 		
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
@@ -57,8 +58,16 @@ public class exactoSim : ModuleRules
 
 	protected void AddAssimp()
 	{
-		string librariesPath = Path.Combine(ThirdPartyPath, "assimp", "lib", "lib");
-		PublicAdditionalLibraries.Add(Path.Combine(librariesPath, "assimp-vc142-mtd.lib" ));
+		bool bDebug = Target.Configuration == UnrealTargetConfiguration.Debug || Target.Configuration == UnrealTargetConfiguration.DebugGame;
+		bool bDevelopment = Target.Configuration == UnrealTargetConfiguration.Development;
+		
+		string buildFolder = bDebug ? "Debug" :
+			bDevelopment ? "RelWithDebInfo" : "Release";
+		string buildSuffix = bDebug ? "d" : "";
+		
+		
+		string librariesPath = Path.Combine(ThirdPartyPath, "assimp", "build", "code", buildFolder);
+		PublicAdditionalLibraries.Add(Path.Combine(librariesPath, "assimp-vc142-mt" + buildSuffix + ".lib" ));
 		
 		PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", "include"));
 	}

@@ -27,6 +27,8 @@ void AExSimFileManager::BeginPlay()
 	PathToFilesFolder.Append("exactoSim");
 	UE_LOG(LogTemp, Warning, TEXT("Files path : %s  "), *PathToFilesFolder  );
 
+	PathToModelFolder = "J:/Unreal/3dmodels/";
+
 	PathToDataFolder = PathToFilesFolder + TEXT("/Data/");
 
 	DataFileName = TEXT("Session_");
@@ -61,11 +63,37 @@ void AExSimFileManager::BeginPlay()
 	FString init_session_str = TEXT("Start session in ") + FDateTime::UtcNow().ToString();
 
 	FFileHelper::SaveStringToFile(init_session_str,*path_to_session, FFileHelper::EEncodingOptions::ForceUTF8,&IFileManager::Get(),FILEWRITE_None);
+
+
+	FString path_to_meshloader = "Class'/Game/Blueprint/Common/BP_ExMeshLoader.BP_ExMeshLoader_C'";
+	UClass * object = StaticLoadClass(UObject::StaticClass(), nullptr, *path_to_meshloader);
+	if (object != nullptr)
+	{
+		MeshLoader = static_cast<AExMeshLoader*>(this->GetWorld()->SpawnActor(object));
+		//MeshLoader->openModel(getPathToModel("smpl_box.fbx"));
+	}
 }
 
 // Called every frame
 void AExSimFileManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+FString AExSimFileManager::getPathToModel(FString name)
+{
+	return PathToModelFolder + name;
+}
+
+void AExSimFileManager::openModel(FString name)
+{
+	if (MeshLoader != nullptr)
+		MeshLoader->openModel(name);
+}
+
+void AExSimFileManager::loadMeshInComponent(UProceduralMeshComponent* target)
+{
+	if (MeshLoader != nullptr)
+		MeshLoader->loadMeshInComponent(target);
 }
 
