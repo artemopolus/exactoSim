@@ -15,6 +15,13 @@ public:
 	// Sets default values for this actor's properties
 	AExSimFileManager();
 
+private:
+	FString PathToConfig;
+	FString PathToContentFolder;
+	FString PathToFilesFolder;
+	FString PathToDataFolder;
+	FString DataFileName;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
