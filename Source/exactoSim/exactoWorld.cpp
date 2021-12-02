@@ -15,7 +15,17 @@ AExactoWorld::AExactoWorld()
 void AExactoWorld::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Blueprint'/Game/Blueprint/Common/BP_ExSimFileManager.BP_ExSimFileManager'
+	//J:/WorkspaceFast/exactoSim/Content/Blueprint/Common/BP_ExSimFileManager.uasset
+
+	FString filemanager_path = "Class'/Game/Blueprint/Common/BP_ExSimFileManager.BP_ExSimFileManager_C'";
+	UClass * object = StaticLoadClass(UObject::StaticClass(), nullptr, *filemanager_path);
+
+	if (object != nullptr)
+	{
+		ExFileManager = static_cast<AExSimFileManager*>(this->GetWorld()->SpawnActor(object));
+	}
 }
 
 // Called every frame

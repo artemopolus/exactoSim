@@ -27,7 +27,7 @@ void AExSimFileManager::BeginPlay()
 	PathToFilesFolder.Append("exactoSim");
 	UE_LOG(LogTemp, Warning, TEXT("Files path : %s  "), *PathToFilesFolder  );
 
-	PathToDataFolder = PathToFilesFolder + TEXT("Data/");
+	PathToDataFolder = PathToFilesFolder + TEXT("/Data/");
 
 	DataFileName = TEXT("Session_");
 

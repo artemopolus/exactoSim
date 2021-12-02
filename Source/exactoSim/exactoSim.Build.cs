@@ -24,6 +24,7 @@ public class exactoSim : ModuleRules
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 		AddBullet();
+		AddAssimp();
 	}
 	private string ThirdPartyPath
 	{
@@ -52,5 +53,13 @@ public class exactoSim : ModuleRules
 		PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "bullet3", "src"));
 		PublicDefinitions.Add("WITH_BULLET_BINDING=1");
 
+	}
+
+	protected void AddAssimp()
+	{
+		string librariesPath = Path.Combine(ThirdPartyPath, "assimp", "lib", "lib");
+		PublicAdditionalLibraries.Add(Path.Combine(librariesPath, "assimp-vc142-mtd.lib" ));
+		
+		PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", "include"));
 	}
 }
