@@ -27,28 +27,38 @@
 					"Name": "Simple"					
 				}
 			},
-			"WheelR":
+			"RotatorR":
 			{
-				"Name": "CarWheelR",
+				"Name": "CarRotatorR",
 				"Parent":
 				{
 					"enabled":  true,
 					"Name": "CarBasic",
 					"AxisTarget": [0,0,100],
 					"PivotTarget": [0,0,0],
-					"AxisParent": [0,0,100],
-					"PivotParent": [0,0,-50]
+					"AxisParent": [0,100,0],
+					"PivotParent": [0,500,0],
+					"Constr": "G6DOF_Spring",
+					"EnSpring": [1,0,0,0,0,0],
+					"UppLimLin": [0,0,0],
+					"LowLimLin": [0,0,0],
+					"UppLimAng": [0,0,0],
+					"LowLimAng": [0,0,0],
+					"StiffLin": [ 	39.47,	39.47,	39.47],
+					"StiffAng": [ 	39.47,	39.47,	39.47],
+					"DumpLin": [	0.02,	0.02,	0.02],
+					"DumpAng": [	0.02,	0.02,	0.02]
 				},
 				"Location": [0, 0, 150],
 				"Rotation": [0, 0, 90],
 				"PathToBP":
 				{
-					"Folder": "Scene/",
-					"Basis": "BP_ExSmplBox_",
-					"Name": "Cylinder"
-				}				
+					"Folder": "Scene/Car/",
+					"Basis": "BP_EX_",
+					"Name": "Box"
+				}
 			},
-			"WheelL":
+			"RotatorL":
 			{
 				"Name": "CarWheelL",
 				"Parent":
@@ -58,15 +68,25 @@
 					"AxisTarget": [0,0,100],
 					"PivotTarget": [0,0,0],
 					"AxisParent": [0,0,100],
-					"PivotParent": [0,0,50]
+					"PivotParent": [0,0,50],
+					"Constr": "Hinge",
+					"EnSpring": [1,0,0,0,0,0],
+					"UppLimLin": [0,0,0],
+					"LowLimLin": [0,0,0],
+					"UppLimAng": [0,0,0],
+					"LowLimAng": [0,0,0],
+					"StiffLin": [ 	39.47,	39.47,	39.47],
+					"StiffAng": [ 	39.47,	39.47,	39.47],
+					"DumpLin": [	0.02,	0.02,	0.02],
+					"DumpAng": [	0.02,	0.02,	0.02]
 				},
 				"Location": [0, 100, 150],
 				"Rotation": [0, 0, 90],
 				"PathToBP":
 				{
-					"Folder": "Scene/",
-					"Basis": "BP_ExSmplBox_",
-					"Name": "Cylinder"
+					"Folder": "Scene/Car/",
+					"Basis": "BP_EX_",
+					"Name": "Box"
 				}
 			}
 		}

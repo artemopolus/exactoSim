@@ -13,6 +13,13 @@ class EXACTOSIM_API BulletHelpers
 {
 
 public:
+	enum Constr
+	{
+		HINGE,
+		HINGE2,
+		GEN6DOF_SPRING
+	};
+	
 	static float ToUESize(btScalar Sz)
 	{
 		return Sz * BULLET_TO_WORLD_SCALE;

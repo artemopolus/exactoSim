@@ -265,6 +265,35 @@ void AExScene::generateCar()
 					elem.pivot_t = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());
 					arr = parent_params->GetArrayField("PivotParent");
 					elem.pivot_p = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());
+					FString constr_type = parent_params->GetStringField("Constr");
+					if (constr_type == "Hinge")
+						elem.constr_type = BulletHelpers::HINGE;
+					else if (constr_type == "Hinge2")
+						elem.constr_type = BulletHelpers::HINGE2;
+					else if (constr_type == "G6DOF_Spring")
+						elem.constr_type = BulletHelpers::GEN6DOF_SPRING;
+					else
+						elem.constr_type = BulletHelpers::HINGE;
+					arr = parent_params->GetArrayField("EnSpring");
+					for (int i = 0; i < 6; i++)
+						elem.en_spring[i] = arr[i]->AsNumber();
+					arr = parent_params->GetArrayField("UppLimLin");
+					elem.upp_lim_lin = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());	
+					arr = parent_params->GetArrayField("LowLimLin");
+					elem.low_lim_lin = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());	
+					arr = parent_params->GetArrayField("UppLimAng");
+					elem.upp_lim_ang = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());	
+					arr = parent_params->GetArrayField("LowLimAng");
+					elem.low_lim_ang = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());	
+					arr = parent_params->GetArrayField("StiffLin");
+					elem.stiff_lin = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());	
+					arr = parent_params->GetArrayField("StiffAng");
+					elem.stiff_ang = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());	
+					arr = parent_params->GetArrayField("DumpLin");
+					elem.dump_lin = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());	
+					arr = parent_params->GetArrayField("DumpAng");
+					elem.dump_ang = FVector(arr[0]->AsNumber(),arr[1]->AsNumber(),arr[2]->AsNumber());	
+					
 				}
 				else
 				{

@@ -496,7 +496,7 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> * system)
 {
 	//create all
 	TArray<btRigidBody*> body_list;
-	TArray<btTypedConstraint*> const_list;
+	TArray<btTypedConstraint*> constr_list;
 	for (ConnectedBodies & component : *system)
 	{
 		if (component.target != nullptr)
@@ -527,22 +527,58 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> * system)
 					btVector3 axisB = BulletHelpers::ToBtSize(component.axis_t);
 					btVector3 pivotA = BulletHelpers::ToBtSize(component.pivot_p);
 					btVector3 pivotB = BulletHelpers::ToBtSize(component.pivot_t);
-					btHingeConstraint* p_hinge2 = new btHingeConstraint(*body, *component.trg_body, pivotA, pivotB, axisA, axisB);
-					BtWorld->addConstraint(p_hinge2);
-					p_hinge2->setDbgDrawSize(btScalar(5.f));
-					const_list.Add(p_hinge2);
-					component.trg_constr = p_hinge2;
+					if (component.constr_type == BulletHelpers::HINGE)
+					{
+						btHingeConstraint* p_hinge2 = new btHingeConstraint(*body, *component.trg_body, pivotA, pivotB, axisA, axisB);
+						BtWorld->addConstraint(p_hinge2);
+						p_hinge2->setDbgDrawSize(btScalar(5.f));
+						constr_list.Add(p_hinge2);
+						component.trg_constr = p_hinge2;
+
+						p_hinge2->setLimit(0,0);
+					}
+					else if (component.constr_type == BulletHelpers::HINGE2)
+					{
+						btHinge2Constraint * p_hinge2 = new btHinge2Constraint(*body, *component.trg_body, pivotA, axisA, axisB);
+						BtWorld->addConstraint(p_hinge2);
+						constr_list.Add(p_hinge2);
+						component.trg_constr = p_hinge2;						
+
+						p_hinge2->enableMotor(0, true);
+					}
+					else if (component.constr_type == BulletHelpers::GEN6DOF_SPRING)
+					{
+						btTransform frame_a, frame_b;
+						frame_a = btTransform::getIdentity();
+						frame_a.setOrigin(pivotA);
+						frame_b = btTransform::getIdentity();
+						frame_b.setOrigin(pivotB);
+						btGeneric6DofSpringConstraint * p_6dof_spring = new btGeneric6DofSpringConstraint(*body, *component.trg_body,
+																frame_a, frame_b, true);
+						p_6dof_spring->setLinearUpperLimit(BulletHelpers::ToBtSize(component.upp_lim_lin));
+						p_6dof_spring->setLinearLowerLimit(BulletHelpers::ToBtSize(component.low_lim_lin));
+						
+					}
+					else
+					{
+						btHingeConstraint* p_hinge2 = new btHingeConstraint(*body, *component.trg_body, pivotA, pivotB, axisA, axisB);
+						BtWorld->addConstraint(p_hinge2);
+						p_hinge2->setDbgDrawSize(btScalar(5.f));
+						constr_list.Add(p_hinge2);
+						component.trg_constr = p_hinge2;						
+					}
 				}
 			}
 		}
 	}
-	if (const_list.Num() > 0)
+	/*if (constr_list.Num() > 1)
 	{
-	btHingeConstraint * constr0 = static_cast<btHingeConstraint*>(const_list[0]);
+	btHingeConstraint * constr0 = static_cast<btHingeConstraint*>(constr_list[0]);
 	constr0->enableAngularMotor(true, -1.f, 1.65f);
-	btHingeConstraint * constr1 = static_cast<btHingeConstraint*>(const_list[1]);
+	constr0->setLimit(0.f,SIMD_HALF_PI);		
+	btHingeConstraint * constr1 = static_cast<btHingeConstraint*>(constr_list[1]);
 	constr1->setLimit(0.f,0.f);		
-	}
+	}*/
 }
 
 void AExactoPhysics::removeRigidBody(btRigidBody* body)
