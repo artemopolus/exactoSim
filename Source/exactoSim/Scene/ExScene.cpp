@@ -3,8 +3,8 @@
 
 #include "ExScene.h"
 #include <string>
+//#include "ExGenerator.h"
 
-#include "ExGenerator.h"
 #include "exactoSim/Common/ExSimStorage.h"
 #include "Generators/CarGenerator.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
@@ -26,24 +26,29 @@ void AExScene::addSmplTestObject(FVector location, FRotator rotation)
 
 void AExScene::addGenerator(FVector location, FRotator rotation)
 {
-	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExGenerator.BP_ExGenerator_C'";
-	FString fpath(path.c_str());
-	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
-	if (obj != nullptr)
+	if (CurrentGenerator != nullptr)
 	{
-		FActorSpawnParameters params;
-   		params.Name = "TestGenerator";
-   		AExGenerator *spawned_obj = static_cast<AExGenerator*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		actor_body_storage elem;
-		elem.actor = spawned_obj;
-		elem.body = nullptr;
-		if (ExPhyzX)
+		const std::string path = "Class'/Game/Blueprint/Scene/BP_ExGenerator.BP_ExGenerator_C'";
+		FString fpath(path.c_str());
+		UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
+		if (obj != nullptr)
 		{
-			spawned_obj->ParentScene = this;
-			//spawned_obj->generateObj();
-		}
-		SceneObjects.Add(elem);
+			FActorSpawnParameters params;
+			params.Name = "TestGenerator";
+			AExGenerator *spawned_obj = static_cast<AExGenerator*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+			spawned_obj->Tags.Add(ToCStr(GeneratorTag));
+			actor_body_storage elem;
+			elem.actor = spawned_obj;
+			elem.body = nullptr;
+			if (ExPhyzX)
+			{
+				spawned_obj->ParentScene = this;
+				//spawned_obj->generateObj();
+			}
+			SceneObjects.Add(elem);
+			CurrentGenerator = spawned_obj;
     
+		}
 	}
 }
 
@@ -96,16 +101,18 @@ void AExScene::sendCmdToSelected(int type, float value)
 
 void AExScene::sendExtendedCmdToSelected(actor_cmd cmd)
 {
-
-	AExGenerator * target = static_cast<AExGenerator*> (SceneObjects[1].actor);
-	switch (cmd.value_int)
+	if (CurrentGenerator != nullptr)
 	{
-	case AExSimStorage::exsim_cmd_type::EXCT_SWITCH:
-		UE_LOG(LogTemp, Warning, TEXT("Switch to object number: %s "), *FString(cmd.value_str.c_str() ) );
-		target->setGenObjInfo(cmd.value_str);
-		break;
-	default:
-		break;		
+		AExGenerator * target = CurrentGenerator;
+		switch (cmd.value_int)
+		{
+		case AExSimStorage::exsim_cmd_type::EXCT_SWITCH:
+			UE_LOG(LogTemp, Warning, TEXT("Switch to object number: %s "), *FString(cmd.value_str.c_str() ) );
+			target->setGenObjInfo(cmd.value_str);
+			break;
+		default:
+			break;		
+		}
 	}
 }
 
@@ -304,7 +311,12 @@ void AExScene::generateCar()
 				UE_LOG(LogTemp, Warning, TEXT("rotation : %s  "), *rotation.ToString()  );
 				elem.name_t = one_elem->GetStringField("Name");
 				spawn_params.Name = FName(obj_name + TEXT("_") + elem_name + TEXT("_") + FString::FromInt(SystemsList.Num()));
+				
 				APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(class_obj,&location, &rotation, spawn_params));
+				spawned_obj->Tags.Add(ToCStr(BaseTag));
+				spawned_obj->Tags.Add(ToCStr(PhysicsTag));
+				spawned_obj->Tags.Add(ToCStr(DynamicTag));
+				
 				elem.target = spawned_obj;
 				elem.parent = nullptr;
 				elem.trg_body = nullptr;

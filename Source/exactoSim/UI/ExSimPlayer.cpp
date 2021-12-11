@@ -36,6 +36,22 @@ void AExSimPlayer::moveLeft(float value)
 		DataStorage->registerCmdToSelected(1,-MoveHorizontalStepSz);
 }
 
+void AExSimPlayer::moveForward(float value)
+{
+}
+
+void AExSimPlayer::moveBack(float value)
+{
+}
+
+void AExSimPlayer::moveUp(float value)
+{
+}
+
+void AExSimPlayer::moveDown(float value)
+{
+}
+
 void AExSimPlayer::rotateUp() 
 {
 	DataStorage->registerCmdToSelected(2,RotateStepSZ);
@@ -45,6 +61,15 @@ void AExSimPlayer::rotateDown()
 {
 	DataStorage->registerCmdToSelected(2,-RotateStepSZ);
 }
+
+void AExSimPlayer::setupConstrainOptions(FVector2D loc)
+{
+	if(TargetWidget)
+	{
+		TargetWidget->setupConstrainOptions(loc);
+	}
+}
+
 
 void AExSimPlayer::sendDataToStorage()
 {
@@ -79,6 +104,10 @@ void AExSimPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	InputComponent->BindAxis("moveRight", this, &AExSimPlayer::moveRight);
 	InputComponent->BindAxis("moveLeft", this, &AExSimPlayer::moveLeft);
+	InputComponent->BindAxis("moveForward", this, &AExSimPlayer::moveForward);
+	InputComponent->BindAxis("moveBack", this, &AExSimPlayer::moveBack);
+	InputComponent->BindAxis("moveUp", this, &AExSimPlayer::moveUp);
+	InputComponent->BindAxis("moveDown", this, &AExSimPlayer::moveDown);
 	
 	InputComponent->BindAction("rotateUp",IE_Pressed, this, &AExSimPlayer::rotateUp);
 	InputComponent->BindAction("rotateDown",IE_Pressed, this, &AExSimPlayer::rotateDown);

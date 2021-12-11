@@ -4,18 +4,24 @@
 #include "ExSimStorage.h"
 #include <string>
 
+#include "Blueprint/UserWidget.h"
+
 // Sets default values
 AExSimStorage::AExSimStorage()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SMPL, std::string("Simple"));
-	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SPHERE,std::string ("Sphere"));
-	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_ROCK_SMALL,std::string ("Rock_S"));
-	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_ROCK_BIG,std::string ("Rock_B"));
-	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SHOE,std::string ("Shoe"));
-	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_TREE_STICK, std::string("Stick"));
+	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SMPL,			std::string ("Simple"));
+	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SPHERE,			std::string ("Sphere"));
+	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_ROCK_SMALL,		std::string ("Rock_S"));
+	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_ROCK_BIG,		std::string ("Rock_B"));
+	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SHOE,			std::string ("Shoe"));
+	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_TREE_STICK,		std::string ("Stick"));
+
+	ConstrType.Add(BulletHelpers::Constr::HINGE,			std::string("Hinge"));
+	ConstrType.Add(BulletHelpers::Constr::HINGE2,			std::string("Hinge2"));
+	ConstrType.Add(BulletHelpers::Constr::GEN6DOF_SPRING,	std::string("Gen6DOF_Spring"));
 
 	
 }
@@ -69,6 +75,19 @@ void AExSimStorage::registerExtendedCmd(int type, int value)
 			break;
 		}
 	}
+}
+
+void AExSimStorage::setTargetWidget(UUserWidget* widget)
+{
+	CurrentWidget = widget;
+}
+
+FVector2D AExSimStorage::clicked()
+{
+	
+	FString output = TEXT("Mouse pos: clicked") ;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, output);
+	return FVector2D(0,0);
 }
 
 

@@ -30,6 +30,21 @@ public:
 		void testDrawFunction();
 	UFUNCTION()
 		void onSwitchObjButtonClicked();
+	UFUNCTION()
+		void onApplyConstrButtonClicked();
+
+	UFUNCTION()
+		void onParentButtonClicked();
+	UFUNCTION()
+		void onTargetButtonClicked();
+	UFUNCTION()
+		void onEscButtonClicked();
+
+	UFUNCTION()
+		void setupConstrainOptions(FVector2D loc);
+
+	virtual ~UExSimMainWidget() override;
+
 
 private:
 	void setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha);
@@ -48,11 +63,40 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton * SwitchObjButton;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock * SwitchObjText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * ApplyConstrButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * ApplyConstrText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * ParentButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * ParentText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * TargetButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * TargetText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * escButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * escText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UEditableTextBox * InputOptions;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UCanvasPanel * OptionsPanel;
+
+	UButton * Test;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExSimStorage * DataStorage;
+
 private:
 	std::unique_ptr<uint8[]> CanvasPixelData;
 	int CanvasWidth;
@@ -65,5 +109,9 @@ private:
 	std::unique_ptr<uint8[]> canvasBrushMask;
 	int radius;
 	int brushBufferSize;
+
 	int GenObjKey = 0;
+	int ConstrKey = BulletHelpers::Constr::NONE;
+	
+	
 };

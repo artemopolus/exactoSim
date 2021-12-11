@@ -3,7 +3,11 @@
 
 #include "ExSimMainWidget.h"
 
+#include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
 
 void UExSimMainWidget::NativeConstruct()
@@ -116,6 +120,7 @@ void UExSimMainWidget::updateSwitchObjText(const FString str)
 
 void UExSimMainWidget::onSwitchObjButtonClicked()
 {
+	std::string start = "Gen. Object: ";
 	std::string * str = nullptr;
 	while(str == nullptr)
 	{
@@ -123,10 +128,68 @@ void UExSimMainWidget::onSwitchObjButtonClicked()
 		if (GenObjKey >= AExSimStorage::exsim_genobj_type::EXGT_END)
 			GenObjKey = -1;
 	}
-	updateSwitchObjText(*str);
-	if (DataStorage)
-		DataStorage->registerExtendedCmd(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, GenObjKey);
+	if (str != nullptr)
+	{
+		start += *str;
+		updateSwitchObjText(start);
+		if (DataStorage)
+			DataStorage->registerExtendedCmd(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, GenObjKey);
 		//DataStorage->registerCmdToSelected(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, static_cast<float>(GenObjKey - 1));
+	}
+}
+
+void UExSimMainWidget::onApplyConstrButtonClicked()
+{
+	std::string start = "Constrain: ";
+	std::string * str = nullptr;
+	while(str == nullptr)
+	{
+		str = DataStorage->ConstrType.Find(++ConstrKey);
+		if (ConstrKey >= BulletHelpers::Constr::NONE)
+			ConstrKey = -1;
+	}	
+	if (str != nullptr)
+	{
+		start += *str;
+		if(ApplyConstrText)
+			ApplyConstrText->SetText(FText::FromString(start.c_str()));
+	}	
+}
+
+void UExSimMainWidget::onParentButtonClicked()
+{
+	FString output = "On parent button click! ";
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, output);
+}
+
+void UExSimMainWidget::onTargetButtonClicked()
+{
+}
+
+void UExSimMainWidget::onEscButtonClicked()
+{
+	escButton->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UExSimMainWidget::setupConstrainOptions(FVector2D loc)
+{
+	if (escButton)
+	{
+		escButton->SetVisibility(ESlateVisibility::Visible);
+		ParentButton->SetVisibility(ESlateVisibility::Visible);
+		TargetButton->SetVisibility(ESlateVisibility::Visible);
+		//UPanelSlot *sl = escButton->Slot;
+		UCanvasPanelSlot *pt = static_cast<UCanvasPanelSlot*> (OptionsPanel->Slot);
+		loc -= pt->GetSize()/2;
+		pt->SetPosition(loc);
+		
+	}
+}
+
+UExSimMainWidget::~UExSimMainWidget()
+{
+	if (Test)
+		delete Test;
 }
 
 bool UExSimMainWidget::Initialize()
@@ -140,14 +203,44 @@ bool UExSimMainWidget::Initialize()
 	}*/
 	if (SwitchObjButton)
 		SwitchObjButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onSwitchObjButtonClicked);
+
+	if(ApplyConstrButton)
+	{
+		//ApplyConstrButton->SetVisibility(ESlateVisibility::Hidden);
+		ApplyConstrButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onApplyConstrButtonClicked);
+	}
 	
 	//this->GetOwningPlayer()->Player->GetPlayerController(this->GetWorld())->bShowMouseCursor = true;
+	if (InputOptions)
+		InputOptions->SetText(FText::FromString("Hello"));
 
 	if (DataStorage)
 	{
 		std::string * str = DataStorage->GenObjType.Find(GenObjKey++);
 		updateSwitchObjText(*str);
+		DataStorage->setTargetWidget(this);
+		//GetOwningPlayer()->bShowMouseCursor = true;
+		
 	}
+
+	if (ParentButton)
+	{
+		ParentButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onParentButtonClicked);
+		ParentButton->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (TargetButton)
+	{
+		TargetButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onTargetButtonClicked);
+		TargetButton->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (escButton)
+	{
+		escButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onEscButtonClicked);
+		escButton->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
 	
 	return Super::Initialize();
 }

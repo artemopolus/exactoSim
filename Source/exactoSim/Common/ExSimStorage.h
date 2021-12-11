@@ -38,6 +38,8 @@ public:
 		EXCT_DELETE,
 		EXCT_SWITCH
 	};
+private:
+	UUserWidget * CurrentWidget = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
@@ -56,5 +58,10 @@ public:
 	void registerExtendedCmd(int type, int value);
 
 	TMap<int, std::string> GenObjType;
+	TMap<int, std::string> ConstrType;
+
+	void setTargetWidget( UUserWidget * widget);
+
+	FVector2D clicked();
 	
 };

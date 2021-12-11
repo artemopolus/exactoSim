@@ -15,9 +15,10 @@ class EXACTOSIM_API BulletHelpers
 public:
 	enum Constr
 	{
-		HINGE,
+		HINGE = 0,
 		HINGE2,
-		GEN6DOF_SPRING
+		GEN6DOF_SPRING,
+		NONE
 	};
 	
 	static float ToUESize(btScalar Sz)

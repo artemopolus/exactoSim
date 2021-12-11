@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "ExScene.generated.h"
 
+class AExGenerator;
+
 UCLASS()
 class EXACTOSIM_API AExScene : public AActor
 {
@@ -22,7 +24,16 @@ public:
 		FVector SpawnGeneratorLoc = FVector(0,50,300);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector SpawnObjectLoc = FVector(0, -100, 200);
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tags")
+		FString BaseTag = "Spawned";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tags")
+		FString PhysicsTag = "Bullet";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tags")
+		FString DynamicTag = "Dynamic";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tags")
+		FString StaticTag = "Static";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tags")
+		FString GeneratorTag = "Generator";	
 	struct actor_cmd
 	{
 		int value_int;
@@ -84,6 +95,8 @@ private:
 	};
 	stage CurrentStage = stage::NONE;
 	float Time = 0;
+
+	AExGenerator * CurrentGenerator = nullptr;
 public:
 	struct actor_info
 	{
