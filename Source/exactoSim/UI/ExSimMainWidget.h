@@ -43,6 +43,12 @@ public:
 	UFUNCTION()
 		void setupConstrainOptions(FVector2D loc);
 
+	UFUNCTION()
+		void onGenerateButtonClicked();
+
+	UFUNCTION()
+		void onChangeModeButtonClicked();
+
 	virtual ~UExSimMainWidget() override;
 
 
@@ -52,6 +58,7 @@ private:
 	void updateDebugText(const std::string str);
 	void updateSwitchObjText(const std::string str);
 	void updateSwitchObjText(const FString str);
+	void setVisibilityOptionsPanel(bool onoff);
 protected:
 	bool Initialize() override;
 public:
@@ -92,7 +99,16 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UCanvasPanel * OptionsPanel;
 
-	UButton * Test;	
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * GenerateButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * GenerateText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * ChangeModeButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * ChangeModeText;	
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExSimStorage * DataStorage;

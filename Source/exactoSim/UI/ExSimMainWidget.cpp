@@ -118,6 +118,26 @@ void UExSimMainWidget::updateSwitchObjText(const FString str)
 	}
 }
 
+void UExSimMainWidget::setVisibilityOptionsPanel(bool onoff)
+{
+	ESlateVisibility value = ESlateVisibility::Visible;
+	if(onoff)
+	{
+		value = ESlateVisibility::Visible;
+	}
+	else
+	{
+		value = ESlateVisibility::Hidden;
+	}
+	if (escButton)
+		escButton->SetVisibility(value);
+	if(ParentButton)
+    	ParentButton->SetVisibility(value);
+	if (TargetButton)
+    	TargetButton->SetVisibility(value);
+	
+}
+
 void UExSimMainWidget::onSwitchObjButtonClicked()
 {
 	std::string start = "Gen. Object: ";
@@ -133,7 +153,8 @@ void UExSimMainWidget::onSwitchObjButtonClicked()
 		start += *str;
 		updateSwitchObjText(start);
 		if (DataStorage)
-			DataStorage->registerExtendedCmd(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, GenObjKey);
+			DataStorage->setSceneObjName("Test", FString(str->c_str()));
+			//DataStorage->registerExtendedCmd(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, GenObjKey);
 		//DataStorage->registerCmdToSelected(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, static_cast<float>(GenObjKey - 1));
 	}
 }
@@ -160,24 +181,24 @@ void UExSimMainWidget::onParentButtonClicked()
 {
 	FString output = "On parent button click! ";
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, output);
+	setVisibilityOptionsPanel(false);
 }
 
 void UExSimMainWidget::onTargetButtonClicked()
 {
+	setVisibilityOptionsPanel(false);
 }
 
 void UExSimMainWidget::onEscButtonClicked()
 {
-	escButton->SetVisibility(ESlateVisibility::Hidden);
+	setVisibilityOptionsPanel(false);
 }
 
 void UExSimMainWidget::setupConstrainOptions(FVector2D loc)
 {
-	if (escButton)
+	if (OptionsPanel)
 	{
-		escButton->SetVisibility(ESlateVisibility::Visible);
-		ParentButton->SetVisibility(ESlateVisibility::Visible);
-		TargetButton->SetVisibility(ESlateVisibility::Visible);
+		setVisibilityOptionsPanel(true);
 		//UPanelSlot *sl = escButton->Slot;
 		UCanvasPanelSlot *pt = static_cast<UCanvasPanelSlot*> (OptionsPanel->Slot);
 		loc -= pt->GetSize()/2;
@@ -186,10 +207,28 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc)
 	}
 }
 
+void UExSimMainWidget::onGenerateButtonClicked()
+{
+	if (DataStorage)
+	{
+		DataStorage->createSceneObj();
+	}
+}
+
+void UExSimMainWidget::onChangeModeButtonClicked()
+{
+	if (ChangeModeText)
+	{
+		FString output = "On parent button click! ";
+		output = DataStorage->switchMode();
+     	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, output);
+		ChangeModeText->SetText(FText::FromString(output));
+	}
+}
+
 UExSimMainWidget::~UExSimMainWidget()
 {
-	if (Test)
-		delete Test;
+	
 }
 
 bool UExSimMainWidget::Initialize()
@@ -239,6 +278,16 @@ bool UExSimMainWidget::Initialize()
 	{
 		escButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onEscButtonClicked);
 		escButton->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (GenerateButton)
+	{
+		GenerateButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onGenerateButtonClicked);
+	}
+
+	if (ChangeModeButton)
+	{
+		ChangeModeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onChangeModeButtonClicked);
 	}
 	
 	

@@ -10,6 +10,7 @@ AExSimPlayer::AExSimPlayer()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
 }
 
 void AExSimPlayer::activateFunction() 
@@ -36,30 +37,78 @@ void AExSimPlayer::moveLeft(float value)
 		DataStorage->registerCmdToSelected(1,-MoveHorizontalStepSz);
 }
 
+void AExSimPlayer::moveAction(FVector loc, FRotator rot)
+{
+	if (DataStorage->getMode() == AExSimStorage::es_modes::EDIT)
+	{
+			
+	}
+	else if (DataStorage->getMode() == AExSimStorage::es_modes::MOVE)
+	{
+		FRotator rotation = GetActorRotation() + rot;
+		FVector direction = rotation.RotateVector(loc);
+		SetActorLocation(GetActorLocation() + direction);
+		SetActorRotation(rotation);
+	}	
+}
 void AExSimPlayer::moveForward(float value)
 {
+	if (value != 0.f)
+	{
+		moveAction(FVector(MoveHorizontalStepSz,0,0), FRotator(0,0,0));
+	}
 }
 
 void AExSimPlayer::moveBack(float value)
 {
+	if (value != 0.f)
+	{
+		moveAction(FVector(-MoveHorizontalStepSz,0,0), FRotator(0,0,0));
+	}
 }
 
 void AExSimPlayer::moveUp(float value)
 {
+	if (value != 0.f)
+	{
+		moveAction(FVector(0,0,MoveVerticalStepSz), FRotator(0,0,0));
+	}	
 }
 
 void AExSimPlayer::moveDown(float value)
 {
+	if (value != 0.f)
+	{
+		moveAction(FVector(0,0,-MoveVerticalStepSz), FRotator(0,0,0));
+	}		
 }
 
-void AExSimPlayer::rotateUp() 
+void AExSimPlayer::rotateUp(float value) 
 {
-	DataStorage->registerCmdToSelected(2,RotateStepSZ);
+	//DataStorage->registerCmdToSelected(2,RotateStepSZ);
+	if (value != 0.f)
+		moveAction(FVector(0,0,0), FRotator(0,RotateStepSZ,0));
 }
 
-void AExSimPlayer::rotateDown() 
+void AExSimPlayer::rotateDown(float value) 
 {
-	DataStorage->registerCmdToSelected(2,-RotateStepSZ);
+	//DataStorage->registerCmdToSelected(2,-RotateStepSZ);
+	if (value != 0.f)
+		moveAction(FVector(0,0,0), FRotator(0,-RotateStepSZ,0));
+}
+
+void AExSimPlayer::rotateRight(float value)
+{
+
+	if (value != 0.f)
+		moveAction(FVector(0,0,0), FRotator(RotateStepSZ,0,0));
+
+}
+
+void AExSimPlayer::rotateLeft(float value)
+{
+	if (value != 0.f)
+		moveAction(FVector(0,0,0), FRotator(-RotateStepSZ,0,0));
 }
 
 void AExSimPlayer::setupConstrainOptions(FVector2D loc)
@@ -69,6 +118,20 @@ void AExSimPlayer::setupConstrainOptions(FVector2D loc)
 		TargetWidget->setupConstrainOptions(loc);
 	}
 }
+
+void AExSimPlayer::checkSelectedActor(AActor* actor, FVector2D mouse_loc)
+{
+	for(int i = 0; i < actor->Tags.Num(); i++)
+	{
+		if (actor->Tags[i].ToString() == DataStorage->CurrentScene->BaseTag)
+		{
+			
+		}
+	}
+}
+
+
+
 
 
 void AExSimPlayer::sendDataToStorage()
@@ -109,8 +172,10 @@ void AExSimPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	InputComponent->BindAxis("moveUp", this, &AExSimPlayer::moveUp);
 	InputComponent->BindAxis("moveDown", this, &AExSimPlayer::moveDown);
 	
-	InputComponent->BindAction("rotateUp",IE_Pressed, this, &AExSimPlayer::rotateUp);
-	InputComponent->BindAction("rotateDown",IE_Pressed, this, &AExSimPlayer::rotateDown);
+	InputComponent->BindAxis("rotateUp", this, &AExSimPlayer::rotateUp);
+	InputComponent->BindAxis("rotateDown", this, &AExSimPlayer::rotateDown);
+	InputComponent->BindAxis("rotateLeft", this, &AExSimPlayer::rotateLeft);
+	InputComponent->BindAxis("rotateRight", this, &AExSimPlayer::rotateRight);
 	
 }
 

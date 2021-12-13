@@ -85,6 +85,15 @@ FString AExSimFileManager::getPathToModel(FString name)
 	return PathToModelFolder + name;
 }
 
+FString AExSimFileManager::getPathToBlueprint(FString name)
+{
+	const FString suffix = "_C'";
+	const FString folder = "Class'/Game/Blueprint/Scene/";
+	const FString name_prefix = "BP_ExSmplBox_";	
+	const FString trg_name = name_prefix + name;
+	return  folder + trg_name + TEXT(".") + trg_name + suffix;
+}
+
 void AExSimFileManager::openModel(FString name)
 {
 	if (MeshLoader != nullptr)

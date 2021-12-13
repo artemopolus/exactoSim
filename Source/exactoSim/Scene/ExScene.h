@@ -52,6 +52,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void sendCmdToSelected(int type, float value);
 
+	UFUNCTION(BlueprintCallable)
+		void moveGenerator(FVector loc, FRotator rot);
+
 	void sendExtendedCmdToSelected( actor_cmd cmd);
 
 protected:
@@ -61,8 +64,10 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name);
-	void addObjByPath(FVector location, FRotator rotation, std::string path, std::string name, FVector impulse);
+	void addObjByPath( FVector location, FRotator rotation, std::string path, std::string name);
+	void addObjByPath( FVector location, FRotator rotation, std::string path, std::string name, FVector impulse);
+	bool addObjByPath( std::string path, std::string name, btRigidBody * body);
+	bool addObjByPath( const FString path, const FString name, btRigidBody * body, FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0));
 
 	void deleteSceneObjByPrefix(std::string prefix);
 

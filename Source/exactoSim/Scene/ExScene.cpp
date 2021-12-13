@@ -99,6 +99,19 @@ void AExScene::sendCmdToSelected(int type, float value)
 
 }
 
+void AExScene::moveGenerator(FVector loc, FRotator rot)
+{
+	if (CurrentGenerator)
+	{
+		CurrentGenerator->SetActorLocation(loc);
+		CurrentGenerator->SetActorRotation(rot);
+	}
+	else
+	{
+		addGenerator(FVector(0,0,0), FRotator(0,0,0));
+	}
+}
+
 void AExScene::sendExtendedCmdToSelected(actor_cmd cmd)
 {
 	if (CurrentGenerator != nullptr)
@@ -160,6 +173,49 @@ void AExScene::addObjByPath(FVector location, FRotator rotation, std::string pat
 		}
 		SceneObjects.Add(elem);
 	}	
+}
+
+bool AExScene::addObjByPath( std::string path, std::string name, btRigidBody * body)
+{
+	FVector location(0,0,0);
+	FRotator rotation(0,0,0);
+	if (CurrentGenerator)
+	{
+		location = CurrentGenerator->GetActorLocation();
+		rotation = CurrentGenerator->GetActorRotation();
+	}
+	bool result = false;
+	FString fpath(path.c_str());
+	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
+	if ((obj != nullptr)&&ExPhyzX)
+	{
+		FActorSpawnParameters params;
+		params.Name = name.c_str();
+		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		body = ExPhyzX->AddRigidBody(spawned_obj);
+		result = true;
+	}
+	return result;
+}
+
+bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody* body, FVector location, FRotator rotation)
+{
+	if (CurrentGenerator)
+	{
+		location = CurrentGenerator->GetActorLocation();
+		rotation = CurrentGenerator->GetActorRotation();
+	}
+	bool result = false;
+	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *path);
+	if ((obj != nullptr)&&ExPhyzX)
+	{
+		FActorSpawnParameters params;
+		params.Name = FName(name);
+		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		body = ExPhyzX->AddRigidBody(spawned_obj);
+		result = true;
+	}
+	return result;
 }
 void AExScene::addCarGen(FVector location, FRotator rotation)
 {

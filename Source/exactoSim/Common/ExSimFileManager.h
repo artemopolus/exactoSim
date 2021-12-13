@@ -39,6 +39,8 @@ public:
 
 	FString getPathToModel(FString name);
 
+	FString getPathToBlueprint(FString name);
+
 	void openModel(FString name);
 	void loadMeshInComponent(UProceduralMeshComponent* target);	
 };

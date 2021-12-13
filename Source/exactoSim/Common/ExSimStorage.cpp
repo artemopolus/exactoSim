@@ -2,9 +2,11 @@
 
 
 #include "ExSimStorage.h"
+#include "exactoSim/BulletSpec/BulletMinimal.h"
 #include <string>
 
 #include "Blueprint/UserWidget.h"
+#include "exactoSim/Scene/ExSmplBox.h"
 
 // Sets default values
 AExSimStorage::AExSimStorage()
@@ -22,7 +24,15 @@ AExSimStorage::AExSimStorage()
 	ConstrType.Add(BulletHelpers::Constr::HINGE,			std::string("Hinge"));
 	ConstrType.Add(BulletHelpers::Constr::HINGE2,			std::string("Hinge2"));
 	ConstrType.Add(BulletHelpers::Constr::GEN6DOF_SPRING,	std::string("Gen6DOF_Spring"));
-
+	
+	ModeList.Add(es_modes::EDIT,FString("Edit"));
+	ModeList.Add(es_modes::MOVE, FString("Move"));
+	
+	TargetName = "Test";
+	TargetType = "Simple";
+	TargetLocation = FVector(0,0,0);
+	TargetRotation = FRotator(0,0,0);
+	SceneObjCreated = 0;
 	
 }
 
@@ -82,12 +92,64 @@ void AExSimStorage::setTargetWidget(UUserWidget* widget)
 	CurrentWidget = widget;
 }
 
+void AExSimStorage::createSceneObj()
+{
+	SceneObjCreated++;
+	if (ExWorld && ExWorld->ExFileManager)
+	{
+		FString path = ExWorld->ExFileManager->getPathToBlueprint(TargetType);
+		btRigidBody * body = nullptr;
+		FString name = TargetName + TEXT("_") + TargetType + TEXT("_") + FString::FromInt(SceneObjCreated);
+		if (CurrentScene->addObjByPath(path, name, body))
+		{
+			AExSmplBox * target = static_cast<AExSmplBox*>(body->getUserPointer());
+			es_component * component = new es_component();
+			target->setEScomponent(component);
+			component->body = body;
+			component->target = target;
+			es_complex * complex = new es_complex();
+			complex->basis = component;
+			complex->components.Add(component);
+			complex->name = name;
+			ExSimComplexList.Add(complex);
+		}
+	}
+}
+
+void AExSimStorage::setSceneObjName(FString name, FString type_name)
+{
+	TargetName = name;
+	TargetType = type_name;
+}
+
+void AExSimStorage::addSceneObjLocRot(FVector loc, FRotator rot)
+{
+	TargetLocation += loc;
+	TargetRotation += rot;
+	CurrentScene->moveGenerator(loc, rot);
+}
+
 FVector2D AExSimStorage::clicked()
 {
 	
 	FString output = TEXT("Mouse pos: clicked") ;
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, output);
 	return FVector2D(0,0);
+}
+
+FString AExSimStorage::switchMode()
+{
+	CurrentMode ++;
+	if (CurrentMode == es_modes::END)
+	{
+		CurrentMode = 0;
+	}
+	return *ModeList.Find(CurrentMode);
+}
+
+int AExSimStorage::getMode()
+{
+	return CurrentMode;
 }
 
 

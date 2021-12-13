@@ -18,32 +18,19 @@ public:
 	// Sets default values for this pawn's properties
 	AExSimPlayer();
 
-	void activateFunction() ;
-	void activateDifFunction() ;
-	void moveRight(float value) ;
-	void moveLeft(float value) ;
-	void moveForward(float value);
-	void moveBack(float value);
-	void moveUp(float value);
-	void moveDown(float value);
-	
-	void rotateUp() ;
-	void rotateDown() ;
 
 
-	void setupConstrainOptions(FVector2D loc);
-
-	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExSimStorage * DataStorage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UExSimMainWidget * TargetWidget;
 	
-	UFUNCTION(BlueprintCallable)
-		void sendDataToStorage();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float StartImpulse = -300;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MoveVerticalStepSz = 10;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MoveHorizontalStepSz = 10;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -51,6 +38,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UCameraComponent * TrgCamera;
+
+
 	
 
 protected:
@@ -64,6 +53,28 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+		void sendDataToStorage();
 
-	
+	//actions
+	void activateFunction() ;
+	void activateDifFunction() ;
+	//axis
+	void moveRight(float value) ;
+	void moveLeft(float value) ;
+	void moveForward(float value);
+	void moveBack(float value);
+	void moveUp(float value);
+	void moveDown(float value);
+	void rotateUp(float value) ;
+	void rotateDown(float value) ;
+	void rotateRight(float value);
+	void rotateLeft(float value);
+
+
+	void setupConstrainOptions(FVector2D loc);
+	void checkSelectedActor(AActor * actor, FVector2D mouse_loc);
+
+private:
+	void moveAction(FVector loc, FRotator rot);
 };
