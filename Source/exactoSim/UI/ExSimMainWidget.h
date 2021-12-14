@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include "CoreMinimal.h"
+#include "ExButtonWidget.h"
 #include "ExEditableWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "exactoSim/Common/ExSimStorage.h"
@@ -49,10 +50,14 @@ public:
 
 	UFUNCTION()
 		void onChangeModeButtonClicked();
+
+	UFUNCTION()
+		void onOptionsButtonOkClicked();
+	
 	virtual ~UExSimMainWidget() override;
 
 	void addToStorage(UClass * w_template);
-
+	void addButtonToStorage(UClass * w_template);
 
 private:
 	void setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha);
@@ -134,5 +139,6 @@ private:
 	int GenObjKey = 0;
 	int ConstrKey = BulletHelpers::Constr::NONE;
 	
-	UExEditableWidget * Menu;		
+	TArray<UExEditableWidget *> OptionsList; 
+	UExButtonWidget * OptionsButton_Ok = nullptr;
 };

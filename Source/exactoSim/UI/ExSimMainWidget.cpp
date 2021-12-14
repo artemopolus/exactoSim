@@ -227,11 +227,8 @@ void UExSimMainWidget::onChangeModeButtonClicked()
 	}
 }
 
-/*UExSimMainWidget::UExSimMainWidget()
-{
-	ConstructorHelpers::FClassFinder<UUserWidget> MenuClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExEditable'"));
-	MenuClass = MenuClassFinder.Class;
-}*/
+
+
 
 UExSimMainWidget::~UExSimMainWidget()
 {
@@ -240,10 +237,30 @@ UExSimMainWidget::~UExSimMainWidget()
 
 void UExSimMainWidget::addToStorage(UClass* w_template)
 {
-	Menu = CreateWidget<UExEditableWidget>(this, w_template);
+	UExEditableWidget * Menu = CreateWidget<UExEditableWidget>(this, w_template);
+	OptionsList.Add(Menu);
 	StorageWrapBox->AddChild(Menu);
 }
 
+void UExSimMainWidget::addButtonToStorage(UClass* w_template)
+{
+	if (!OptionsButton_Ok)
+	{
+		OptionsButton_Ok = CreateWidget<UExButtonWidget>(this, w_template);
+		StorageWrapBox->AddChild(OptionsButton_Ok);
+		OptionsButton_Ok->setName("Ok");
+		OptionsButton_Ok->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onOptionsButtonOkClicked);
+	}
+}
+void UExSimMainWidget::onOptionsButtonOkClicked()
+{
+	OptionsButton_Ok->RemoveFromParent();
+	//delete OptionsButton_Ok;
+	StorageWrapBox->ClearChildren();
+	for (auto & option : OptionsList)
+		option->RemoveFromParent();
+	OptionsList.Empty();
+}
 bool UExSimMainWidget::Initialize()
 {
 	updateDebugText(std::string("test"));	

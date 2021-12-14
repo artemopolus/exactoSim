@@ -3,9 +3,6 @@
 
 #include "ExSimPlayer.h"
 
-#include "ExEditableWidget.h"
-#include "Components/CanvasPanelSlot.h"
-
 
 // Sets default values
 AExSimPlayer::AExSimPlayer()
@@ -14,7 +11,9 @@ AExSimPlayer::AExSimPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ConstructorHelpers::FClassFinder<UUserWidget> MenuClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExEditable'"));
-	MenuClass = MenuClassFinder.Class;
+	OptionClass = MenuClassFinder.Succeeded()? MenuClassFinder.Class : nullptr;
+	ConstructorHelpers::FClassFinder<UUserWidget> ButtonClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExButton'"));
+	ButtonClass = ButtonClassFinder.Succeeded() ? ButtonClassFinder.Class : nullptr;
 }
 
 void AExSimPlayer::activateFunction() 
@@ -31,14 +30,14 @@ void AExSimPlayer::activateDifFunction()
 
 void AExSimPlayer::moveRight(float value) 
 {
-	//if (value != 0.f)
-		//DataStorage->registerCmdToSelected(1, MoveHorizontalStepSz);
+	if (value != 0.f)
+		moveAction(FVector(0,MoveHorizontalStepSz,0), FRotator(0,0,0));
 }
 
 void AExSimPlayer::moveLeft(float value) 
 {
-	//if (value != 0.f)
-		//DataStorage->registerCmdToSelected(1,-MoveHorizontalStepSz);
+	if (value != 0.f)
+		moveAction(FVector(0,-MoveHorizontalStepSz,0), FRotator(0,0,0));
 }
 
 void AExSimPlayer::moveAction(FVector loc, FRotator rot)
@@ -89,14 +88,12 @@ void AExSimPlayer::moveDown(float value)
 
 void AExSimPlayer::rotateUp(float value) 
 {
-	//DataStorage->registerCmdToSelected(2,RotateStepSZ);
 	if (value != 0.f)
 		moveAction(FVector(0,0,0), FRotator(0,RotateStepSZ,0));
 }
 
 void AExSimPlayer::rotateDown(float value) 
 {
-	//DataStorage->registerCmdToSelected(2,-RotateStepSZ);
 	if (value != 0.f)
 		moveAction(FVector(0,0,0), FRotator(0,-RotateStepSZ,0));
 }
@@ -151,8 +148,14 @@ void AExSimPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	TargetWidget->addToStorage(MenuClass);
+	if (OptionClass && ButtonClass)
+	{
+		TargetWidget->addToStorage(OptionClass);
+		TargetWidget->addToStorage(OptionClass);
+		TargetWidget->addToStorage(OptionClass);
+		TargetWidget->addToStorage(OptionClass);
+		TargetWidget->addButtonToStorage(ButtonClass);
+	}
 	
 	
 }

@@ -40,7 +40,8 @@ public:
 		UCameraComponent * TrgCamera;
 
 private:
-	UClass * MenuClass;
+	UClass * OptionClass;
+	UClass * ButtonClass;
 	
 
 protected:
