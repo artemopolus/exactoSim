@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include "CoreMinimal.h"
+#include "ExEditableWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "exactoSim/Common/ExSimStorage.h"
 
@@ -48,8 +49,9 @@ public:
 
 	UFUNCTION()
 		void onChangeModeButtonClicked();
-
 	virtual ~UExSimMainWidget() override;
+
+	void addToStorage(UClass * w_template);
 
 
 private:
@@ -107,7 +109,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton * ChangeModeButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * ChangeModeText;	
+		class UTextBlock * ChangeModeText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UWrapBox * StorageWrapBox;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -129,5 +134,5 @@ private:
 	int GenObjKey = 0;
 	int ConstrKey = BulletHelpers::Constr::NONE;
 	
-	
+	UExEditableWidget * Menu;		
 };

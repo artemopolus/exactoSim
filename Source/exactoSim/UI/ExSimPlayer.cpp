@@ -3,6 +3,9 @@
 
 #include "ExSimPlayer.h"
 
+#include "ExEditableWidget.h"
+#include "Components/CanvasPanelSlot.h"
+
 
 // Sets default values
 AExSimPlayer::AExSimPlayer()
@@ -10,7 +13,8 @@ AExSimPlayer::AExSimPlayer()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-
+	ConstructorHelpers::FClassFinder<UUserWidget> MenuClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExEditable'"));
+	MenuClass = MenuClassFinder.Class;
 }
 
 void AExSimPlayer::activateFunction() 
@@ -146,6 +150,10 @@ void AExSimPlayer::sendDataToStorage()
 void AExSimPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+	TargetWidget->addToStorage(MenuClass);
+	
 	
 }
 

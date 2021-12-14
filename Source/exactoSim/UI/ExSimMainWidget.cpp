@@ -9,6 +9,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
+#include "Components/WrapBox.h"
 
 void UExSimMainWidget::NativeConstruct()
 {
@@ -226,9 +227,21 @@ void UExSimMainWidget::onChangeModeButtonClicked()
 	}
 }
 
+/*UExSimMainWidget::UExSimMainWidget()
+{
+	ConstructorHelpers::FClassFinder<UUserWidget> MenuClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExEditable'"));
+	MenuClass = MenuClassFinder.Class;
+}*/
+
 UExSimMainWidget::~UExSimMainWidget()
 {
 	
+}
+
+void UExSimMainWidget::addToStorage(UClass* w_template)
+{
+	Menu = CreateWidget<UExEditableWidget>(this, w_template);
+	StorageWrapBox->AddChild(Menu);
 }
 
 bool UExSimMainWidget::Initialize()
@@ -289,6 +302,7 @@ bool UExSimMainWidget::Initialize()
 	{
 		ChangeModeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onChangeModeButtonClicked);
 	}
+
 	
 	
 	return Super::Initialize();

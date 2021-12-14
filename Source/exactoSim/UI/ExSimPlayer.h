@@ -39,7 +39,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UCameraComponent * TrgCamera;
 
-
+private:
+	UClass * MenuClass;
 	
 
 protected:
