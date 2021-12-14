@@ -17,31 +17,31 @@ void AExSimPlayer::activateFunction()
 {
 	//some action
 	UE_LOG(LogTemp, Warning, TEXT("Activate function!"));
-	DataStorage->registerCmdToSelected(0,0.);
+	//DataStorage->registerCmdToSelected(0,0.);
 }
 
 void AExSimPlayer::activateDifFunction() 
 {
-	DataStorage->registerCmdToSelected(3,StartImpulse);
+	//DataStorage->registerCmdToSelected(3,StartImpulse);
 }
 
 void AExSimPlayer::moveRight(float value) 
 {
-	if (value != 0.f)
-		DataStorage->registerCmdToSelected(1, MoveHorizontalStepSz);
+	//if (value != 0.f)
+		//DataStorage->registerCmdToSelected(1, MoveHorizontalStepSz);
 }
 
 void AExSimPlayer::moveLeft(float value) 
 {
-	if (value != 0.f)
-		DataStorage->registerCmdToSelected(1,-MoveHorizontalStepSz);
+	//if (value != 0.f)
+		//DataStorage->registerCmdToSelected(1,-MoveHorizontalStepSz);
 }
 
 void AExSimPlayer::moveAction(FVector loc, FRotator rot)
 {
 	if (DataStorage->getMode() == AExSimStorage::es_modes::EDIT)
 	{
-			
+		DataStorage->manipulateGenerator(loc, rot);
 	}
 	else if (DataStorage->getMode() == AExSimStorage::es_modes::MOVE)
 	{

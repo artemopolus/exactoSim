@@ -26,7 +26,7 @@ void AExScene::addSmplTestObject(FVector location, FRotator rotation)
 
 void AExScene::addGenerator(FVector location, FRotator rotation)
 {
-	if (CurrentGenerator != nullptr)
+	if (CurrentGenerator == nullptr)
 	{
 		const std::string path = "Class'/Game/Blueprint/Scene/BP_ExGenerator.BP_ExGenerator_C'";
 		FString fpath(path.c_str());
@@ -101,15 +101,19 @@ void AExScene::sendCmdToSelected(int type, float value)
 
 void AExScene::moveGenerator(FVector loc, FRotator rot)
 {
+	FString output = "Generator: ";
 	if (CurrentGenerator)
 	{
-		CurrentGenerator->SetActorLocation(loc);
-		CurrentGenerator->SetActorRotation(rot);
+		output += "move";
+		CurrentGenerator->SetActorLocation(CurrentGenerator->GetActorLocation() + loc);
+		CurrentGenerator->SetActorRotation(CurrentGenerator->GetActorRotation() + rot);
 	}
 	else
 	{
-		addGenerator(FVector(0,0,0), FRotator(0,0,0));
+		output += "create";
+		addGenerator(SpawnGeneratorLoc, FRotator(0,0,0));
 	}
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, output);
 }
 
 void AExScene::sendExtendedCmdToSelected(actor_cmd cmd)

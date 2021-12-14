@@ -133,5 +133,7 @@ public:
 	FString switchMode ();
 
 	int getMode();
+
+	void manipulateGenerator(FVector loc, FRotator rot);
 	
 };

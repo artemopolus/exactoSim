@@ -152,4 +152,12 @@ int AExSimStorage::getMode()
 	return CurrentMode;
 }
 
+void AExSimStorage::manipulateGenerator(FVector loc, FRotator rot)
+{
+	if (CurrentScene)
+	{
+		CurrentScene->moveGenerator(loc, rot);
+	}
+}
+
 
