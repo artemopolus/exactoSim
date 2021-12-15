@@ -14,6 +14,9 @@ AExSimPlayer::AExSimPlayer()
 	OptionClass = MenuClassFinder.Succeeded()? MenuClassFinder.Class : nullptr;
 	ConstructorHelpers::FClassFinder<UUserWidget> ButtonClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExButton'"));
 	ButtonClass = ButtonClassFinder.Succeeded() ? ButtonClassFinder.Class : nullptr;
+	ConstructorHelpers::FClassFinder<UUserWidget> SelectorClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExSelector'"));
+	//WidgetBlueprint'/Game/Blueprint/UI/BP_ExSelector.BP_ExSelector'
+	SelectorClass = SelectorClassFinder.Succeeded() ? SelectorClassFinder.Class : nullptr;
 }
 
 void AExSimPlayer::activateFunction() 
@@ -154,6 +157,14 @@ void AExSimPlayer::BeginPlay()
 		TargetWidget->addToStorage(OptionClass);
 		TargetWidget->addToStorage(OptionClass);
 		TargetWidget->addToStorage(OptionClass);
+
+		TArray<FString> options;
+		options.Add("some");
+		options.Add("give");
+		options.Add("me");
+		options.Add("reason");
+
+		TargetWidget->addSelectorToStorage(SelectorClass,"qualify", options);
 		TargetWidget->addButtonToStorage(ButtonClass);
 	}
 	

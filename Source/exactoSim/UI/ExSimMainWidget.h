@@ -7,6 +7,7 @@
 #include "CoreMinimal.h"
 #include "ExButtonWidget.h"
 #include "ExEditableWidget.h"
+#include "ExSelector.h"
 #include "Blueprint/UserWidget.h"
 #include "exactoSim/Common/ExSimStorage.h"
 
@@ -58,6 +59,7 @@ public:
 
 	void addToStorage(UClass * w_template);
 	void addButtonToStorage(UClass * w_template);
+	void addSelectorToStorage(UClass * w_template, FString name, TArray<FString> optionlist);
 
 private:
 	void setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha);
@@ -139,6 +141,7 @@ private:
 	int GenObjKey = 0;
 	int ConstrKey = BulletHelpers::Constr::NONE;
 	
-	TArray<UExEditableWidget *> OptionsList; 
+	TArray<UExEditableWidget *> OptionsList;
+	TArray<UExSelector *> SelectorList;
 	UExButtonWidget * OptionsButton_Ok = nullptr;
 };

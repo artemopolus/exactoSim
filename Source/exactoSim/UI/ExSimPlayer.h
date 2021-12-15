@@ -42,6 +42,7 @@ public:
 private:
 	UClass * OptionClass;
 	UClass * ButtonClass;
+	UClass * SelectorClass;
 	
 
 protected:

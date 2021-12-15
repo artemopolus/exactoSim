@@ -252,6 +252,19 @@ void UExSimMainWidget::addButtonToStorage(UClass* w_template)
 		OptionsButton_Ok->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onOptionsButtonOkClicked);
 	}
 }
+
+void UExSimMainWidget::addSelectorToStorage(UClass* w_template, FString name, TArray<FString> optionlist)
+{
+	UExSelector * selector = CreateWidget<UExSelector>(this, w_template);
+	SelectorList.Add(selector);
+	selector->setSelectorText(name);
+	for (const auto option : optionlist)
+	{
+		selector->addSelectorValue(option);
+	}
+	StorageWrapBox->AddChild(selector);
+}
+
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
 	OptionsButton_Ok->RemoveFromParent();
