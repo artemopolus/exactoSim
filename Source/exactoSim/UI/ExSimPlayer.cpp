@@ -29,6 +29,23 @@ void AExSimPlayer::activateFunction()
 void AExSimPlayer::activateDifFunction() 
 {
 	//DataStorage->registerCmdToSelected(3,StartImpulse);
+	if (OptionClass && ButtonClass && SelectorClass)
+	{
+		TArray<FString> options;
+		options.Add("some");
+		options.Add("give");
+		options.Add("me");
+		options.Add("reason");
+
+		TargetWidget->addOptionToStorage("Test", "0.0; 0.0; 0.0");
+		TargetWidget->addOptionToStorage("Empty", "0.0; 0.0; 0.0");
+		TargetWidget->addOptionToStorage("gen", "0.0; 0.0; 0.0");
+
+		TargetWidget->addSelectToStorage("example:", options);
+
+		TargetWidget->addButtonToStorage("ok");
+
+	}
 }
 
 void AExSimPlayer::moveRight(float value) 
@@ -151,12 +168,12 @@ void AExSimPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (OptionClass && ButtonClass)
+	if (OptionClass && ButtonClass && SelectorClass)
 	{
-		TargetWidget->addToStorage(OptionClass);
-		TargetWidget->addToStorage(OptionClass);
-		TargetWidget->addToStorage(OptionClass);
-		TargetWidget->addToStorage(OptionClass);
+		TargetWidget->setOptionClass(OptionClass);
+		TargetWidget->setButtonClass(ButtonClass);
+		TargetWidget->setSelectorClass(SelectorClass);
+		
 
 		TArray<FString> options;
 		options.Add("some");
@@ -164,8 +181,14 @@ void AExSimPlayer::BeginPlay()
 		options.Add("me");
 		options.Add("reason");
 
-		TargetWidget->addSelectorToStorage(SelectorClass,"qualify", options);
-		TargetWidget->addButtonToStorage(ButtonClass);
+		TargetWidget->addOptionToStorage("Test", "0.0; 0.0; 0.0");
+		TargetWidget->addOptionToStorage("Empty", "0.0; 0.0; 0.0");
+		TargetWidget->addOptionToStorage("gen", "0.0; 0.0; 0.0");
+
+		TargetWidget->addSelectToStorage("example:", options);
+
+		TargetWidget->addButtonToStorage("ok");
+
 	}
 	
 	

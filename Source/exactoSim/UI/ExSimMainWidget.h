@@ -60,7 +60,16 @@ public:
 	void addToStorage(UClass * w_template);
 	void addButtonToStorage(UClass * w_template);
 	void addSelectorToStorage(UClass * w_template, FString name, TArray<FString> optionlist);
+	
+	void setSelectorClass(UClass * tmpl);
+	void setButtonClass(UClass * tmpl);
+	void setOptionClass(UClass * tmpl);
 
+	void addOptionToStorage(FString name, FString value);
+	void addButtonToStorage(FString name);
+	void addSelectToStorage(FString name, TArray<FString> option_list);
+
+	
 private:
 	void setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha);
 	void drawPtOnCanvas(int32 x, int32 y, uint8 red, uint8 green, uint8 blue, uint8 alpha);
@@ -144,4 +153,11 @@ private:
 	TArray<UExEditableWidget *> OptionsList;
 	TArray<UExSelector *> SelectorList;
 	UExButtonWidget * OptionsButton_Ok = nullptr;
+
+	UClass * SelectorClass;
+	UClass * ButtonClass;
+	UClass * OptionClass;
+
+
+	
 };

@@ -263,16 +263,68 @@ void UExSimMainWidget::addSelectorToStorage(UClass* w_template, FString name, TA
 		selector->addSelectorValue(option);
 	}
 	StorageWrapBox->AddChild(selector);
+	
+}
+
+void UExSimMainWidget::setSelectorClass(UClass* tmpl)
+{
+	SelectorClass = tmpl;
+}
+
+void UExSimMainWidget::setButtonClass(UClass* tmpl)
+{
+	ButtonClass = tmpl;
+}
+
+void UExSimMainWidget::setOptionClass(UClass* tmpl)
+{
+	OptionClass = tmpl;
+}
+
+void UExSimMainWidget::addOptionToStorage(FString name, FString value)
+{
+	UExEditableWidget * Menu = CreateWidget<UExEditableWidget>(this, OptionClass);
+	OptionsList.Add(Menu);
+	Menu->ValueName->SetText(FText::FromString(name));
+	Menu->ValueText->SetText(FText::FromString(value));
+	StorageWrapBox->AddChild(Menu);
+}
+
+void UExSimMainWidget::addButtonToStorage(FString name)
+{
+	//if (!OptionsButton_Ok)
+	//{
+		OptionsButton_Ok = CreateWidget<UExButtonWidget>(this, ButtonClass);
+		StorageWrapBox->AddChild(OptionsButton_Ok);
+		OptionsButton_Ok->setName(name);
+		OptionsButton_Ok->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onOptionsButtonOkClicked);
+	//}
+}
+
+void UExSimMainWidget::addSelectToStorage(FString name, TArray<FString> option_list)
+{
+	UExSelector * selector = CreateWidget<UExSelector>(this, SelectorClass);
+	SelectorList.Add(selector);
+	selector->setSelectorText(name);
+	for (const auto option : option_list)
+	{
+		selector->addSelectorValue(option);
+	}
+	StorageWrapBox->AddChild(selector);
 }
 
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
 	OptionsButton_Ok->RemoveFromParent();
+	//OptionsButton_Ok->FinishDestroy();
 	//delete OptionsButton_Ok;
 	StorageWrapBox->ClearChildren();
 	for (auto & option : OptionsList)
 		option->RemoveFromParent();
 	OptionsList.Empty();
+	for (auto & select : SelectorList)
+		select->RemoveFromRoot();
+	SelectorList.Empty();
 }
 bool UExSimMainWidget::Initialize()
 {
