@@ -42,37 +42,14 @@ public:
 		EXCT_DELETE,
 		EXCT_SWITCH
 	};
-	struct es_constraint
-	{
-		btTypedConstraint * constraint;
-		AActor * parent;
-    	BulletHelpers::Constr constr_type;
-		
-		FVector axis_t;
-    	FVector axis_p;
-    	FVector pivot_t;
-    	FVector pivot_p;
-		
-    	FString name_t;
-    	FString name_p;
-    	uint8_t en_spring[6];
-    	FVector upp_lim_lin;
-    	FVector low_lim_lin;
-    	FVector upp_lim_ang;
-    	FVector low_lim_ang;
-    
-    	FVector stiff_lin;
-    	FVector stiff_ang;
-    
-    	FVector dump_lin;
-    	FVector dump_ang;	
-	};
+	
+	struct es_complex;
 	struct es_component
 	{
 		AActor * target;
 		btRigidBody * body;
-		TArray<es_constraint *> constr_list;
-		
+		TArray<AExactoPhysics::es_constraint *> constr_list;
+		es_complex * basis;	
 	};
 	struct es_complex
 	{
@@ -123,6 +100,8 @@ public:
 	void setTargetWidget( UUserWidget * widget);
 
 	void createSceneObj(void);
+
+	void createConstraint(AActor * target, AActor * parent, AExactoPhysics::es_constraint params);
 
 	void setSceneObjName(FString name, FString type_name);
 

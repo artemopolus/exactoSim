@@ -7,6 +7,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "exactoSim/Scene/ExSmplBox.h"
+#include "exactoSim/UI/ExSimPlayer.h"
 
 // Sets default values
 AExSimStorage::AExSimStorage()
@@ -33,7 +34,13 @@ AExSimStorage::AExSimStorage()
 	TargetLocation = FVector(0,0,0);
 	TargetRotation = FRotator(0,0,0);
 	SceneObjCreated = 0;
-	
+
+	//создаем хранилище для новых объектов
+	ExSimComplexList.Empty();
+	es_complex * complex = new es_complex();
+	complex->basis = nullptr;
+	complex->name = "FreeObjects";
+	ExSimComplexList.Add(complex);	
 }
 
 // Called when the game starts or when spawned
@@ -102,18 +109,38 @@ void AExSimStorage::createSceneObj()
 		FString name = TargetName + TEXT("_") + TargetType + TEXT("_") + FString::FromInt(SceneObjCreated);
 		if (CurrentScene->addObjByPath(path, name, &body))
 		{
+			if (!body)
+				return;
 			AExSmplBox * target = static_cast<AExSmplBox*>(body->getUserPointer());
 			es_component * component = new es_component();
 			target->setEScomponent(component);
 			component->body = body;
 			component->target = target;
-			es_complex * complex = new es_complex();
-			complex->basis = component;
+			es_complex * complex = ExSimComplexList[0]; //for free component
+			component->basis = complex;
 			complex->components.Add(component);
-			complex->name = name;
-			ExSimComplexList.Add(complex);
 		}
 	}
+}
+
+void AExSimStorage::createConstraint(AActor* target, AActor* parent, AExactoPhysics::es_constraint params)
+{
+	AExSmplBox * parent_actor = static_cast<AExSmplBox*>(parent);
+	es_component * parent_component = parent_actor->getEScomponent();
+	if (parent_component->basis == ExSimComplexList[0])
+	{
+		parent_component->basis = new es_complex();
+		parent_component->basis->name = "Default";
+		ExSimComplexList.Add(parent_component->basis);
+		ExSimComplexList[0]->components.Remove(parent_component);
+	}
+	AExSmplBox * target_actor = static_cast<AExSmplBox*>(target);
+	es_component * target_component = target_actor->getEScomponent();
+	
+	target_component->basis->components.Remove(target_component);
+	
+	target_component->basis = parent_component->basis;
+	parent_component->basis->components.Add(target_component);
 }
 
 void AExSimStorage::setSceneObjName(FString name, FString type_name)

@@ -49,7 +49,31 @@ public:	//variables
 		FVector dump_lin;
 		FVector dump_ang;
 	};
-	
+	struct es_constraint
+	{
+		btTypedConstraint * constraint;
+		AActor * parent;
+    	BulletHelpers::Constr constr_type;
+		
+		FVector axis_t;
+    	FVector axis_p;
+    	FVector pivot_t;
+    	FVector pivot_p;
+		
+    	FString name_t;
+    	FString name_p;
+    	uint8_t en_spring[6];
+    	FVector upp_lim_lin;
+    	FVector low_lim_lin;
+    	FVector upp_lim_ang;
+    	FVector low_lim_ang;
+    
+    	FVector stiff_lin;
+    	FVector stiff_ang;
+    
+    	FVector dump_lin;
+    	FVector dump_ang;	
+	};	
 	// Global objects
 	btCollisionConfiguration* BtCollisionConfig;
 	btCollisionDispatcher* BtCollisionDispatcher;
@@ -143,6 +167,8 @@ public:
 	btRigidBody* AddRigidBody(AActor* Actor, btCollisionShape* CollisionShape, btVector3 Inertia, float Mass, float Friction, float Restitution);
 
 	void AddComplexBody(TArray<ConnectedBodies> * system);
+
+	btTypedConstraint * createConstraint(btRigidBody * target, btRigidBody * parent, es_constraint params);
 
 	void removeRigidBody(btRigidBody * body);
 	void removeConstrain(btTypedConstraint * constr);

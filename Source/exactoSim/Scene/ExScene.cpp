@@ -144,7 +144,7 @@ void AExScene::BeginPlay()
 	//addSmplTestObject(SpawnObjectLoc, rotation);
 	//addGenerator(SpawnGeneratorLoc, rotation);
 	//addCarGen(SpawnGeneratorLoc, rotation);
-	generateCar();
+	//generateCar();
 }
 
 // Called every frame
@@ -408,6 +408,14 @@ void AExScene::removeCar()
 		system.Empty();
 	}
 	SystemsList.Empty();
+}
+
+void AExScene::createConstraint(btRigidBody* target, btRigidBody* parent, AExactoPhysics::es_constraint params)
+{
+	if (ExPhyzX)
+	{
+		ExPhyzX->createConstraint(target, parent, params);
+	}
 }
 
 void AExScene::removeConstrain()

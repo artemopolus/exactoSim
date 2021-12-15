@@ -581,6 +581,44 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> * system)
 	}*/
 }
 
+btTypedConstraint * AExactoPhysics::createConstraint(btRigidBody* target, btRigidBody* parent, es_constraint params)
+{
+	if (params.constr_type == BulletHelpers::Constr::HINGE)
+	{
+		btVector3 axisA = BulletHelpers::ToBtSize(params.axis_p);
+    	btVector3 axisB = BulletHelpers::ToBtSize(params.axis_t);
+    	btVector3 pivotA = BulletHelpers::ToBtSize(params.pivot_p);
+    	btVector3 pivotB = BulletHelpers::ToBtSize(params.pivot_t);
+		
+		btHingeConstraint* p_hinge2 = new btHingeConstraint(*parent, *target, pivotA, pivotB, axisA, axisB);
+		BtWorld->addConstraint(p_hinge2);
+		p_hinge2->setLimit(params.low_lim_lin[0],params.upp_lim_lin[0]);
+		return p_hinge2;
+	}
+	else if (params.constr_type == BulletHelpers::Constr::HINGE2)
+	{
+		btVector3 anchor = BulletHelpers::ToBtSize(params.pivot_p);
+		btVector3 axis1 = BulletHelpers::ToBtSize(params.axis_p);
+		btVector3 axis2 = BulletHelpers::ToBtSize(params.axis_t);
+		btHinge2Constraint * p_hinge2 = new btHinge2Constraint(*parent, *target, anchor, axis1, axis2);
+		return p_hinge2;	
+	}
+	else if (params.constr_type == BulletHelpers::Constr::GEN6DOF_SPRING)
+	{
+		btTransform frame_a, frame_b;
+    	frame_a = btTransform::getIdentity();
+    	frame_a.setOrigin(BulletHelpers::ToBtSize(params.axis_p));
+    	frame_b = btTransform::getIdentity();
+    	frame_b.setOrigin( BulletHelpers::ToBtSize(params.axis_t));
+    	btGeneric6DofSpringConstraint * p_6dof_spring = new btGeneric6DofSpringConstraint(*parent, *target,
+    				frame_a, frame_b, true);
+    	p_6dof_spring->setLinearUpperLimit(BulletHelpers::ToBtSize(params.upp_lim_lin));
+    	p_6dof_spring->setLinearLowerLimit(BulletHelpers::ToBtSize(params.low_lim_lin));
+		return p_6dof_spring;	
+	}
+	return nullptr;
+}
+
 void AExactoPhysics::removeRigidBody(btRigidBody* body)
 {
 	BtWorld->removeRigidBody(body);

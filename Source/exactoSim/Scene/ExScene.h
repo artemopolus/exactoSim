@@ -74,7 +74,8 @@ public:
 
 	void generateCar();
 	void removeCar();
-	
+
+	void createConstraint(btRigidBody * target, btRigidBody * parent, AExactoPhysics::es_constraint params);
 	void removeConstrain();
 	
 	
