@@ -42,13 +42,21 @@ public:
 		EXCT_DELETE,
 		EXCT_SWITCH
 	};
-	
 	struct es_complex;
+	struct es_component;
+	struct es_constraint_pair
+	{
+		FString name;
+		es_component * parent;
+		btTypedConstraint *constraint;
+		BulletHelpers::Constr type;
+	};
 	struct es_component
 	{
+		FString name;
 		AActor * target;
 		btRigidBody * body;
-		TArray<AExactoPhysics::es_constraint *> constr_list;
+		TArray<es_constraint_pair*> constraints; 
 		es_complex * basis;	
 	};
 	struct es_complex
