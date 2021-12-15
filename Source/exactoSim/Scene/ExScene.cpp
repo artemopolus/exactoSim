@@ -179,32 +179,10 @@ void AExScene::addObjByPath(FVector location, FRotator rotation, std::string pat
 	}	
 }
 
-bool AExScene::addObjByPath( std::string path, std::string name, btRigidBody * body)
+bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody** body, FVector location,
+	FRotator rotation, bool use_genloc, FVector impulse, FVector impulse_pos)
 {
-	FVector location(0,0,0);
-	FRotator rotation(0,0,0);
-	if (CurrentGenerator)
-	{
-		location = CurrentGenerator->GetActorLocation();
-		rotation = CurrentGenerator->GetActorRotation();
-	}
-	bool result = false;
-	FString fpath(path.c_str());
-	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *fpath);
-	if ((obj != nullptr)&&ExPhyzX)
-	{
-		FActorSpawnParameters params;
-		params.Name = name.c_str();
-		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		body = ExPhyzX->AddRigidBody(spawned_obj);
-		result = true;
-	}
-	return result;
-}
-
-bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody* body, FVector location, FRotator rotation)
-{
-	if (CurrentGenerator)
+	if (use_genloc && CurrentGenerator)
 	{
 		location = CurrentGenerator->GetActorLocation();
 		rotation = CurrentGenerator->GetActorRotation();
@@ -216,11 +194,16 @@ bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody*
 		FActorSpawnParameters params;
 		params.Name = FName(name);
 		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
-		body = ExPhyzX->AddRigidBody(spawned_obj);
+		spawned_obj->Tags.Add(ToCStr(BaseTag));
+		spawned_obj->Tags.Add(ToCStr(PhysicsTag));
+		spawned_obj->Tags.Add(ToCStr(DynamicTag));
+		*body = ExPhyzX->AddRigidBody(spawned_obj);
 		result = true;
 	}
 	return result;
 }
+
+
 void AExScene::addCarGen(FVector location, FRotator rotation)
 {
 

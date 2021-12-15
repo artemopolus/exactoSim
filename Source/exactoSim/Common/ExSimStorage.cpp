@@ -100,7 +100,7 @@ void AExSimStorage::createSceneObj()
 		FString path = ExWorld->ExFileManager->getPathToBlueprint(TargetType);
 		btRigidBody * body = nullptr;
 		FString name = TargetName + TEXT("_") + TargetType + TEXT("_") + FString::FromInt(SceneObjCreated);
-		if (CurrentScene->addObjByPath(path, name, body))
+		if (CurrentScene->addObjByPath(path, name, &body))
 		{
 			AExSmplBox * target = static_cast<AExSmplBox*>(body->getUserPointer());
 			es_component * component = new es_component();

@@ -66,8 +66,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void addObjByPath( FVector location, FRotator rotation, std::string path, std::string name);
 	void addObjByPath( FVector location, FRotator rotation, std::string path, std::string name, FVector impulse);
-	bool addObjByPath( std::string path, std::string name, btRigidBody * body);
-	bool addObjByPath( const FString path, const FString name, btRigidBody * body, FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0));
+	bool addObjByPath( const FString path, const FString name, btRigidBody ** body,
+		FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0), bool use_genloc = true,
+		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
 
 	void deleteSceneObjByPrefix(std::string prefix);
 
