@@ -107,7 +107,11 @@ public:
 
 	void setTargetWidget( UUserWidget * widget);
 
+	UFUNCTION(BlueprintCallable)
+		void createTest(FString name, float mass = 1.0f, FVector loc = FVector(0,0,50), FRotator rot = FRotator(0,0,0));
+
 	void createSceneObj(void);
+	void createSceneObj(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
 
 	void createConstraint(AActor * target, AActor * parent, AExactoPhysics::es_constraint params);
 
@@ -122,5 +126,13 @@ public:
 	int getMode();
 
 	void manipulateGenerator(FVector loc, FRotator rot);
+
+	bool touchActor(AActor * actor, FString & output);
+
+	void pickActor(AActor * actor, FVector location);
+
+	void moveActor(FVector location);
+
+	void letActor();
 	
 };

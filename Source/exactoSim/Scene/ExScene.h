@@ -44,7 +44,7 @@ public:
 	AExScene();
 
 	UFUNCTION(BlueprintCallable)
-		void addSmplTestObject(FVector location, FRotator rotation);
+		void addSmplTestObject(FString name, float mass = 1.0f, FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0));
 	UFUNCTION(BlueprintCallable)
 		void addGenerator(FVector location, FRotator rotation);
 	UFUNCTION(BlueprintCallable)
@@ -66,7 +66,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void addObjByPath( FVector location, FRotator rotation, std::string path, std::string name);
 	void addObjByPath( FVector location, FRotator rotation, std::string path, std::string name, FVector impulse);
-	bool addObjByPath( const FString path, const FString name, btRigidBody ** body,
+	bool addObjByPath( const FString path, const FString name, btRigidBody ** body, float mass = 1.0f,
 		FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0), bool use_genloc = true,
 		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
 
@@ -77,9 +77,16 @@ public:
 
 	void createConstraint(btRigidBody * target, btRigidBody * parent, AExactoPhysics::es_constraint params);
 	void removeConstrain();
+
+	void pickTrgBody(btRigidBody * body, FVector location);
+	void moveTrgBody(FVector location);
+	void letTrgBody();
 	
 	
 private:
+	btTypedConstraint * PickConstraint;
+	btRigidBody *PickedBody;
+	int PickState;
 	int ValueInt;
 	float ValueFloat;
 	std::string ValueStr;

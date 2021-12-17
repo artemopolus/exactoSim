@@ -136,23 +136,34 @@ void AExSimPlayer::setupConstrainOptions(FVector2D loc)
 {
 	if(TargetWidget)
 	{
-		TargetWidget->setupConstrainOptions(loc);
+		TargetWidget->setupConstrainOptions(loc,"some");
 	}
 }
 
-void AExSimPlayer::checkSelectedActor(AActor* actor, FVector2D mouse_loc)
+void AExSimPlayer::touchActor(AActor* actor, FVector mouse_loc, FVector hit_loc)
 {
-	for(int i = 0; i < actor->Tags.Num(); i++)
+	FString output;
+	if (DataStorage)
 	{
-		if (actor->Tags[i].ToString() == DataStorage->CurrentScene->BaseTag)
+		if (DataStorage->touchActor(actor, output))
 		{
-			
+			ActorDragInitDist = hit_loc - mouse_loc;
+			DataStorage->pickActor(actor, hit_loc);
 		}
 	}
 }
 
+void AExSimPlayer::moveActor(FVector mouse_loc)
+{
+	if (DataStorage)
+		DataStorage->moveActor(mouse_loc + ActorDragInitDist);	
+}
 
-
+void AExSimPlayer::releaseActor()
+{
+	if (DataStorage)
+		DataStorage->letActor();
+}
 
 
 void AExSimPlayer::sendDataToStorage()

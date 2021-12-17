@@ -21,10 +21,26 @@ void AExSimPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	InputComponent->BindAction("mouseLClick", IE_Pressed, this, &AExSimPlayerController::mouseLClick);
+	InputComponent->BindAction("mouseLClick", IE_Released, this, &AExSimPlayerController::mouseRelease);
+}
+
+void AExSimPlayerController::Tick(float delta_seconds)
+{
+	Super::Tick(delta_seconds);
+	if (MouseLDragOn)
+	{
+		FVector loc, dir;
+		if (DeprojectMousePositionToWorld(loc, dir))
+		{
+			PlayerPtr->moveActor(loc);
+		}	
+	}
 }
 
 void AExSimPlayerController::mouseLClick()
 {
+	if (!PlayerPtr&&!PlayerPtr->DataStorage)
+		return;
 	FString output = "Loc: ";
 	output += HUDPtr->getMousePosition().ToString();
 	FVector loc, dir;
@@ -36,7 +52,7 @@ void AExSimPlayerController::mouseLClick()
 	if (hit.bBlockingHit)
 	{
 		output += TEXT("\nActor: ") + hit.Actor->GetName() + TEXT(" ");
-		for(int i = 0; i < hit.Actor->Tags.Num(); i++)
+		/*for(int i = 0; i < hit.Actor->Tags.Num(); i++)
 		{
 			FString tag = hit.Actor->Tags[i].ToString();
 			output += tag + TEXT(";");
@@ -46,12 +62,46 @@ void AExSimPlayerController::mouseLClick()
 				PlayerPtr->setupConstrainOptions(HUDPtr->getMousePosition());
 				
 			}
-		}
+		}*/
 		
-	}
-	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, output);
-	if (PlayerPtr->DataStorage)
-		PlayerPtr->DataStorage->clicked();
 
+		//FVector loc, dir;
+		if (DeprojectMousePositionToWorld(loc, dir))
+		{
+			output += TEXT("\nhit position:") + hit.Location.ToString();
+			
+			output += TEXT("\nmouse position: ") + loc.ToString();
+
+			dir = hit.Location - loc;
+			output += TEXT("\ndirection: ") + dir.ToString();
+			AActor* actor = hit.Actor.Get();
+			int mode = PlayerPtr->DataStorage->getMode();
+			if (mode == AExSimStorage::es_modes::MOVE)
+			{
+				PlayerPtr->touchActor(actor, loc, hit.Location);
+				MouseLDragOn = true;
+			}
+			else if (mode == AExSimStorage::es_modes::EDIT)
+			{
+				
+			}
+		}
+	}
+
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, output);
+	/*if (PlayerPtr->DataStorage)
+		PlayerPtr->DataStorage->clicked();*/
+
+}
+
+void AExSimPlayerController::mouseRelease()
+{
+	FString output = "Mouse out";
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, output);
+	if (MouseLDragOn)
+	{
+		MouseLDragOn = false;
+		PlayerPtr->releaseActor();
+	}
 }

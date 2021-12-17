@@ -47,6 +47,8 @@ AExSimStorage::AExSimStorage()
 void AExSimStorage::BeginPlay()
 {
 	Super::BeginPlay();
+
+	createTest("HelloWorld");
 	
 }
 
@@ -99,14 +101,21 @@ void AExSimStorage::setTargetWidget(UUserWidget* widget)
 	CurrentWidget = widget;
 }
 
+void AExSimStorage::createTest(FString name, float mass, FVector loc, FRotator rot)
+{
+	const FString path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";
+	
+	createSceneObj(name, path, mass, loc, rot, false);	
+}
+
 void AExSimStorage::createSceneObj()
 {
-	SceneObjCreated++;
+	//SceneObjCreated++;
 	if (ExWorld && ExWorld->ExFileManager)
 	{
 		FString path = ExWorld->ExFileManager->getPathToBlueprint(TargetType);
-		btRigidBody * body = nullptr;
 		FString name = TargetName + TEXT("_") + TargetType + TEXT("_") + FString::FromInt(SceneObjCreated);
+		/*btRigidBody * body = nullptr;
 		if (CurrentScene->addObjByPath(path, name, &body))
 		{
 			if (!body)
@@ -119,6 +128,29 @@ void AExSimStorage::createSceneObj()
 			es_complex * complex = ExSimComplexList[0]; //for free component
 			component->basis = complex;
 			complex->components.Add(component);
+		}*/
+		createSceneObj(name, path, 1.0f, FVector(0,0,0), FRotator(0,0,0), true);
+	}
+}
+
+void AExSimStorage::createSceneObj(FString name, FString path, float mass, FVector loc, FRotator rot, bool use_genloc)
+{
+	SceneObjCreated++;
+	if (CurrentScene)
+	{
+		btRigidBody * body = nullptr;
+		if (CurrentScene->addObjByPath(path, name, &body, mass, loc, rot, use_genloc))
+		{
+			if (!body)
+				return;
+			AExSmplBox * target = static_cast<AExSmplBox*>(body->getUserPointer());
+			es_component * component = new es_component();
+			target->setEScomponent(component);
+			component->body = body;
+			component->target = target;
+			es_complex * complex = ExSimComplexList[0]; //for free component
+			component->basis = complex;
+			complex->components.Add(component);			
 		}
 	}
 }
@@ -184,6 +216,56 @@ void AExSimStorage::manipulateGenerator(FVector loc, FRotator rot)
 	if (CurrentScene)
 	{
 		CurrentScene->moveGenerator(loc, rot);
+	}
+}
+
+bool AExSimStorage::touchActor(AActor* actor, FString & output)
+{
+	if (!CurrentScene)
+		return false;
+	for (int i = 0; i < actor->Tags.Num(); i++)
+	{
+		if (actor->Tags[i].ToString() == CurrentScene->BaseTag)
+		{
+			AExSmplBox * target = static_cast<AExSmplBox*>(actor);
+			if (!target->getEScomponent())
+				return false;
+			output += TEXT("Component name: ") + target->getEScomponent()->name + TEXT("\n");
+			output += TEXT("Basis: ") + target->getEScomponent()->basis->name + TEXT("\n");
+			output += TEXT("Constraints:\n");
+			for (const auto elem : target->getEScomponent()->constraints)
+			{
+				output += FString(ConstrType.Find(elem->type)->c_str()) + TEXT("\n");
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+void AExSimStorage::pickActor(AActor* actor, FVector location)
+{
+	if (actor&&CurrentScene)
+	{
+		AExSmplBox * target = static_cast<AExSmplBox*>(actor);
+		btRigidBody * body = target->getEScomponent()->body;
+		CurrentScene->pickTrgBody(body, location);
+	}
+}
+
+void AExSimStorage::moveActor(FVector location)
+{
+	if(CurrentScene)
+	{
+		CurrentScene->moveTrgBody(location);
+	}
+}
+
+void AExSimStorage::letActor()
+{
+	if(CurrentScene)
+	{
+		CurrentScene->letTrgBody();
 	}
 }
 

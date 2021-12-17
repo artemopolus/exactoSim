@@ -44,7 +44,7 @@ public:
 		void onEscButtonClicked();
 
 	UFUNCTION()
-		void setupConstrainOptions(FVector2D loc);
+		void setupConstrainOptions(FVector2D loc, FString info);
 
 	UFUNCTION()
 		void onGenerateButtonClicked();
@@ -57,9 +57,6 @@ public:
 	
 	virtual ~UExSimMainWidget() override;
 
-	void addToStorage(UClass * w_template);
-	void addButtonToStorage(UClass * w_template);
-	void addSelectorToStorage(UClass * w_template, FString name, TArray<FString> optionlist);
 	
 	void setSelectorClass(UClass * tmpl);
 	void setButtonClass(UClass * tmpl);

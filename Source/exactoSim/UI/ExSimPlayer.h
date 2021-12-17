@@ -43,6 +43,9 @@ private:
 	UClass * OptionClass;
 	UClass * ButtonClass;
 	UClass * SelectorClass;
+
+	FVector ActorDragInitDist;
+	FRotator ActorDragInitRot;
 	
 
 protected:
@@ -76,7 +79,10 @@ public:
 
 
 	void setupConstrainOptions(FVector2D loc);
-	void checkSelectedActor(AActor * actor, FVector2D mouse_loc);
+
+	void touchActor(AActor * actor, FVector mouse_loc, FVector hit_loc);
+	void moveActor(FVector mouse_loc);
+	void releaseActor();
 
 private:
 	void moveAction(FVector loc, FRotator rot);

@@ -18,10 +18,12 @@ AExScene::AExScene()
 
 }
 
-void AExScene::addSmplTestObject(FVector location, FRotator rotation)
+void AExScene::addSmplTestObject(FString name, float mass , FVector location, FRotator rotation)
 {
-	const std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
-	addObjByPath(location, rotation, path, "test");
+	//Blueprint'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple'
+	const FString path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";
+	btRigidBody * result_body;
+	addObjByPath(path, name, &result_body, mass, location, rotation);
 }
 
 void AExScene::addGenerator(FVector location, FRotator rotation)
@@ -140,11 +142,11 @@ void AExScene::BeginPlay()
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Screen Message"));
 	//create object
-	FRotator rotation(0,0,0);
 	//addSmplTestObject(SpawnObjectLoc, rotation);
 	//addGenerator(SpawnGeneratorLoc, rotation);
 	//addCarGen(SpawnGeneratorLoc, rotation);
 	//generateCar();
+	//addSmplTestObject("Static",1.0f,FVector(0,0,100));
 }
 
 // Called every frame
@@ -179,7 +181,7 @@ void AExScene::addObjByPath(FVector location, FRotator rotation, std::string pat
 	}	
 }
 
-bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody** body, FVector location,
+bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody** body, float mass, FVector location,
 	FRotator rotation, bool use_genloc, FVector impulse, FVector impulse_pos)
 {
 	if (use_genloc && CurrentGenerator)
@@ -197,7 +199,7 @@ bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody*
 		spawned_obj->Tags.Add(ToCStr(BaseTag));
 		spawned_obj->Tags.Add(ToCStr(PhysicsTag));
 		spawned_obj->Tags.Add(ToCStr(DynamicTag));
-		*body = ExPhyzX->AddRigidBody(spawned_obj);
+		*body = ExPhyzX->AddRigidBody(spawned_obj, mass);
 		result = true;
 	}
 	return result;
@@ -430,6 +432,44 @@ void AExScene::removeConstrain()
 				component.trg_constr = nullptr;
 			}
 		}
+	}
+}
+
+void AExScene::pickTrgBody(btRigidBody* body, FVector location)
+{
+	if (body)
+	{
+		PickedBody = body;
+		PickState = PickedBody->getActivationState();
+		PickedBody->setActivationState(DISABLE_DEACTIVATION);
+		btVector3 local_pivot = PickedBody->getCenterOfMassTransform().inverse() * BulletHelpers::ToBtSize(location);
+		btPoint2PointConstraint *p2p = new btPoint2PointConstraint(*PickedBody, local_pivot);
+		PickConstraint = p2p;
+		ExPhyzX->BtWorld->addConstraint(p2p);
+		p2p->m_setting.m_impulseClamp = 30.f;
+		p2p->m_setting.m_tau = 0.001f;
+	}
+}
+
+void AExScene::moveTrgBody(FVector location)
+{
+	if (PickedBody && PickConstraint)
+	{
+		btPoint2PointConstraint *p2p = static_cast<btPoint2PointConstraint*>(PickConstraint);
+		p2p->setPivotB(BulletHelpers::ToBtSize(location));
+	}
+}
+
+void AExScene::letTrgBody()
+{
+	if (PickConstraint)
+	{
+		PickedBody->forceActivationState(PickState);
+		PickedBody->activate();
+		ExPhyzX->removeConstrain(PickConstraint);
+		////delete PickConstraint;
+		PickConstraint = nullptr;
+		PickedBody = nullptr;
 	}
 }
 

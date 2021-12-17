@@ -195,12 +195,11 @@ void UExSimMainWidget::onEscButtonClicked()
 	setVisibilityOptionsPanel(false);
 }
 
-void UExSimMainWidget::setupConstrainOptions(FVector2D loc)
+void UExSimMainWidget::setupConstrainOptions(FVector2D loc, FString info)
 {
 	if (OptionsPanel)
 	{
 		setVisibilityOptionsPanel(true);
-		//UPanelSlot *sl = escButton->Slot;
 		UCanvasPanelSlot *pt = static_cast<UCanvasPanelSlot*> (OptionsPanel->Slot);
 		loc -= pt->GetSize()/2;
 		pt->SetPosition(loc);
@@ -235,36 +234,6 @@ UExSimMainWidget::~UExSimMainWidget()
 	
 }
 
-void UExSimMainWidget::addToStorage(UClass* w_template)
-{
-	UExEditableWidget * Menu = CreateWidget<UExEditableWidget>(this, w_template);
-	OptionsList.Add(Menu);
-	StorageWrapBox->AddChild(Menu);
-}
-
-void UExSimMainWidget::addButtonToStorage(UClass* w_template)
-{
-	if (!OptionsButton_Ok)
-	{
-		OptionsButton_Ok = CreateWidget<UExButtonWidget>(this, w_template);
-		StorageWrapBox->AddChild(OptionsButton_Ok);
-		OptionsButton_Ok->setName("Ok");
-		OptionsButton_Ok->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onOptionsButtonOkClicked);
-	}
-}
-
-void UExSimMainWidget::addSelectorToStorage(UClass* w_template, FString name, TArray<FString> optionlist)
-{
-	UExSelector * selector = CreateWidget<UExSelector>(this, w_template);
-	SelectorList.Add(selector);
-	selector->setSelectorText(name);
-	for (const auto option : optionlist)
-	{
-		selector->addSelectorValue(option);
-	}
-	StorageWrapBox->AddChild(selector);
-	
-}
 
 void UExSimMainWidget::setSelectorClass(UClass* tmpl)
 {

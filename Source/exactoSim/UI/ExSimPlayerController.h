@@ -21,12 +21,16 @@ class EXACTOSIM_API AExSimPlayerController : public APlayerController
 public:
 
 	AExSimPlayer * PlayerPtr = nullptr;
-
 	AExSimHUD * HUDPtr = nullptr;
+private:
+	bool MouseLDragOn = false;
+public:
 
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
 private:
+	virtual void Tick(float DeltaSeconds) override;
 	void mouseLClick();
+	void mouseRelease();
 };

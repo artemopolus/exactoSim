@@ -88,11 +88,11 @@ AExactoPhysics::~AExactoPhysics()
 	BtStaticObjects.Empty();
 	BtRigidBodies.Empty();
 }
-btRigidBody* AExactoPhysics::AddRigidBody(AActor* actor)
+btRigidBody* AExactoPhysics::AddRigidBody(AActor* actor, float mass)
 {
 	if (actor != nullptr)
 	{
-		const CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, 1.0);
+		const CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, mass);
 		btRigidBody* body = AddRigidBody(actor, data, PhysicsStatic1Friction, PhysicsStatic1Restitution);
 		return body;
 	}
@@ -465,8 +465,10 @@ const AExactoPhysics::CachedDynamicShapeData& AExactoPhysics::GetCachedDynamicSh
 	return CachedDynamicShapes.Last();
 }
 
+
+
 btRigidBody* AExactoPhysics::AddRigidBody(AActor* Actor, const CachedDynamicShapeData& ShapeData, float Friction,
-	float Restitution)
+                                          float Restitution)
 {
 	return AddRigidBody(Actor, ShapeData.Shape, ShapeData.Inertia, ShapeData.Mass, Friction, Restitution);
 }
