@@ -32,7 +32,7 @@ void AExSimPlayerController::Tick(float delta_seconds)
 		FVector loc, dir;
 		if (DeprojectMousePositionToWorld(loc, dir))
 		{
-			PlayerPtr->moveActor(loc);
+			PlayerPtr->moveActor(loc, dir);
 		}	
 	}
 }

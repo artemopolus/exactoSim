@@ -45,6 +45,7 @@ private:
 	UClass * SelectorClass;
 
 	FVector ActorDragInitDist;
+	float ActorDragDistance;
 	FRotator ActorDragInitRot;
 	
 
@@ -81,7 +82,7 @@ public:
 	void setupConstrainOptions(FVector2D loc);
 
 	void touchActor(AActor * actor, FVector mouse_loc, FVector hit_loc);
-	void moveActor(FVector mouse_loc);
+	void moveActor(FVector mouse_loc, FVector mouse_dir);
 	void releaseActor();
 
 private:

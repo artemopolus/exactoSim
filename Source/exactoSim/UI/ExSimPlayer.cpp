@@ -148,15 +148,19 @@ void AExSimPlayer::touchActor(AActor* actor, FVector mouse_loc, FVector hit_loc)
 		if (DataStorage->touchActor(actor, output))
 		{
 			ActorDragInitDist = hit_loc - mouse_loc;
+			ActorDragDistance = ActorDragInitDist.Size();
 			DataStorage->pickActor(actor, hit_loc);
 		}
 	}
 }
 
-void AExSimPlayer::moveActor(FVector mouse_loc)
+void AExSimPlayer::moveActor(FVector mouse_loc, FVector mouse_dir)
 {
 	if (DataStorage)
-		DataStorage->moveActor(mouse_loc + ActorDragInitDist);	
+	{
+		FVector direction = mouse_dir * ActorDragDistance;
+		DataStorage->moveActor(mouse_loc + direction);
+	}
 }
 
 void AExSimPlayer::releaseActor()
