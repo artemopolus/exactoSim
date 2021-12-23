@@ -142,7 +142,7 @@ void AExSimPlayer::setupConstrainOptions(FVector2D loc)
 
 void AExSimPlayer::touchActor(AActor* actor, FVector mouse_loc, FVector hit_loc)
 {
-	FString output;
+	FString output = "";
 	if (DataStorage)
 	{
 		if (DataStorage->touchActor(actor, output))
@@ -150,6 +150,7 @@ void AExSimPlayer::touchActor(AActor* actor, FVector mouse_loc, FVector hit_loc)
 			ActorDragInitDist = hit_loc - mouse_loc;
 			ActorDragDistance = ActorDragInitDist.Size();
 			DataStorage->pickActor(actor, hit_loc);
+			TargetWidget->DebugText->SetText(FText::FromString(output));
 		}
 	}
 }

@@ -148,6 +148,7 @@ void AExSimStorage::createSceneObj(FString name, FString path, float mass, FVect
 			target->setEScomponent(component);
 			component->body = body;
 			component->target = target;
+			component->name = name;
 			es_complex * complex = ExSimComplexList[0]; //for free component
 			component->basis = complex;
 			complex->components.Add(component);			
@@ -230,7 +231,7 @@ bool AExSimStorage::touchActor(AActor* actor, FString & output)
 			AExSmplBox * target = static_cast<AExSmplBox*>(actor);
 			if (!target->getEScomponent())
 				return false;
-			output += TEXT("Component name: ") + target->getEScomponent()->name + TEXT("\n");
+			output += TEXT("Component name: ") + target->getEScomponent()->target->GetName() + TEXT("\n");
 			output += TEXT("Basis: ") + target->getEScomponent()->basis->name + TEXT("\n");
 			output += TEXT("Constraints:\n");
 			for (const auto elem : target->getEScomponent()->constraints)
