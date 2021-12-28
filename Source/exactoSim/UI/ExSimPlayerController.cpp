@@ -42,7 +42,8 @@ void AExSimPlayerController::mouseLClick()
 	if (!PlayerPtr&&!PlayerPtr->DataStorage)
 		return;
 	FString output = "Loc: ";
-	output += HUDPtr->getMousePosition().ToString();
+	const FVector2D mouse_pos2d = HUDPtr->getMousePosition();
+	output += mouse_pos2d.ToString();
 	FVector loc, dir;
 	HUDPtr->getMouseProjection(loc, dir);
 	output += loc.ToString() + TEXT("\n dir:") + dir.ToString();
@@ -83,7 +84,7 @@ void AExSimPlayerController::mouseLClick()
 			}
 			else if (mode == AExSimStorage::es_modes::EDIT)
 			{
-				
+				PlayerPtr->editActor(actor, mouse_pos2d, loc, hit.Location);	
 			}
 		}
 	}

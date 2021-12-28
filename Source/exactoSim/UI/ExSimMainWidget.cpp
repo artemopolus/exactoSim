@@ -180,13 +180,20 @@ void UExSimMainWidget::onApplyConstrButtonClicked()
 
 void UExSimMainWidget::onParentButtonClicked()
 {
-	FString output = "On parent button click! ";
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, output);
+	//FString output = "On parent button click! ";
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, output);
+	ParentActor = CurrentActor;
+	if (ParentActor == TargetActor)
+		TargetActor = nullptr;
 	setVisibilityOptionsPanel(false);
 }
 
 void UExSimMainWidget::onTargetButtonClicked()
 {
+	TargetActor = CurrentActor;
+	if (ParentActor == TargetActor)
+		ParentActor = nullptr;
+	
 	setVisibilityOptionsPanel(false);
 }
 
@@ -195,15 +202,37 @@ void UExSimMainWidget::onEscButtonClicked()
 	setVisibilityOptionsPanel(false);
 }
 
-void UExSimMainWidget::setupConstrainOptions(FVector2D loc, FString info)
+void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 {
-	if (OptionsPanel)
+	if (DataStorage)
 	{
-		setVisibilityOptionsPanel(true);
-		UCanvasPanelSlot *pt = static_cast<UCanvasPanelSlot*> (OptionsPanel->Slot);
-		loc -= pt->GetSize()/2;
-		pt->SetPosition(loc);
+		FString info = "";
+		if (DataStorage->touchActor(actor, info))
+		{
+			if (OptionsPanel)
+			{
+				setVisibilityOptionsPanel(true);
+				UCanvasPanelSlot *pt = static_cast<UCanvasPanelSlot*> (OptionsPanel->Slot);
+				loc -= pt->GetSize()/2;
+				pt->SetPosition(loc);
 		
+			}
+			CurrentActor = actor;
+			FString pair_info = "Pair info:";
+			pair_info += getParTrgInfo();
+			pair_info += info;
+			DebugText->SetText(FText::FromString(pair_info));
+			if (ParentActor)
+				ParentText->SetText(FText::FromString(TEXT("Parent: ") + ParentActor->GetName()));
+			else
+				ParentText->SetText(FText::FromString(TEXT("Parent: None")));
+			
+			if (TargetActor)
+				TargetText->SetText(FText::FromString(TEXT("Target: ") + TargetActor->GetName()));
+			else
+				TargetText->SetText(FText::FromString(TEXT("Target: None")));
+			
+		}
 	}
 }
 
@@ -280,6 +309,33 @@ void UExSimMainWidget::addSelectToStorage(FString name, TArray<FString> option_l
 		selector->addSelectorValue(option);
 	}
 	StorageWrapBox->AddChild(selector);
+}
+
+AActor* UExSimMainWidget::getParentActor()
+{
+	return ParentActor;
+}
+
+AActor* UExSimMainWidget::getTargetActor()
+{
+	return TargetActor;
+}
+
+bool UExSimMainWidget::isParTrgPair()
+{
+	if (ParentActor && TargetActor)
+		return true;
+	return false;
+}
+
+FString UExSimMainWidget::getParTrgInfo()
+{
+	FString info = "";
+	if (ParentActor)
+		info = TEXT("\npar: ") + ParentActor->GetName();
+	if (TargetActor)
+		info += TEXT("\ntrg: ") + TargetActor->GetName();
+	return info;
 }
 
 void UExSimMainWidget::onOptionsButtonOkClicked()

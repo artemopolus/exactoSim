@@ -44,7 +44,7 @@ public:
 		void onEscButtonClicked();
 
 	UFUNCTION()
-		void setupConstrainOptions(FVector2D loc, FString info);
+		void setupConstrainOptions(FVector2D loc, AActor *actor);
 
 	UFUNCTION()
 		void onGenerateButtonClicked();
@@ -65,6 +65,11 @@ public:
 	void addOptionToStorage(FString name, FString value);
 	void addButtonToStorage(FString name);
 	void addSelectToStorage(FString name, TArray<FString> option_list);
+
+	AActor * getParentActor();
+	AActor * getTargetActor();
+	bool isParTrgPair();
+	FString getParTrgInfo();
 
 	
 private:
@@ -155,6 +160,8 @@ private:
 	UClass * ButtonClass;
 	UClass * OptionClass;
 
-
+	AActor * CurrentActor;
+	AActor * TargetActor;
+	AActor * ParentActor;
 	
 };

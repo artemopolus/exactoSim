@@ -47,6 +47,7 @@ private:
 	FVector ActorDragInitDist;
 	float ActorDragDistance;
 	FRotator ActorDragInitRot;
+
 	
 
 protected:
@@ -79,12 +80,16 @@ public:
 	void rotateLeft(float value);
 
 
-	void setupConstrainOptions(FVector2D loc);
 
 	void touchActor(AActor * actor, FVector mouse_loc, FVector hit_loc);
 	void moveActor(FVector mouse_loc, FVector mouse_dir);
 	void releaseActor();
 
+
+	void editActor(AActor * actor, FVector2D mouse_on_screen, FVector mouse_loc, FVector hit_loc);
+	void setConstraintOptions();
+
 private:
 	void moveAction(FVector loc, FRotator rot);
+	void toDebugWindow(FString text);
 };
