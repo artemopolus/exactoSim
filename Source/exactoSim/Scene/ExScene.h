@@ -78,6 +78,7 @@ public:
 	void createConstraint(btRigidBody * target, btRigidBody * parent, AExactoPhysics::es_constraint params);
 	void removeConstrain();
 
+	btTypedConstraint * fixP2PBody(btRigidBody * body, FVector location);
 	void pickTrgBody(btRigidBody * body, FVector location);
 	void moveTrgBody(FVector location);
 	void letTrgBody();

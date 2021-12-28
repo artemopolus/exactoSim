@@ -435,6 +435,21 @@ void AExScene::removeConstrain()
 	}
 }
 
+btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FVector location)
+{
+	if (body)
+	{
+		body->setActivationState(DISABLE_DEACTIVATION);
+		const btVector3 pivot = BulletHelpers::ToBtSize(location);
+		btPoint2PointConstraint * p2p = new btPoint2PointConstraint(*body, pivot);
+		ExPhyzX->BtWorld->addConstraint(p2p);
+		p2p->m_setting.m_impulseClamp = 30.f;
+		p2p->m_setting.m_tau = 0.001f;
+		return p2p;
+	}
+	return nullptr;
+}
+
 void AExScene::pickTrgBody(btRigidBody* body, FVector location)
 {
 	if (body)

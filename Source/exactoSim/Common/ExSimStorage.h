@@ -134,5 +134,8 @@ public:
 	void moveActor(FVector location);
 
 	void letActor();
+
+private:
+	void createComplex(es_component * component, FString new_complex_name);
 	
 };

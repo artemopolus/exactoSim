@@ -48,8 +48,30 @@ void AExSimStorage::BeginPlay()
 {
 	Super::BeginPlay();
 
-	createTest("HelloWorld");
-	
+	//createTest("HelloWorld");
+	FString path = "Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'";
+	const FString MagnetName = "Magnet";
+	FVector magnet_pos(0,0,200);
+	createSceneObj("Magnet", path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
+	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";	
+	createSceneObj("HelloWorld", path, 1.0f, FVector(0,0,50), FRotator(0,0,0), false);
+
+	es_component * target = nullptr;
+
+	for (auto & system : ExSimComplexList)
+	{
+		for (auto & component : system->components)
+		{
+			if (component->name == MagnetName)
+			{
+				CurrentScene->fixP2PBody(component->body, magnet_pos);
+				target = component;
+				break;
+			}
+		}
+	}
+	if (target)
+		createComplex(target, MagnetName);
 }
 
 // Called every frame
@@ -268,6 +290,24 @@ void AExSimStorage::letActor()
 	{
 		CurrentScene->letTrgBody();
 	}
+}
+
+void AExSimStorage::createComplex(es_component* component, FString new_complex_name)
+{
+	es_complex * base = new es_complex();
+	base->name = new_complex_name;
+	es_complex * old = component->basis;
+	ExSimComplexList.Add(base);
+	component->basis = base;
+	old->components.Remove(component);
+	if (old != ExSimComplexList[0])
+	{
+		if (old->components.Num() == 0)
+		{
+			ExSimComplexList.Remove(old);
+		}
+	}
+	
 }
 
 
