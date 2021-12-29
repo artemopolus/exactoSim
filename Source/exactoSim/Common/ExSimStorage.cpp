@@ -25,6 +25,7 @@ AExSimStorage::AExSimStorage()
 	ConstrType.Add(BulletHelpers::Constr::HINGE,			std::string("Hinge"));
 	ConstrType.Add(BulletHelpers::Constr::HINGE2,			std::string("Hinge2"));
 	ConstrType.Add(BulletHelpers::Constr::GEN6DOF_SPRING,	std::string("Gen6DOF_Spring"));
+	ConstrType.Add(BulletHelpers::Constr::P2P, std::string("P2P"));
 	
 	ModeList.Add(es_modes::EDIT,FString("Edit"));
 	ModeList.Add(es_modes::MOVE, FString("Move"));
@@ -50,8 +51,10 @@ void AExSimStorage::BeginPlay()
 
 	//createTest("HelloWorld");
 	FString path = "Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'";
-	const FString MagnetName = "Magnet";
-	FVector magnet_pos(0,0,200);
+	const FString magnet_name = "Magnet";
+	const FVector magnet_pos(0,0,200);
+	const FVector magnet_relpivot0(0,0,20);
+	const FVector magnet_relpivot1(20,0,20);
 	createSceneObj("Magnet", path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
 	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";	
 	createSceneObj("HelloWorld", path, 1.0f, FVector(0,0,50), FRotator(0,0,0), false);
@@ -62,16 +65,24 @@ void AExSimStorage::BeginPlay()
 	{
 		for (auto & component : system->components)
 		{
-			if (component->name == MagnetName)
+			if (component->name == magnet_name)
 			{
-				CurrentScene->fixP2PBody(component->body, magnet_pos);
+				es_constraint_pair * p = new es_constraint_pair();
+				p->constraint = CurrentScene->fixP2PBody(component->body, magnet_relpivot0);
+				p->type = BulletHelpers::Constr::P2P;
+				p->name = magnet_name;
+				p->parent = nullptr;
+				component->constraints.Add(p);
+				
+				CurrentScene->fixP2PBody(component->body, magnet_relpivot1);
+				
 				target = component;
 				break;
 			}
 		}
 	}
 	if (target)
-		createComplex(target, MagnetName);
+		createComplex(target, magnet_name);
 }
 
 // Called every frame

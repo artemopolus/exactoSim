@@ -18,6 +18,7 @@ public:
 		HINGE = 0,
 		HINGE2,
 		GEN6DOF_SPRING,
+		P2P,
 		NONE
 	};
 	
