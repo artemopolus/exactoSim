@@ -23,6 +23,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExactoWorld * ExWorld;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="For test")
+		FVector PivotP = FVector(0,0,0);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="For test")
+	FVector PivotT = FVector(0,10,0);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="For test")
+	FVector LowLimLin = FVector(0, -5, 0);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="For test")
+	FVector UppLimLin = FVector(0,5,0);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="For test")
+	float Stiffness = 100.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="For test")
+	float Dumping = 0.01f;
+
 	enum exsim_genobj_type
 	{
 		EXGT_SMPL = 0,

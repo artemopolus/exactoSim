@@ -55,9 +55,12 @@ void AExSimStorage::BeginPlay()
 	const FVector magnet_pos(0,0,200);
 	const FVector magnet_relpivot0(0,0,20);
 	const FVector magnet_relpivot1(20,0,20);
-	createSceneObj("Magnet", path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
+	createSceneObj(magnet_name, path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
 	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";	
 	createSceneObj("HelloWorld", path, 1.0f, FVector(0,0,50), FRotator(0,0,0), false);
+	path = "Class'/Game/Blueprint/Scene/BP_ESB_Spring.BP_ESB_Spring_C'";
+	const FString spring_name = "Spring";
+	createSceneObj(spring_name, path, 1.0f, FVector(0,50,250), FRotator(0,0,0), false);
 
 	es_component * target = nullptr;
 
@@ -81,8 +84,44 @@ void AExSimStorage::BeginPlay()
 			}
 		}
 	}
+	AExactoPhysics::es_constraint params;
+	params.pivot_p = PivotP;
+	params.pivot_t = PivotT;
+
+	params.low_lim_lin = LowLimLin;
+	params.upp_lim_lin = UppLimLin;
+
+	params.low_lim_ang = FVector::ZeroVector;
+	params.upp_lim_ang = FVector::ZeroVector;
+
+	params.en_spring[0] = 1;
+	params.en_spring[1] = 1;
+	params.en_spring[2] = 1;
+
+	float stiff = Stiffness;
+	float dump = Dumping;
+	params.stiff_lin = FVector(stiff, stiff, stiff);
+	params.dump_lin = FVector(dump, dump, dump);
+	
 	if (target)
+	{
 		createComplex(target, magnet_name);
+		for (auto & component : ExSimComplexList[0]->components)
+		{
+			if (component->name == spring_name)
+			{
+				es_constraint_pair * p = new es_constraint_pair();
+				p->constraint = CurrentScene->fixP2PBody(component->body, FVector(0,0,20));
+				p->type = BulletHelpers::Constr::P2P;
+				p->name = magnet_name;
+				p->parent = nullptr;
+				component->constraints.Add(p);
+
+
+				CurrentScene->fixGen6dofSpring(target->body, component->body, params);
+			}
+		}
+	}
 }
 
 // Called every frame

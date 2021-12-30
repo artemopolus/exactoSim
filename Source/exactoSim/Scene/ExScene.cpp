@@ -450,6 +450,40 @@ btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FVector location)
 	return nullptr;
 }
 
+btTypedConstraint* AExScene::fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, AExactoPhysics::es_constraint params)
+{
+	btTransform tr;
+	tr.setIdentity();
+	p_body_a->setActivationState(DISABLE_DEACTIVATION);
+	p_body_b->setActivationState(DISABLE_DEACTIVATION);
+	btTransform frameInA, frameInB;
+	frameInA = btTransform::getIdentity();
+	frameInA.setOrigin(BulletHelpers::ToBtSize(params.pivot_p));
+	frameInB = btTransform::getIdentity();
+	frameInB.setOrigin(BulletHelpers::ToBtSize(params.pivot_t));
+	btGeneric6DofSpringConstraint * p = new btGeneric6DofSpringConstraint(*p_body_a, *p_body_b, frameInA, frameInB, true);
+	p->setLinearLowerLimit(BulletHelpers::ToBtSize(params.low_lim_lin));
+	p->setLinearUpperLimit(BulletHelpers::ToBtSize(params.upp_lim_lin));
+
+	p->setAngularLowerLimit(BulletHelpers::ToBtSize(params.low_lim_ang));
+	p->setAngularUpperLimit(BulletHelpers::ToBtSize(params.upp_lim_ang));
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (params.en_spring[i])
+		p->enableSpring(i,true);
+	}
+	p->setStiffness(0,params.stiff_lin.X);
+	p->setStiffness(1,params.stiff_lin.Y);
+	p->setStiffness(2,params.stiff_lin.Z);
+	p->setDamping(0, params.dump_lin.X);
+	p->setDamping(1, params.dump_lin.Y);
+	p->setDamping(2, params.dump_lin.Z);
+
+	ExPhyzX->BtWorld->addConstraint(p);
+	return p;
+}
+
 void AExScene::pickTrgBody(btRigidBody* body, FVector location)
 {
 	if (body)
