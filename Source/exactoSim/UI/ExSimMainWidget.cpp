@@ -351,6 +351,21 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 		select->RemoveFromRoot();
 	SelectorList.Empty();
 }
+
+void UExSimMainWidget::onConstrHingeButtonClicked()
+{
+		ConstrHingeButton->SetBackgroundColor(FLinearColor(0,100,0));
+	
+}
+
+void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
+{
+}
+
+void UExSimMainWidget::onConstrP2PButtonClicked()
+{
+}
+
 bool UExSimMainWidget::Initialize()
 {
 	updateDebugText(std::string("test"));	
@@ -410,7 +425,12 @@ bool UExSimMainWidget::Initialize()
 		ChangeModeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onChangeModeButtonClicked);
 	}
 
-	
+	if (ConstrP2PButton&&ConstrGen6dofSpringButton&&ConstrHingeButton)
+	{
+		ConstrP2PButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstrP2PButtonClicked);
+		ConstrGen6dofSpringButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstrGen6dofSpringButtonClicked);
+		ConstrHingeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstrHingeButtonClicked);
+	}
 	
 	return Super::Initialize();
 }

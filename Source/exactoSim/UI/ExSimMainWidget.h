@@ -54,7 +54,12 @@ public:
 
 	UFUNCTION()
 		void onOptionsButtonOkClicked();
-	
+	UFUNCTION()
+		void onConstrHingeButtonClicked();
+	UFUNCTION()
+		void onConstrGen6dofSpringButtonClicked();
+	UFUNCTION()
+		void onConstrP2PButtonClicked();	
 	virtual ~UExSimMainWidget() override;
 
 	
@@ -128,6 +133,21 @@ public:
 		class UButton * ChangeModeButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock * ChangeModeText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * ConstrHingeButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * ConstrHingeText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * ConstrGen6dofSpringButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * ConstrGen6dofSpringText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton * ConstrP2PButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock * ConstrP2PText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UWrapBox * StorageWrapBox;
