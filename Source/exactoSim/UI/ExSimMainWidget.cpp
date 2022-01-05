@@ -10,6 +10,7 @@
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
 #include "Components/WrapBox.h"
+#include "ThirdParty/RenderDoc/renderdoc_app.h"
 
 void UExSimMainWidget::NativeConstruct()
 {
@@ -139,6 +140,7 @@ void UExSimMainWidget::setVisibilityOptionsPanel(bool onoff)
 	
 }
 
+
 void UExSimMainWidget::onSwitchObjButtonClicked()
 {
 	std::string start = "Gen. Object: ";
@@ -240,7 +242,8 @@ void UExSimMainWidget::onGenerateButtonClicked()
 {
 	if (DataStorage)
 	{
-		DataStorage->createSceneObj();
+		//DataStorage->createSceneObj();
+		DataStorage->saveExSimComplex(1);
 	}
 }
 
@@ -311,6 +314,36 @@ void UExSimMainWidget::addSelectToStorage(FString name, TArray<FString> option_l
 	StorageWrapBox->AddChild(selector);
 }
 
+void UExSimMainWidget::addConstraintButtonOk()
+{
+	UExButtonWidget * bt = CreateWidget<UExButtonWidget>(this, ButtonClass);
+	StorageWrapBox->AddChild(bt);
+	bt->setName("ok");
+	bt->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onOptionsButtonOkClicked);
+
+	OptionsButton_Ok = bt;
+}
+
+void UExSimMainWidget::addConstraintButtonEsc()
+{
+	UExButtonWidget * bt = CreateWidget<UExButtonWidget>(this, ButtonClass);
+	StorageWrapBox->AddChild(bt);
+	bt->setName("esc");
+	bt->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstraintEscClicked);
+
+	OptionsButton_Esc = bt;
+}
+
+void UExSimMainWidget::addConstraintButtonReset()
+{
+	UExButtonWidget * bt = CreateWidget<UExButtonWidget>(this, ButtonClass);
+	StorageWrapBox->AddChild(bt);
+	bt->setName("reset");
+	bt->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstraintResetClicked);
+
+	OptionsButton_Reset = bt;
+}
+
 AActor* UExSimMainWidget::getParentActor()
 {
 	return ParentActor;
@@ -338,28 +371,144 @@ FString UExSimMainWidget::getParTrgInfo()
 	return info;
 }
 
+bool UExSimMainWidget::getVectorFromString(FString list, FString splitter, FVector & out)
+{
+	TArray<FString> values;
+	list.ParseIntoArray(values, *splitter, true);
+	if (values.Num() == 3)
+	{
+		out.X = FCString::Atof(*values[0]);	
+		out.Y = FCString::Atof(*values[1]);	
+		out.Z = FCString::Atof(*values[2]);	
+		return true;
+	}
+	return false;
+}
+
+
+
+bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, TArray<bool> & vect)
+{
+	if (option->ValueName->GetText().ToString() == OptionNames[ checker ])
+	{
+		TArray<FString> values;
+		FString list = option->ValueText->GetText().ToString();
+		list.ParseIntoArray(values, TEXT(";"), true);
+		for (auto & val :values)
+		{
+			if (FCString::Atoi(*val) == 0)
+				vect.Add(false);
+			else
+				vect.Add(true);
+		}
+		return true;
+	}
+	return false;
+}
+bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, FVector & vect)
+{
+	if (option->ValueName->GetText().ToString() == OptionNames[ checker ])
+	{
+		getVectorFromString(option->ValueText->GetText().ToString(), TEXT(";"),vect);
+		return true;
+	}
+	return false;
+}
+
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
+
+	AExactoPhysics::es_constraint params;
+
+	for (auto & option : OptionsList)
+	{
+		checkVectorOption(option, AExSimStorage::es_options_list::parent_pivot, params.pivot_p);	
+		checkVectorOption(option, AExSimStorage::es_options_list::target_pivot, params.pivot_t);	
+		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_lin, params.low_lim_lin);	
+		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_lin, params.upp_lim_lin);	
+		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_ang, params.low_lim_ang);	
+		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_ang, params.upp_lim_ang);	
+		checkVectorOption(option, AExSimStorage::es_options_list::stiff_lin, params.stiff_lin);	
+		checkVectorOption(option, AExSimStorage::es_options_list::dump_lin, params.dump_lin);	
+	}
+
+	//delete
+	deleteConstraintOptions();
+}
+void UExSimMainWidget::deleteConstraintOptions()
+{
 	OptionsButton_Ok->RemoveFromParent();
-	//OptionsButton_Ok->FinishDestroy();
-	//delete OptionsButton_Ok;
+	OptionsButton_Esc->RemoveFromParent();
+	
 	StorageWrapBox->ClearChildren();
 	for (auto & option : OptionsList)
 		option->RemoveFromParent();
 	OptionsList.Empty();
 	for (auto & select : SelectorList)
 		select->RemoveFromRoot();
-	SelectorList.Empty();
+	SelectorList.Empty();	
+}
+void UExSimMainWidget::onConstraintEscClicked()
+{
+	deleteConstraintOptions();
+}
+
+void UExSimMainWidget::onConstraintResetClicked()
+{
 }
 
 void UExSimMainWidget::onConstrHingeButtonClicked()
 {
-		ConstrHingeButton->SetBackgroundColor(FLinearColor(0,100,0));
-	
+	addOptionToStorage("Pivot Parent","0.0; 0.0; 0.0;");
 }
 
 void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 {
+	if (!OptionNames.Num())
+		OptionNames = DataStorage->OptionNamesPtr;
+	if (!OptionValuePairs.Num())
+		OptionValuePairs = DataStorage->OptionValuePairsPtr;
+
+	FString name = OptionNames[AExSimStorage::es_options_list::parent_pivot];
+	FString * value = OptionValuePairs.Find(name);
+	if (value)
+	addOptionToStorage(name, *value);
+	name = OptionNames[AExSimStorage::es_options_list::target_pivot];
+	value = OptionValuePairs.Find(name);
+	if (value)
+	addOptionToStorage(name, *value);
+
+	name = OptionNames[AExSimStorage::es_options_list::low_lim_lin];
+	value = OptionValuePairs.Find(name);
+	if (value)
+	addOptionToStorage(name, *value);
+	name = OptionNames[AExSimStorage::es_options_list::upp_lim_lin];
+	value = OptionValuePairs.Find(name);	
+	if (value)
+	addOptionToStorage(name, *value);
+	name = OptionNames[AExSimStorage::es_options_list::low_lim_ang];
+	value = OptionValuePairs.Find(name);
+	if (value)
+	addOptionToStorage(name, *value);
+	name = OptionNames[AExSimStorage::es_options_list::upp_lim_ang];
+	value = OptionValuePairs.Find(name);	
+	if (value)
+	addOptionToStorage(name, *value);
+	name = OptionNames[AExSimStorage::es_options_list::stiff_lin];
+	value = OptionValuePairs.Find(name);
+	if (value)
+	addOptionToStorage(name, *value);
+	name = OptionNames[AExSimStorage::es_options_list::dump_lin];
+	value = OptionValuePairs.Find(name);
+	if (value)
+	addOptionToStorage(name, *value);
+	name = OptionNames[AExSimStorage::es_options_list::en_spring];
+	value = OptionValuePairs.Find(name);
+	if (value)
+	addOptionToStorage(name, *value);
+
+	addConstraintButtonOk();
+	addConstraintButtonEsc();
 }
 
 void UExSimMainWidget::onConstrP2PButtonClicked()
@@ -393,6 +542,7 @@ bool UExSimMainWidget::Initialize()
 		std::string * str = DataStorage->GenObjType.Find(GenObjKey++);
 		updateSwitchObjText(*str);
 		DataStorage->setTargetWidget(this);
+
 		//GetOwningPlayer()->bShowMouseCursor = true;
 		
 	}

@@ -39,6 +39,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UCameraComponent * TrgCamera;
 
+
 private:
 	UClass * OptionClass;
 	UClass * ButtonClass;

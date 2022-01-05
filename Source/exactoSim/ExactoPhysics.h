@@ -63,6 +63,7 @@ public:	//variables
     	FString name_t;
     	FString name_p;
     	uint8_t en_spring[6];
+		TArray<bool> enable_spring;
     	FVector upp_lim_lin;
     	FVector low_lim_lin;
     	FVector upp_lim_ang;
@@ -72,7 +73,18 @@ public:	//variables
     	FVector stiff_ang;
     
     	FVector dump_lin;
-    	FVector dump_ang;	
+    	FVector dump_ang;
+		es_constraint()
+		{
+			constraint = nullptr;
+			parent = nullptr;
+			constr_type = BulletHelpers::Constr::NONE;
+			en_spring[0] = 0;	en_spring[1] = 0;	en_spring[2] = 0;	en_spring[3] = 0;	en_spring[4] = 0;	en_spring[5] = 0;	
+			axis_p =  axis_t =  pivot_t =  pivot_p = FVector::ZeroVector;
+			name_p = name_t = "";
+			upp_lim_ang = low_lim_lin = upp_lim_lin = low_lim_ang = FVector::ZeroVector;
+			stiff_ang = stiff_lin = dump_ang = dump_lin = FVector::ZeroVector;
+		}
 	};	
 	// Global objects
 	btCollisionConfiguration* BtCollisionConfig;

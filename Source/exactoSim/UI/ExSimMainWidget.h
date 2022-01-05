@@ -54,6 +54,13 @@ public:
 
 	UFUNCTION()
 		void onOptionsButtonOkClicked();
+
+	UFUNCTION()
+		void onConstraintEscClicked();
+
+	UFUNCTION()
+		void onConstraintResetClicked();
+	
 	UFUNCTION()
 		void onConstrHingeButtonClicked();
 	UFUNCTION()
@@ -71,6 +78,10 @@ public:
 	void addButtonToStorage(FString name);
 	void addSelectToStorage(FString name, TArray<FString> option_list);
 
+	void addConstraintButtonOk();
+	void addConstraintButtonEsc();
+	void addConstraintButtonReset();
+
 	AActor * getParentActor();
 	AActor * getTargetActor();
 	bool isParTrgPair();
@@ -84,6 +95,11 @@ private:
 	void updateSwitchObjText(const std::string str);
 	void updateSwitchObjText(const FString str);
 	void setVisibilityOptionsPanel(bool onoff);
+
+	bool getVectorFromString(FString list, FString splitter, FVector & out);
+
+	void deleteConstraintOptions();
+	
 protected:
 	bool Initialize() override;
 public:
@@ -156,6 +172,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AExSimStorage * DataStorage;
 
+
+
+	TMap<AExSimStorage::es_options_list, FString> OptionNames;
+	TMap<FString, FString> OptionValuePairs;
+	
+
 private:
 	std::unique_ptr<uint8[]> CanvasPixelData;
 	int CanvasWidth;
@@ -175,6 +197,8 @@ private:
 	TArray<UExEditableWidget *> OptionsList;
 	TArray<UExSelector *> SelectorList;
 	UExButtonWidget * OptionsButton_Ok = nullptr;
+	UExButtonWidget * OptionsButton_Esc = nullptr;
+	UExButtonWidget * OptionsButton_Reset = nullptr;
 
 	UClass * SelectorClass;
 	UClass * ButtonClass;
@@ -183,5 +207,8 @@ private:
 	AActor * CurrentActor;
 	AActor * TargetActor;
 	AActor * ParentActor;
+	
+	bool checkVectorOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, FVector & vect);
+	bool checkBoolArrayOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, TArray<bool> & vect);
 	
 };

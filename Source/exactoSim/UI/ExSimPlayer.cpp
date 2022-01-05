@@ -17,6 +17,9 @@ AExSimPlayer::AExSimPlayer()
 	ConstructorHelpers::FClassFinder<UUserWidget> SelectorClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExSelector'"));
 	//WidgetBlueprint'/Game/Blueprint/UI/BP_ExSelector.BP_ExSelector'
 	SelectorClass = SelectorClassFinder.Succeeded() ? SelectorClassFinder.Class : nullptr;
+
+
+
 }
 
 void AExSimPlayer::activateFunction() 
@@ -203,14 +206,13 @@ void AExSimPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (OptionClass && ButtonClass && SelectorClass)
+	if (TargetWidget && OptionClass && ButtonClass && SelectorClass)
 	{
 		TargetWidget->setOptionClass(OptionClass);
 		TargetWidget->setButtonClass(ButtonClass);
 		TargetWidget->setSelectorClass(SelectorClass);
 		
-
-		TArray<FString> options;
+		/*TArray<FString> options;
 		options.Add("some");
 		options.Add("give");
 		options.Add("me");
@@ -222,7 +224,7 @@ void AExSimPlayer::BeginPlay()
 
 		TargetWidget->addSelectToStorage("example:", options);
 
-		TargetWidget->addButtonToStorage("ok");
+		TargetWidget->addButtonToStorage("ok");*/
 
 	}
 	

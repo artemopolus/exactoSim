@@ -63,10 +63,12 @@ public:
 		es_component * parent;
 		btTypedConstraint *constraint;
 		BulletHelpers::Constr type;
+		AExactoPhysics::es_constraint * params;
 	};
 	struct es_component
 	{
 		FString name;
+		FString path;
 		AActor * target;
 		btRigidBody * body;
 		TArray<es_constraint_pair*> constraints; 
@@ -87,6 +89,20 @@ public:
 		MOVE,
 		END
 	};
+	enum es_options_list
+	{
+		parent_pivot = 0,
+		target_pivot,
+		upp_lim_lin,
+		low_lim_lin,
+		upp_lim_ang,
+		low_lim_ang,
+		en_spring,
+		stiff_lin,
+		dump_lin
+	};	
+	TMap<es_options_list, FString> OptionNamesPtr;
+	TMap<FString, FString> OptionValuePairsPtr;
 	
 private:
 	int CurrentMode = es_modes::EDIT;
@@ -147,6 +163,13 @@ public:
 	void moveActor(FVector location);
 
 	void letActor();
+
+	void saveExSimComplex(es_complex * target);
+	
+	void convertExSimComplex(es_complex * target, const AExSimFileManager::es_complex_params * src);
+
+	void saveExSimComplex(int index);
+	
 
 private:
 	void createComplex(es_component * component, FString new_complex_name);

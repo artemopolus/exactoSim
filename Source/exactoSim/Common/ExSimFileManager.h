@@ -19,11 +19,33 @@ public:
 	AExSimFileManager();
 
 
+	struct es_constraint_params
+	{
+		TMap<FString, FVector> vector_list;
+		TMap<FString, TArray<bool>> boolarray_list;
+		TMap<FString, float> float_list;
+		TMap<FString, FString> string_list;
+	};
+
+	struct es_component_params
+	{
+		TArray<es_constraint_params*> constraints;
+		TMap<FString, FString> string_list;
+	};
+
+	struct es_complex_params
+	{
+		TArray<es_component_params*> components;
+		TMap<FString, FString> string_list;
+	};
+	
+	
 private:
 	FString PathToConfig;
 	FString PathToContentFolder;
 	FString PathToFilesFolder;
 	FString PathToDataFolder;
+	FString PathToComplexFolder;
 	FString DataFileName;
 
 	FString PathToModelFolder;
@@ -42,5 +64,8 @@ public:
 	FString getPathToBlueprint(FString name);
 
 	void openModel(FString name);
-	void loadMeshInComponent(UProceduralMeshComponent* target);	
+	
+	void loadMeshInComponent(UProceduralMeshComponent* target);
+
+	void saveEsComplexParams(const es_complex_params * src);
 };
