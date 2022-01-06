@@ -68,4 +68,9 @@ public:
 	void loadMeshInComponent(UProceduralMeshComponent* target);
 
 	void saveEsComplexParams(const es_complex_params * src);
+
+	void loadEsComplexParams(TArray<es_complex_params *> trg);
+
+	void deleteExSimComplexParams(es_complex_params * cmplx);
+	
 };

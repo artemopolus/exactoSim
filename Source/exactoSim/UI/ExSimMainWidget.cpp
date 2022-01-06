@@ -243,7 +243,8 @@ void UExSimMainWidget::onGenerateButtonClicked()
 	if (DataStorage)
 	{
 		//DataStorage->createSceneObj();
-		DataStorage->saveExSimComplex(1);
+		//DataStorage->saveExSimComplex(1);
+		DataStorage->loadExSimComplex();
 	}
 }
 

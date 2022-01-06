@@ -161,3 +161,86 @@ void AExSimFileManager::saveEsComplexParams(const es_complex_params* src)
 	FFileHelper::SaveStringToFile(out, *path);
 }
 
+void AExSimFileManager::loadEsComplexParams(TArray<es_complex_params *> complexes_list)
+{
+	IPlatformFile& file_manager = FPlatformFileManager::Get().GetPlatformFile();
+	TArray<FString> files_list;
+	file_manager.FindFiles(files_list, *PathToComplexFolder, TEXT(".json"));
+	for (const auto & filepath : files_list)
+	{
+		FString str;
+		FFileHelper::LoadFileToString(str, *filepath);
+		TSharedRef<TJsonReader<TCHAR>> reader = TJsonReaderFactory<TCHAR>::Create(str);
+		TSharedPtr<FJsonObject> json_object = MakeShareable(new FJsonObject);
+		FJsonSerializer::Deserialize(reader, json_object);
+		auto fields = json_object->Values;
+
+		es_complex_params * cmplx = new es_complex_params();
+		
+		for (const auto & field : fields )
+		{
+			const TSharedPtr<FJsonObject> * obj;
+			FString str0;
+			if (field.Value->TryGetObject(obj))
+			{
+				es_component_params * cmpnt = new es_component_params(); // don't want recursive function
+				const TSharedPtr<FJsonObject> * cnstr_obj;
+				FString str1;
+				auto fs = obj->Get()->Values;
+				for (const auto & f: fs)
+				{
+					if (f.Value->TryGetObject(cnstr_obj))
+					{
+						es_constraint_params * cnstr = new es_constraint_params();
+						float val;
+						FString str2;
+						FVector vec;
+						const TArray<TSharedPtr<FJsonValue>> * arr;
+						auto ps = cnstr_obj->Get()->Values;
+						for (const auto & p : ps)
+						{
+							if (p.Value->TryGetNumber(val))
+								cnstr->float_list.Add(p.Key, val);
+							else if (p.Value->TryGetArray(arr))
+							{
+								bool res;
+								if (arr[0][0].Get()->TryGetBool(res))
+								{
+									TArray<bool> arr_b;
+									for (int i = 0; i < arr[0].Num(); i++)
+									{
+										if (arr[0][i].Get()->TryGetBool(res))
+											arr_b.Add(res);
+									}
+									cnstr->boolarray_list.Add(p.Key, arr_b);
+								}
+								else if (arr->Num() == 3)
+								{
+									float value;
+									if( arr[0][0].Get()->TryGetNumber(value))
+										vec.X = value;
+									if( arr[0][1].Get()->TryGetNumber(value))
+										vec.Y = value;									
+									if( arr[0][2].Get()->TryGetNumber(value))
+										vec.Z = value;
+									cnstr->vector_list.Add(p.Key, vec);
+								}
+							}
+							else if (p.Value->TryGetString(str2))
+								cnstr->string_list.Add(p.Key, str2);
+						}
+						cmpnt->constraints.Add(cnstr);
+					}
+					else if (f.Value->TryGetString(str1))
+						cmpnt->string_list.Add(f.Key, str1);
+				}
+				cmplx->components.Add(cmpnt);
+			}
+			else if (field.Value->TryGetString(str0))
+				cmplx->string_list.Add(field.Key, str0);
+		}
+		complexes_list.Add(cmplx);
+	}
+	return;
+}
+

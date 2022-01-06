@@ -169,6 +169,8 @@ public:
 	void convertExSimComplex(es_complex * target, const AExSimFileManager::es_complex_params * src);
 
 	void saveExSimComplex(int index);
+
+	void loadExSimComplex();
 	
 
 private:

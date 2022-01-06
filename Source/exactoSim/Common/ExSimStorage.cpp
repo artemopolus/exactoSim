@@ -437,7 +437,7 @@ void AExSimStorage::saveExSimComplex(es_complex* target)
 		cmplx->components.Add(cmpnt);
 	}
 	ExWorld->ExFileManager->saveEsComplexParams(cmplx);
-	delete cmplx;
+
 }
 
 void AExSimStorage::convertExSimComplex(es_complex* target, const AExSimFileManager::es_complex_params* src)
@@ -483,6 +483,12 @@ void AExSimStorage::saveExSimComplex(int index)
 	saveExSimComplex(ExSimComplexList[index]);
 }
 
+void AExSimStorage::loadExSimComplex()
+{
+	TArray<AExSimFileManager::es_complex_params * > c_p_list;
+	ExWorld->ExFileManager->loadEsComplexParams(c_p_list);
+}
+
 void AExSimStorage::createComplex(es_component* component, FString new_complex_name)
 {
 	es_complex * base = new es_complex();
@@ -502,5 +508,7 @@ void AExSimStorage::createComplex(es_component* component, FString new_complex_n
 	}
 	
 }
+
+
 
 
