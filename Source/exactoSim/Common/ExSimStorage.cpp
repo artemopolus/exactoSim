@@ -46,6 +46,7 @@ AExSimStorage::AExSimStorage()
 
 	const FString vector_str("0.0; 0.0; 0.0");
 	const FString value_str("0.0");
+	const FString name_str("default");
 	
 	OptionNamesPtr.Add( AExSimStorage::es_options_list::parent_pivot, "Parent Pivot");
     OptionNamesPtr.Add(AExSimStorage::es_options_list::target_pivot, "Target Pivot");
@@ -56,6 +57,8 @@ AExSimStorage::AExSimStorage()
     OptionNamesPtr.Add(AExSimStorage::es_options_list::en_spring, "Enable Spring");
     OptionNamesPtr.Add(AExSimStorage::es_options_list::stiff_lin, "Stiff Lin");
     OptionNamesPtr.Add(AExSimStorage::es_options_list::dump_lin, "Dump Lin");
+    OptionNamesPtr.Add(AExSimStorage::es_options_list::parent_name, "Parent name");
+    OptionNamesPtr.Add(AExSimStorage::es_options_list::target_name, "Target name");
     
     OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::parent_pivot], vector_str);
     OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::target_pivot], vector_str);
@@ -66,6 +69,9 @@ AExSimStorage::AExSimStorage()
     OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::stiff_lin], vector_str);
     OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::dump_lin], vector_str);
     OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::en_spring], "0; 0; 0; 0; 0; 0");
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::parent_name], name_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::target_name], name_str);
+	
 	
 }
 
@@ -307,6 +313,24 @@ void AExSimStorage::createConstraint(AActor* target, AActor* parent, AExactoPhys
 	parent_component->basis->components.Add(target_component);
 }
 
+void AExSimStorage::createConstraint(AActor* target, AExactoPhysics::es_constraint * params)
+{
+	if (params->constr_type != BulletHelpers::Constr::P2P)
+		return;
+	AExSmplBox * actor = static_cast<AExSmplBox*>(target);
+	es_component * component = actor->getEScomponent();
+	if (component->basis == ExSimComplexList[0])
+		createComplex(component, component->name + TEXT("_Complex"));
+
+	es_constraint_pair * p = new es_constraint_pair();
+    p->constraint = CurrentScene->fixP2PBody(component->body, params->pivot_p);
+    p->type = BulletHelpers::Constr::P2P;
+    p->name = params->name_p;
+	p->parent = nullptr;
+	p->params = params;
+    component->constraints.Add(p);
+}
+
 void AExSimStorage::setSceneObjName(FString name, FString type_name)
 {
 	TargetName = name;
@@ -399,6 +423,20 @@ void AExSimStorage::letActor()
 	{
 		CurrentScene->letTrgBody();
 	}
+}
+
+bool AExSimStorage::getActorInfo(FVector& pos)
+{
+	if (CurrentScene)
+	{
+		AActor * actor = nullptr;
+		if (CurrentScene->getTrgBody(&actor))
+		{
+			pos = actor->GetActorLocation();
+			return true;
+		}
+	}
+	return false;
 }
 
 void AExSimStorage::saveExSimComplex(es_complex* target)

@@ -165,6 +165,9 @@ void AExSimPlayer::moveActor(FVector mouse_loc, FVector mouse_dir)
 	{
 		FVector direction = mouse_dir * ActorDragDistance;
 		DataStorage->moveActor(mouse_loc + direction);
+		FVector loc;
+		if (DataStorage->getActorInfo(loc))
+			toDebugWindow(loc.ToString());
 	}
 }
 

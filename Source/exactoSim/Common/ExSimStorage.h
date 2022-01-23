@@ -99,7 +99,9 @@ public:
 		low_lim_ang,
 		en_spring,
 		stiff_lin,
-		dump_lin
+		dump_lin,
+		parent_name,
+		target_name
 	};	
 	TMap<es_options_list, FString> OptionNamesPtr;
 	TMap<FString, FString> OptionValuePairsPtr;
@@ -141,8 +143,8 @@ public:
 
 	void createSceneObj(void);
 	void createSceneObj(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
-
 	void createConstraint(AActor * target, AActor * parent, AExactoPhysics::es_constraint params);
+	void createConstraint(AActor * target, AExactoPhysics::es_constraint * params);
 
 	void setSceneObjName(FString name, FString type_name);
 
@@ -157,12 +159,10 @@ public:
 	void manipulateGenerator(FVector loc, FRotator rot);
 
 	bool touchActor(AActor * actor, FString & output);
-
 	void pickActor(AActor * actor, FVector location);
-
 	void moveActor(FVector location);
-
 	void letActor();
+	bool getActorInfo(FVector & pos);
 
 	void saveExSimComplex(es_complex * target);
 	
@@ -171,6 +171,8 @@ public:
 	void saveExSimComplex(int index);
 
 	void loadExSimComplex();
+
+	
 	
 
 private:

@@ -83,6 +83,7 @@ public:
 	void pickTrgBody(btRigidBody * body, FVector location);
 	void moveTrgBody(FVector location);
 	void letTrgBody();
+	bool getTrgBody(AActor ** actor);
 	
 	
 private:

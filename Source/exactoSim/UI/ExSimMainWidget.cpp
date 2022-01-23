@@ -406,6 +406,18 @@ bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExSimSt
 	}
 	return false;
 }
+
+bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExSimStorage::es_options_list checker,
+	FString& name)
+{
+	if (option->ValueName->GetText().ToString() == OptionNames.FindRef( checker ))
+	{
+		name = option->ValueText->GetText().ToString();
+		return true;
+	}
+	return false;	
+}
+
 bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, FVector & vect)
 {
 	if (option->ValueName->GetText().ToString() == OptionNames[ checker ])
@@ -419,22 +431,27 @@ bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExSimStora
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
 
-	AExactoPhysics::es_constraint params;
+	AExactoPhysics::es_constraint * params = new AExactoPhysics::es_constraint();
 
 	for (auto & option : OptionsList)
 	{
-		checkVectorOption(option, AExSimStorage::es_options_list::parent_pivot, params.pivot_p);	
-		checkVectorOption(option, AExSimStorage::es_options_list::target_pivot, params.pivot_t);	
-		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_lin, params.low_lim_lin);	
-		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_lin, params.upp_lim_lin);	
-		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_ang, params.low_lim_ang);	
-		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_ang, params.upp_lim_ang);	
-		checkVectorOption(option, AExSimStorage::es_options_list::stiff_lin, params.stiff_lin);	
-		checkVectorOption(option, AExSimStorage::es_options_list::dump_lin, params.dump_lin);	
+		checkVectorOption(option, AExSimStorage::es_options_list::parent_pivot, params->pivot_p);	
+		checkVectorOption(option, AExSimStorage::es_options_list::target_pivot, params->pivot_t);	
+		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_lin, params->low_lim_lin);	
+		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_lin, params->upp_lim_lin);	
+		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_ang, params->low_lim_ang);	
+		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_ang, params->upp_lim_ang);	
+		checkVectorOption(option, AExSimStorage::es_options_list::stiff_lin, params->stiff_lin);	
+		checkVectorOption(option, AExSimStorage::es_options_list::dump_lin, params->dump_lin);
+		checkStringOption(option, AExSimStorage::es_options_list::parent_name, params->name_p);
 	}
 
 	//delete
 	deleteConstraintOptions();
+
+	params->constr_type = SelectedConstraintType;
+
+	DataStorage->createConstraint(ParentActor, params);
 }
 void UExSimMainWidget::deleteConstraintOptions()
 {
@@ -469,6 +486,8 @@ void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 		OptionNames = DataStorage->OptionNamesPtr;
 	if (!OptionValuePairs.Num())
 		OptionValuePairs = DataStorage->OptionValuePairsPtr;
+
+	SelectedConstraintType = BulletHelpers::Constr::GEN6DOF_SPRING;
 
 	FString name = OptionNames[AExSimStorage::es_options_list::parent_pivot];
 	FString * value = OptionValuePairs.Find(name);
@@ -514,6 +533,25 @@ void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 
 void UExSimMainWidget::onConstrP2PButtonClicked()
 {
+	if (!ParentActor)
+		return;
+	if (!OptionNames.Num())
+		OptionNames = DataStorage->OptionNamesPtr;
+	if (!OptionValuePairs.Num())
+		OptionValuePairs = DataStorage->OptionValuePairsPtr;
+	SelectedConstraintType = BulletHelpers::Constr::P2P;
+
+	FString name = OptionNames[AExSimStorage::es_options_list::parent_pivot];
+	FString * value = OptionValuePairs.Find(name);
+	if (value)
+		addOptionToStorage(name, *value);
+	name =  OptionNames[AExSimStorage::es_options_list::parent_name];
+	value = OptionValuePairs.Find(name);
+	*value += TEXT("_") + ParentActor->GetName() + TEXT("_P2P");
+	if (value)
+		addOptionToStorage(name, *value);	
+	addConstraintButtonOk();
+	addConstraintButtonEsc();
 }
 
 bool UExSimMainWidget::Initialize()

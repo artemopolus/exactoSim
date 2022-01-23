@@ -207,8 +207,10 @@ private:
 	AActor * CurrentActor;
 	AActor * TargetActor;
 	AActor * ParentActor;
+	BulletHelpers::Constr SelectedConstraintType = BulletHelpers::Constr::NONE;
 	
 	bool checkVectorOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, FVector & vect);
 	bool checkBoolArrayOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, TArray<bool> & vect);
+	bool checkStringOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, FString & name);
 	
 };

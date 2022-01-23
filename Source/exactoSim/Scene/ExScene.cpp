@@ -522,3 +522,14 @@ void AExScene::letTrgBody()
 	}
 }
 
+bool AExScene::getTrgBody(AActor** actor)
+{
+	if (PickedBody)
+	{
+		*actor = static_cast<AActor*>(PickedBody->getUserPointer());
+		if (*actor)
+			return true;
+	}
+	return false;
+}
+
