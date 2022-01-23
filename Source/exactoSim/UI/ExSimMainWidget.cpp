@@ -549,7 +549,19 @@ void UExSimMainWidget::onConstrP2PButtonClicked()
 	value = OptionValuePairs.Find(name);
 	*value += TEXT("_") + ParentActor->GetName() + TEXT("_P2P");
 	if (value)
-		addOptionToStorage(name, *value);	
+		addOptionToStorage(name, *value);
+
+	name =  OptionNames[AExSimStorage::es_options_list::target_pivot];
+	value = OptionValuePairs.Find(name);
+	if (value)
+		addOptionToStorage(name, *value);
+	
+	name =  OptionNames[AExSimStorage::es_options_list::dump_lin];
+	value = OptionValuePairs.Find(name);
+	*value = "30.0; 0.001; 0.0";
+	if (value)
+		addOptionToStorage(name, *value);
+
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
 }

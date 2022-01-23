@@ -79,6 +79,8 @@ public:
 	void removeConstrain();
 
 	btTypedConstraint * fixP2PBody(btRigidBody * body, FVector location);
+	btTypedConstraint * fixP2PBody(btRigidBody * body, AExactoPhysics::es_constraint * params);
+	
 	btTypedConstraint * fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, AExactoPhysics::es_constraint params);
 	void pickTrgBody(btRigidBody * body, FVector location);
 	void moveTrgBody(FVector location);

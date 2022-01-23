@@ -323,7 +323,7 @@ void AExSimStorage::createConstraint(AActor* target, AExactoPhysics::es_constrai
 		createComplex(component, component->name + TEXT("_Complex"));
 
 	es_constraint_pair * p = new es_constraint_pair();
-    p->constraint = CurrentScene->fixP2PBody(component->body, params->pivot_p);
+    p->constraint = CurrentScene->fixP2PBody(component->body, params);
     p->type = BulletHelpers::Constr::P2P;
     p->name = params->name_p;
 	p->parent = nullptr;

@@ -450,6 +450,22 @@ btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FVector location)
 	return nullptr;
 }
 
+btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, AExactoPhysics::es_constraint* params)
+{
+	if (body)
+	{
+		body->setActivationState(DISABLE_DEACTIVATION);
+    	const btVector3 pivot = BulletHelpers::ToBtSize(params->pivot_p);
+    	btPoint2PointConstraint * p2p = new btPoint2PointConstraint(*body, pivot);
+    	ExPhyzX->BtWorld->addConstraint(p2p);
+    	p2p->m_setting.m_impulseClamp = params->dump_lin.X;
+    	p2p->m_setting.m_tau = params->dump_lin.Y;
+		p2p->setPivotB(BulletHelpers::ToBtSize(params->pivot_t));
+		return p2p;
+	}
+	return nullptr;
+}
+
 btTypedConstraint* AExScene::fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, AExactoPhysics::es_constraint params)
 {
 	btTransform tr;
