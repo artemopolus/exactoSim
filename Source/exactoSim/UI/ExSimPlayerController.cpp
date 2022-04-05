@@ -21,7 +21,9 @@ void AExSimPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	InputComponent->BindAction("mouseLClick", IE_Pressed, this, &AExSimPlayerController::mouseLClick);
-	InputComponent->BindAction("mouseLClick", IE_Released, this, &AExSimPlayerController::mouseRelease);
+	InputComponent->BindAction("mouseLClick", IE_Released, this, &AExSimPlayerController::mouseLRelease);
+	InputComponent->BindAction("mouseRClick", IE_Pressed, this, &AExSimPlayerController::mouseRClick);
+	InputComponent->BindAction("mouseRClick", IE_Released, this, &AExSimPlayerController::mouseRRelease);
 }
 
 void AExSimPlayerController::Tick(float delta_seconds)
@@ -53,17 +55,6 @@ void AExSimPlayerController::mouseLClick()
 	if (hit.bBlockingHit)
 	{
 		output += TEXT("\nActor: ") + hit.Actor->GetName() + TEXT(" ");
-		/*for(int i = 0; i < hit.Actor->Tags.Num(); i++)
-		{
-			FString tag = hit.Actor->Tags[i].ToString();
-			output += tag + TEXT(";");
-			if (tag == PlayerPtr->DataStorage->CurrentScene->BaseTag)
-			{
-				output += TEXT("[Target]");
-				PlayerPtr->setupConstrainOptions(HUDPtr->getMousePosition());
-				
-			}
-		}*/
 		
 
 		//FVector loc, dir;
@@ -91,12 +82,10 @@ void AExSimPlayerController::mouseLClick()
 
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, output);
-	/*if (PlayerPtr->DataStorage)
-		PlayerPtr->DataStorage->clicked();*/
 
 }
 
-void AExSimPlayerController::mouseRelease()
+void AExSimPlayerController::mouseLRelease()
 {
 	FString output = "Mouse out";
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, output);
@@ -105,4 +94,29 @@ void AExSimPlayerController::mouseRelease()
 		MouseLDragOn = false;
 		PlayerPtr->releaseActor();
 	}
+}
+
+void AExSimPlayerController::mouseRClick()
+{
+	if (!PlayerPtr&&!PlayerPtr->DataStorage)
+		return;
+	FVector loc, dir;
+	FHitResult hit;
+	const FVector2D mouse_pos2d = HUDPtr->getMousePosition();
+	
+	HUDPtr->getMouseProjection(loc, dir);
+	GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, hit);
+	
+	if (hit.bBlockingHit)
+	{
+		if (DeprojectMousePositionToWorld(loc, dir))
+		{
+			dir = hit.Location - loc;
+			AActor* actor = hit.Actor.Get();
+		}
+	}
+}
+
+void AExSimPlayerController::mouseRRelease()
+{
 }

@@ -24,6 +24,7 @@ public:
 	AExSimHUD * HUDPtr = nullptr;
 private:
 	bool MouseLDragOn = false;
+	bool MouseROn = false;
 public:
 
 	virtual void BeginPlay() override;
@@ -32,5 +33,8 @@ public:
 private:
 	virtual void Tick(float DeltaSeconds) override;
 	void mouseLClick();
-	void mouseRelease();
+	void mouseLRelease();
+
+	void mouseRClick();
+	void mouseRRelease();
 };

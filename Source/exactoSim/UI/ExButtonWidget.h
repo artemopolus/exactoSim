@@ -22,4 +22,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void setName(FString name);
+
+	int tag = -1;
 };

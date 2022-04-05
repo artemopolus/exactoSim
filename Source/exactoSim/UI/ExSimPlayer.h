@@ -80,7 +80,7 @@ public:
 	void rotateRight(float value);
 	void rotateLeft(float value);
 
-
+	void selectActor(AActor * actor, FVector mouse_loc, FVector hit_loc);
 
 	void touchActor(AActor * actor, FVector mouse_loc, FVector hit_loc);
 	void moveActor(FVector mouse_loc, FVector mouse_dir);

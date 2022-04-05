@@ -56,6 +56,9 @@ public:
 		void onOptionsButtonOkClicked();
 
 	UFUNCTION()
+		void onTempListButtonClicked();
+
+	UFUNCTION()
 		void onConstraintEscClicked();
 
 	UFUNCTION()
@@ -99,6 +102,10 @@ private:
 	bool getVectorFromString(FString list, FString splitter, FVector & out);
 
 	void deleteConstraintOptions();
+
+	void addInputTable();
+	void addButtonToTempList(const FString name, const int tag);
+	void clearButtonTempList();
 	
 protected:
 	bool Initialize() override;
@@ -167,6 +174,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UWrapBox * StorageWrapBox;
+	
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UWrapBox * TempWrapBox;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -193,9 +203,12 @@ private:
 
 	int GenObjKey = 0;
 	int ConstrKey = BulletHelpers::Constr::NONE;
+
+	
 	
 	TArray<UExEditableWidget *> OptionsList;
 	TArray<UExSelector *> SelectorList;
+	TArray<UExButtonWidget *> ButtonTempList;
 	UExButtonWidget * OptionsButton_Ok = nullptr;
 	UExButtonWidget * OptionsButton_Esc = nullptr;
 	UExButtonWidget * OptionsButton_Reset = nullptr;
@@ -205,6 +218,8 @@ private:
 	UClass * OptionClass;
 
 	AActor * CurrentActor;
+	TArray<AExSimStorage::es_constraint_pair *> ConstrPairList;
+	
 	AActor * TargetActor;
 	AActor * ParentActor;
 	BulletHelpers::Constr SelectedConstraintType = BulletHelpers::Constr::NONE;
