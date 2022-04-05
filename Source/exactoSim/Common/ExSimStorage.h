@@ -91,6 +91,7 @@ public:
 	};
 	enum es_options_list
 	{
+		//fvectors
 		parent_pivot = 0,
 		target_pivot,
 		upp_lim_lin,
@@ -99,7 +100,12 @@ public:
 		low_lim_ang,
 		en_spring,
 		stiff_lin,
+		stiff_ang,
 		dump_lin,
+		dump_ang,
+		parent_axis,
+		target_axis,
+		//fstrings
 		parent_name,
 		target_name
 	};	
@@ -145,6 +151,7 @@ public:
 	void createSceneObj(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
 	void createConstraint(AActor * target, AActor * parent, AExactoPhysics::es_constraint params);
 	void createConstraint(AActor * target, AExactoPhysics::es_constraint * params);
+	bool getConstraint(const AActor * target, TArray<es_constraint_pair *> constr);
 
 	void setSceneObjName(FString name, FString type_name);
 

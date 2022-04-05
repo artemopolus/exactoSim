@@ -86,6 +86,18 @@ public:
 			ToBt(T.GetRotation()),
 			ToBtPos(T.GetLocation(), WorldOrigin));
 	}
+	static FString getNameOfConstrain(BulletHelpers::Constr Type)
+{
+	if (Type == BulletHelpers::Constr::GEN6DOF_SPRING)
+		return TEXT("Generic 6DOF Spring");
+	else if (Type == BulletHelpers::Constr::P2P)
+		return TEXT("Point to Point");
+	else if (Type == BulletHelpers::Constr::HINGE)
+		return TEXT("Hinge");
+	else if (Type == BulletHelpers::Constr::HINGE2)
+		return TEXT("Hinge 2v");
+	return TEXT("Unknown");
+}
 };
 
 

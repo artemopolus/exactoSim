@@ -233,7 +233,13 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 				TargetText->SetText(FText::FromString(TEXT("Target: ") + TargetActor->GetName()));
 			else
 				TargetText->SetText(FText::FromString(TEXT("Target: None")));
-			
+
+
+			DataStorage->getConstraint(CurrentActor, ConstrPairList);
+			for(int i = 0; i < ConstrPairList.Num(); i++)
+			{
+				addButtonToTempList(ConstrPairList[i]->name, i);
+			}
 		}
 	}
 }
@@ -323,6 +329,27 @@ void UExSimMainWidget::addConstraintButtonOk()
 	bt->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onOptionsButtonOkClicked);
 
 	OptionsButton_Ok = bt;
+}
+void UExSimMainWidget::onTempListButtonClicked()
+{
+}
+void UExSimMainWidget::addButtonToTempList(const FString name, const int tag)
+{
+	UExButtonWidget * bt = CreateWidget<UExButtonWidget>(this, ButtonClass);
+	bt->setName("ok");
+	bt->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onTempListButtonClicked);
+	TempWrapBox->AddChild(bt);
+	ButtonTempList.Add(bt);
+}
+
+void UExSimMainWidget::clearButtonTempList()
+{
+	for(auto button : ButtonTempList)
+	{
+		button->RemoveFromParent();
+	}
+	TempWrapBox->ClearChildren();
+	ButtonTempList.Empty();
 }
 
 void UExSimMainWidget::addConstraintButtonEsc()
@@ -436,14 +463,20 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 	for (auto & option : OptionsList)
 	{
 		checkVectorOption(option, AExSimStorage::es_options_list::parent_pivot, params->pivot_p);	
-		checkVectorOption(option, AExSimStorage::es_options_list::target_pivot, params->pivot_t);	
+		checkVectorOption(option, AExSimStorage::es_options_list::target_pivot, params->pivot_t);
+		checkVectorOption(option, AExSimStorage::es_options_list::parent_axis, params->axis_p);
+		checkVectorOption(option, AExSimStorage::es_options_list::target_axis, params->axis_t);
+		
 		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_lin, params->low_lim_lin);	
 		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_lin, params->upp_lim_lin);	
 		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_ang, params->low_lim_ang);	
 		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_ang, params->upp_lim_ang);	
 		checkVectorOption(option, AExSimStorage::es_options_list::stiff_lin, params->stiff_lin);	
+		checkVectorOption(option, AExSimStorage::es_options_list::stiff_ang, params->stiff_ang);	
 		checkVectorOption(option, AExSimStorage::es_options_list::dump_lin, params->dump_lin);
+		checkVectorOption(option, AExSimStorage::es_options_list::dump_ang, params->dump_ang);
 		checkStringOption(option, AExSimStorage::es_options_list::parent_name, params->name_p);
+		checkStringOption(option, AExSimStorage::es_options_list::target_name, params->name_t);
 	}
 
 	//delete
@@ -453,6 +486,8 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 
 	DataStorage->createConstraint(ParentActor, params);
 }
+
+
 void UExSimMainWidget::deleteConstraintOptions()
 {
 	OptionsButton_Ok->RemoveFromParent();
@@ -466,6 +501,8 @@ void UExSimMainWidget::deleteConstraintOptions()
 		select->RemoveFromRoot();
 	SelectorList.Empty();	
 }
+
+
 void UExSimMainWidget::onConstraintEscClicked()
 {
 	deleteConstraintOptions();
@@ -479,6 +516,24 @@ void UExSimMainWidget::onConstrHingeButtonClicked()
 {
 	addOptionToStorage("Pivot Parent","0.0; 0.0; 0.0;");
 }
+void UExSimMainWidget::addInputTable()
+{
+	for (auto option : OptionNames)
+	{
+		FString name = option.Value;
+		FString * value = OptionValuePairs.Find(name);
+		if (value)
+			addOptionToStorage(name, *value);
+	}
+	addConstraintButtonOk();
+	addConstraintButtonEsc();
+
+	FString out = TEXT("Add table") + BulletHelpers::getNameOfConstrain(SelectedConstraintType);
+	
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
+}
+
+
 
 void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 {
@@ -488,47 +543,7 @@ void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 		OptionValuePairs = DataStorage->OptionValuePairsPtr;
 
 	SelectedConstraintType = BulletHelpers::Constr::GEN6DOF_SPRING;
-
-	FString name = OptionNames[AExSimStorage::es_options_list::parent_pivot];
-	FString * value = OptionValuePairs.Find(name);
-	if (value)
-	addOptionToStorage(name, *value);
-	name = OptionNames[AExSimStorage::es_options_list::target_pivot];
-	value = OptionValuePairs.Find(name);
-	if (value)
-	addOptionToStorage(name, *value);
-
-	name = OptionNames[AExSimStorage::es_options_list::low_lim_lin];
-	value = OptionValuePairs.Find(name);
-	if (value)
-	addOptionToStorage(name, *value);
-	name = OptionNames[AExSimStorage::es_options_list::upp_lim_lin];
-	value = OptionValuePairs.Find(name);	
-	if (value)
-	addOptionToStorage(name, *value);
-	name = OptionNames[AExSimStorage::es_options_list::low_lim_ang];
-	value = OptionValuePairs.Find(name);
-	if (value)
-	addOptionToStorage(name, *value);
-	name = OptionNames[AExSimStorage::es_options_list::upp_lim_ang];
-	value = OptionValuePairs.Find(name);	
-	if (value)
-	addOptionToStorage(name, *value);
-	name = OptionNames[AExSimStorage::es_options_list::stiff_lin];
-	value = OptionValuePairs.Find(name);
-	if (value)
-	addOptionToStorage(name, *value);
-	name = OptionNames[AExSimStorage::es_options_list::dump_lin];
-	value = OptionValuePairs.Find(name);
-	if (value)
-	addOptionToStorage(name, *value);
-	name = OptionNames[AExSimStorage::es_options_list::en_spring];
-	value = OptionValuePairs.Find(name);
-	if (value)
-	addOptionToStorage(name, *value);
-
-	addConstraintButtonOk();
-	addConstraintButtonEsc();
+	addInputTable();
 }
 
 void UExSimMainWidget::onConstrP2PButtonClicked()
