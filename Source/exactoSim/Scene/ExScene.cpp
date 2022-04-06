@@ -478,6 +478,7 @@ btTypedConstraint* AExScene::fixGen6dofSpring(btRigidBody * p_body_a, btRigidBod
 	frameInB = btTransform::getIdentity();
 	frameInB.setOrigin(BulletHelpers::ToBtSize(params.pivot_t));
 	btGeneric6DofSpringConstraint * p = new btGeneric6DofSpringConstraint(*p_body_a, *p_body_b, frameInA, frameInB, true);
+	
 	p->setLinearLowerLimit(BulletHelpers::ToBtSize(params.low_lim_lin));
 	p->setLinearUpperLimit(BulletHelpers::ToBtSize(params.upp_lim_lin));
 

@@ -331,19 +331,18 @@ void AExSimStorage::createConstraint(AActor* target, AExactoPhysics::es_constrai
     component->constraints.Add(p);
 }
 
-bool AExSimStorage::getConstraint(const AActor* target, TArray<es_constraint_pair *> constr )
+bool AExSimStorage::getConstraint(const AActor* target, TArray<es_constraint_pair *> * constr )
 {
-	if (constr.Num()>0)
-		constr.Empty();
+	if (constr->Num()>0)
+		constr->Empty();
 	for (es_complex * complex : ExSimComplexList)
 	{
 		for (es_component * component : complex->components)
 		{
 			if (target == component->target)
 			{
-				constr = component->constraints;
 				for(es_constraint_pair * cp : component->constraints)
-					constr.Add(cp);
+					constr->Add(cp);
 				return true;
 			}
 		}

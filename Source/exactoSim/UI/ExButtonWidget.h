@@ -22,6 +22,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void setName(FString name);
+	UFUNCTION(BlueprintCallable)
+		FString getButtonName();
 
 	int tag = -1;
+private:
+	FString Name;
 };

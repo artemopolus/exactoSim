@@ -204,6 +204,11 @@ void UExSimMainWidget::onEscButtonClicked()
 	setVisibilityOptionsPanel(false);
 }
 
+static void sendDebug(FString text)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, text);
+}
+
 void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 {
 	if (DataStorage)
@@ -235,11 +240,14 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 				TargetText->SetText(FText::FromString(TEXT("Target: None")));
 
 
-			DataStorage->getConstraint(CurrentActor, ConstrPairList);
+			DataStorage->getConstraint(CurrentActor, &ConstrPairList);
+			FString out = TEXT("Constraint  pairs list:\n");
 			for(int i = 0; i < ConstrPairList.Num(); i++)
 			{
 				addButtonToTempList(ConstrPairList[i]->name, i);
+				out += FString::FromInt(i) + TEXT("\t ") + ConstrPairList[i]->name + TEXT("\n");
 			}
+			sendDebug(out);
 		}
 	}
 }
@@ -260,7 +268,7 @@ void UExSimMainWidget::onChangeModeButtonClicked()
 	{
 		FString output = "On parent button click! ";
 		output = DataStorage->switchMode();
-     	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, output);
+		sendDebug(output);
 		ChangeModeText->SetText(FText::FromString(output));
 	}
 }
@@ -332,11 +340,20 @@ void UExSimMainWidget::addConstraintButtonOk()
 }
 void UExSimMainWidget::onTempListButtonClicked()
 {
+	for(int i = 0; i < ButtonTempList.Num(); i++)
+	{
+		if (ButtonTempList[i]->IsHovered())
+		{
+			sendDebug(ButtonTempList[i]->getButtonName());
+		}
+	}
+	clearButtonTempList();
 }
 void UExSimMainWidget::addButtonToTempList(const FString name, const int tag)
 {
 	UExButtonWidget * bt = CreateWidget<UExButtonWidget>(this, ButtonClass);
-	bt->setName("ok");
+	bt->setName(name);
+	bt->tag = tag;
 	bt->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onTempListButtonClicked);
 	TempWrapBox->AddChild(bt);
 	ButtonTempList.Add(bt);

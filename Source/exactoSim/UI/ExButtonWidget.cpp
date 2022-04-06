@@ -10,5 +10,11 @@ void UExButtonWidget::setName(FString name)
 	if (ButtonName)
 	{
 		ButtonName->SetText(FText::FromString(name));
+		Name = name;
 	}
+}
+
+FString UExButtonWidget::getButtonName()
+{
+	return Name;
 }
