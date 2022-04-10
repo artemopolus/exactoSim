@@ -49,6 +49,28 @@ public:	//variables
 		FVector dump_lin;
 		FVector dump_ang;
 	};
+	enum es_options_list
+	{
+		//fvectors
+		parent_pivot = 0,
+		target_pivot,
+		upp_lim_lin,
+		low_lim_lin,
+		upp_lim_ang,
+		low_lim_ang,
+		en_spring,
+		stiff_lin,
+		stiff_ang,
+		dump_lin,
+		dump_ang,
+		parent_axis,
+		target_axis,
+		//fstrings
+		parent_name,
+		target_name,
+		//
+		constraint_t
+	};	
 	struct es_constraint
 	{
 		btTypedConstraint * constraint;

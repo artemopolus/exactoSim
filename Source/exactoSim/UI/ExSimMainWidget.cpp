@@ -10,6 +10,7 @@
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
 #include "Components/WrapBox.h"
+#include "exactoSim/Scene/ExSmplBox.h"
 #include "ThirdParty/RenderDoc/renderdoc_app.h"
 
 void UExSimMainWidget::NativeConstruct()
@@ -239,13 +240,14 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 			else
 				TargetText->SetText(FText::FromString(TEXT("Target: None")));
 
+			AExSmplBox * target = static_cast<AExSmplBox*>(actor);
 
-			DataStorage->getConstraint(CurrentActor, &ConstrPairList);
 			FString out = TEXT("Constraint  pairs list:\n");
-			for(int i = 0; i < ConstrPairList.Num(); i++)
+			for(int i = 0; i < target->getEScomponent()->constraints.Num(); i++)
 			{
-				addButtonToTempList(ConstrPairList[i]->name, i);
-				out += FString::FromInt(i) + TEXT("\t ") + ConstrPairList[i]->name + TEXT("\n");
+				const FString n = target->getEScomponent()->constraints[i]->name;
+				addButtonToTempList(n, i);
+				out += FString::FromInt(i) + TEXT("\t ") + n + TEXT("\n");
 			}
 			sendDebug(out);
 		}
@@ -345,6 +347,7 @@ void UExSimMainWidget::onTempListButtonClicked()
 		if (ButtonTempList[i]->IsHovered())
 		{
 			sendDebug(ButtonTempList[i]->getButtonName());
+			
 		}
 	}
 	clearButtonTempList();
@@ -432,7 +435,7 @@ bool UExSimMainWidget::getVectorFromString(FString list, FString splitter, FVect
 
 
 
-bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, TArray<bool> & vect)
+bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, TArray<bool> & vect)
 {
 	if (option->ValueName->GetText().ToString() == OptionNames[ checker ])
 	{
@@ -451,7 +454,7 @@ bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExSimSt
 	return false;
 }
 
-bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExSimStorage::es_options_list checker,
+bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExactoPhysics::es_options_list checker,
 	FString& name)
 {
 	if (option->ValueName->GetText().ToString() == OptionNames.FindRef( checker ))
@@ -462,7 +465,7 @@ bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExSimStorag
 	return false;	
 }
 
-bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExSimStorage::es_options_list checker, FVector & vect)
+bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FVector & vect)
 {
 	if (option->ValueName->GetText().ToString() == OptionNames[ checker ])
 	{
@@ -479,21 +482,21 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 
 	for (auto & option : OptionsList)
 	{
-		checkVectorOption(option, AExSimStorage::es_options_list::parent_pivot, params->pivot_p);	
-		checkVectorOption(option, AExSimStorage::es_options_list::target_pivot, params->pivot_t);
-		checkVectorOption(option, AExSimStorage::es_options_list::parent_axis, params->axis_p);
-		checkVectorOption(option, AExSimStorage::es_options_list::target_axis, params->axis_t);
+		checkVectorOption(option, AExactoPhysics::es_options_list::parent_pivot, params->pivot_p);	
+		checkVectorOption(option, AExactoPhysics::es_options_list::target_pivot, params->pivot_t);
+		checkVectorOption(option, AExactoPhysics::es_options_list::parent_axis, params->axis_p);
+		checkVectorOption(option, AExactoPhysics::es_options_list::target_axis, params->axis_t);
 		
-		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_lin, params->low_lim_lin);	
-		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_lin, params->upp_lim_lin);	
-		checkVectorOption(option, AExSimStorage::es_options_list::low_lim_ang, params->low_lim_ang);	
-		checkVectorOption(option, AExSimStorage::es_options_list::upp_lim_ang, params->upp_lim_ang);	
-		checkVectorOption(option, AExSimStorage::es_options_list::stiff_lin, params->stiff_lin);	
-		checkVectorOption(option, AExSimStorage::es_options_list::stiff_ang, params->stiff_ang);	
-		checkVectorOption(option, AExSimStorage::es_options_list::dump_lin, params->dump_lin);
-		checkVectorOption(option, AExSimStorage::es_options_list::dump_ang, params->dump_ang);
-		checkStringOption(option, AExSimStorage::es_options_list::parent_name, params->name_p);
-		checkStringOption(option, AExSimStorage::es_options_list::target_name, params->name_t);
+		checkVectorOption(option, AExactoPhysics::es_options_list::low_lim_lin, params->low_lim_lin);	
+		checkVectorOption(option, AExactoPhysics::es_options_list::upp_lim_lin, params->upp_lim_lin);	
+		checkVectorOption(option, AExactoPhysics::es_options_list::low_lim_ang, params->low_lim_ang);	
+		checkVectorOption(option, AExactoPhysics::es_options_list::upp_lim_ang, params->upp_lim_ang);	
+		checkVectorOption(option, AExactoPhysics::es_options_list::stiff_lin, params->stiff_lin);	
+		checkVectorOption(option, AExactoPhysics::es_options_list::stiff_ang, params->stiff_ang);	
+		checkVectorOption(option, AExactoPhysics::es_options_list::dump_lin, params->dump_lin);
+		checkVectorOption(option, AExactoPhysics::es_options_list::dump_ang, params->dump_ang);
+		checkStringOption(option, AExactoPhysics::es_options_list::parent_name, params->name_p);
+		checkStringOption(option, AExactoPhysics::es_options_list::target_name, params->name_t);
 	}
 
 	//delete
@@ -545,7 +548,7 @@ void UExSimMainWidget::addInputTable()
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
 
-	FString out = TEXT("Add table") + BulletHelpers::getNameOfConstrain(SelectedConstraintType);
+	FString out = TEXT("Add table") + BulletHelpers::getNameOfConstraint(SelectedConstraintType);
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
 }
@@ -573,22 +576,22 @@ void UExSimMainWidget::onConstrP2PButtonClicked()
 		OptionValuePairs = DataStorage->OptionValuePairsPtr;
 	SelectedConstraintType = BulletHelpers::Constr::P2P;
 
-	FString name = OptionNames[AExSimStorage::es_options_list::parent_pivot];
+	FString name = OptionNames[AExactoPhysics::es_options_list::parent_pivot];
 	FString * value = OptionValuePairs.Find(name);
 	if (value)
 		addOptionToStorage(name, *value);
-	name =  OptionNames[AExSimStorage::es_options_list::parent_name];
+	name =  OptionNames[AExactoPhysics::es_options_list::parent_name];
 	value = OptionValuePairs.Find(name);
 	*value += TEXT("_") + ParentActor->GetName() + TEXT("_P2P");
 	if (value)
 		addOptionToStorage(name, *value);
 
-	name =  OptionNames[AExSimStorage::es_options_list::target_pivot];
+	name =  OptionNames[AExactoPhysics::es_options_list::target_pivot];
 	value = OptionValuePairs.Find(name);
 	if (value)
 		addOptionToStorage(name, *value);
 	
-	name =  OptionNames[AExSimStorage::es_options_list::dump_lin];
+	name =  OptionNames[AExactoPhysics::es_options_list::dump_lin];
 	value = OptionValuePairs.Find(name);
 	*value = "30.0; 0.001; 0.0";
 	if (value)

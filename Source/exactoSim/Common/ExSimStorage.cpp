@@ -3,6 +3,7 @@
 
 #include "ExSimStorage.h"
 #include "exactoSim/BulletSpec/BulletMinimal.h"
+#include "exactoSim/Utils/ExConvert.h"
 #include <string>
 
 #include "Blueprint/UserWidget.h"
@@ -48,29 +49,23 @@ AExSimStorage::AExSimStorage()
 	const FString value_str("0.0");
 	const FString name_str("default");
 	
-	OptionNamesPtr.Add( AExSimStorage::es_options_list::parent_pivot, "Parent Pivot");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::target_pivot, "Target Pivot");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::low_lim_lin, "Low Lim Lin");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::upp_lim_lin, "Upp Lim Lin");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::low_lim_ang, "Low Lim Ang");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::upp_lim_ang, "Upp Lim Ang");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::en_spring, "Enable Spring");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::stiff_lin, "Stiff Lin");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::dump_lin, "Dump Lin");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::parent_name, "Parent name");
-    OptionNamesPtr.Add(AExSimStorage::es_options_list::target_name, "Target name");
-    
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::parent_pivot], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::target_pivot], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::low_lim_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::upp_lim_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::low_lim_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::upp_lim_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::stiff_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::dump_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::en_spring], "0; 0; 0; 0; 0; 0");
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::parent_name], name_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[AExSimStorage::es_options_list::target_name], name_str);
+	OptionNamesPtr.Add(AExactoPhysics::parent_pivot, "Parent Pivot");
+    OptionNamesPtr.Add(AExactoPhysics::target_pivot, "Target Pivot");
+    OptionNamesPtr.Add(AExactoPhysics::low_lim_lin, "Low Lim Lin");
+    OptionNamesPtr.Add(AExactoPhysics::upp_lim_lin, "Upp Lim Lin");
+    OptionNamesPtr.Add(AExactoPhysics::low_lim_ang, "Low Lim Ang");
+    OptionNamesPtr.Add(AExactoPhysics::upp_lim_ang, "Upp Lim Ang");
+    OptionNamesPtr.Add(AExactoPhysics::en_spring, "Enable Spring");
+    OptionNamesPtr.Add(AExactoPhysics::stiff_lin, "Stiff Lin");
+    OptionNamesPtr.Add(AExactoPhysics::stiff_ang, "Stiff Ang");
+    OptionNamesPtr.Add(AExactoPhysics::dump_lin, "Dump Lin");
+    OptionNamesPtr.Add(AExactoPhysics::dump_ang, "Dump Ang");
+    OptionNamesPtr.Add(AExactoPhysics::parent_name, "Parent name");
+    OptionNamesPtr.Add(AExactoPhysics::target_name, "Target name");
+	OptionNamesPtr.Add(AExactoPhysics::es_options_list::constraint_t, "Constraint type");
+
+	resetOptVPP();
+ 
 	
 	
 }
@@ -545,6 +540,46 @@ void AExSimStorage::loadExSimComplex()
 	TArray<AExSimFileManager::es_complex_params * > c_p_list;
 	ExWorld->ExFileManager->loadEsComplexParams(c_p_list);
 }
+
+void AExSimStorage::resetOptVPP()
+{
+	const FString vector_str = ExConvert::getStrFromVec(FVector::ZeroVector);
+	const FString value_str = ExConvert::getStrFromFloat(0.f);
+	const FString name_str("default");
+	
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::parent_pivot], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::target_pivot], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::low_lim_lin], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::upp_lim_lin], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::low_lim_ang], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::upp_lim_ang], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::stiff_lin], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::stiff_ang], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::dump_lin], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::dump_ang], vector_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::en_spring], "0; 0; 0; 0; 0; 0");
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::parent_name], name_str);
+    OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::target_name], name_str);
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::constraint_t], BulletHelpers::getNameOfConstraint(BulletHelpers::Constr::NONE));
+}
+
+void AExSimStorage::setOptVPP(AExactoPhysics::es_constraint* params)
+{
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::parent_pivot], ExConvert::getStrFromVec(params->pivot_p));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::target_pivot], ExConvert::getStrFromVec(params->pivot_t));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::low_lim_lin], ExConvert::getStrFromVec(params->low_lim_lin));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::upp_lim_lin], ExConvert::getStrFromVec(params->upp_lim_lin));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::low_lim_ang], ExConvert::getStrFromVec(params->low_lim_ang));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::upp_lim_ang], ExConvert::getStrFromVec(params->upp_lim_ang));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::stiff_lin], ExConvert::getStrFromVec(params->stiff_lin));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::stiff_ang], ExConvert::getStrFromVec(params->stiff_ang));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::dump_lin], ExConvert::getStrFromVec(params->dump_lin));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::dump_ang], ExConvert::getStrFromVec(params->dump_ang));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::parent_name], params->name_p);
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::target_name], params->name_t);
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::constraint_t], BulletHelpers::getNameOfConstraint(params->constr_type));
+}
+
 
 void AExSimStorage::createComplex(es_component* component, FString new_complex_name)
 {
