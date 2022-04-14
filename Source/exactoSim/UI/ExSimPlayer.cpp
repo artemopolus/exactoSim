@@ -18,6 +18,9 @@ AExSimPlayer::AExSimPlayer()
 	//WidgetBlueprint'/Game/Blueprint/UI/BP_ExSelector.BP_ExSelector'
 	SelectorClass = SelectorClassFinder.Succeeded() ? SelectorClassFinder.Class : nullptr;
 
+	ConstructorHelpers::FClassFinder<UUserWidget> combo_class_finder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExCombo'"));
+	ComboClass = combo_class_finder.Succeeded() ? combo_class_finder.Class : nullptr;
+
 
 
 }
@@ -209,11 +212,12 @@ void AExSimPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (TargetWidget && OptionClass && ButtonClass && SelectorClass)
+	if (TargetWidget && OptionClass && ButtonClass && SelectorClass && ComboClass)
 	{
 		TargetWidget->setOptionClass(OptionClass);
 		TargetWidget->setButtonClass(ButtonClass);
 		TargetWidget->setSelectorClass(SelectorClass);
+		TargetWidget->setComboClass(ComboClass);
 		
 		/*TArray<FString> options;
 		options.Add("some");

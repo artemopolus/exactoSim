@@ -3,6 +3,7 @@
 
 #include "ExSimMainWidget.h"
 
+#include "ExComboWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanel.h"
@@ -299,6 +300,11 @@ void UExSimMainWidget::setOptionClass(UClass* tmpl)
 	OptionClass = tmpl;
 }
 
+void UExSimMainWidget::setComboClass(UClass* tmpl)
+{
+	ComboClass = tmpl;
+}
+
 void UExSimMainWidget::addOptionToStorage(FString name, FString value)
 {
 	UExEditableWidget * Menu = CreateWidget<UExEditableWidget>(this, OptionClass);
@@ -538,6 +544,11 @@ void UExSimMainWidget::onConstrHingeButtonClicked()
 }
 void UExSimMainWidget::addInputTable()
 {
+	UExComboWidget * bt = CreateWidget<UExComboWidget>(this, ComboClass);
+    StorageWrapBox->AddChild(bt);
+	for (int i = 0; i < static_cast<int>(BulletHelpers::NONE); i++)
+		bt->ValueComboBox->AddOption(BulletHelpers::getNameOfConstraint(static_cast<BulletHelpers::Constr>(i)));
+	
 	for (auto option : OptionNames)
 	{
 		FString name = option.Value;

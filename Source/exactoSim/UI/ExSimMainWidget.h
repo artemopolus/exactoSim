@@ -69,13 +69,18 @@ public:
 	UFUNCTION()
 		void onConstrGen6dofSpringButtonClicked();
 	UFUNCTION()
-		void onConstrP2PButtonClicked();	
+		void onConstrP2PButtonClicked();
+
+	UFUNCTION()
+		void onConstraintTypeChanged();
+	
 	virtual ~UExSimMainWidget() override;
 
 	
 	void setSelectorClass(UClass * tmpl);
 	void setButtonClass(UClass * tmpl);
 	void setOptionClass(UClass * tmpl);
+	void setComboClass(UClass * tmpl);
 
 	void addOptionToStorage(FString name, FString value);
 	void addButtonToStorage(FString name);
@@ -216,6 +221,7 @@ private:
 	UClass * SelectorClass;
 	UClass * ButtonClass;
 	UClass * OptionClass;
+	UClass * ComboClass;
 
 	AActor * CurrentActor;
 	TArray<AExSimStorage::es_constraint_pair *> ConstrPairList;
