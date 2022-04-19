@@ -67,18 +67,35 @@ public:
 	};
 	struct es_component
 	{
-		FString name;
-		FString path;
-		AActor * target;
-		btRigidBody * body;
-		TArray<es_constraint_pair*> constraints; 
-		es_complex * basis;	
+		FString Name;
+		FString Path;
+		AActor * Target;
+		btRigidBody * Body;
+		TArray<es_constraint_pair*> Constraints; 
+		es_complex * Basis;
+		es_component()
+		{
+			Target = nullptr;
+			Body = nullptr;
+			Basis = nullptr;
+		}
+		bool getConstraintNames(TArray<FString> * names);
+		bool addConstraint(FString name);
+		bool removeConstraint(FString name);
+		FString getName();
+		void setName(FString name);
 	};
 	struct es_complex
 	{
 		FString name;
 		es_component * basis;
 		TArray<es_component *> components;
+		es_complex()
+		{
+			name = "Default";
+			basis = nullptr;
+		}
+		
 	};
 	TArray<es_complex*> ExSimComplexList;
 	TMap<int, std::string> GenObjType;
@@ -146,6 +163,7 @@ public:
 	void manipulateGenerator(FVector loc, FRotator rot);
 
 	bool touchActor(AActor * actor, FString & output);
+	es_component * getExSmComponent(AActor * actor);
 	void pickActor(AActor * actor, FVector location);
 	void moveActor(FVector location);
 	void letActor();
@@ -161,6 +179,7 @@ public:
 
 	void resetOptVPP();
 	void setOptVPP(AExactoPhysics::es_constraint * params);
+	void setOptVPP(AActor * actor, FString constraint_name);
 
 	
 

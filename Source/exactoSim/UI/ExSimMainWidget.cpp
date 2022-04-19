@@ -133,12 +133,7 @@ void UExSimMainWidget::setVisibilityOptionsPanel(bool onoff)
 	{
 		value = ESlateVisibility::Hidden;
 	}
-	if (escButton)
-		escButton->SetVisibility(value);
-	if(ParentButton)
-    	ParentButton->SetVisibility(value);
-	if (TargetButton)
-    	TargetButton->SetVisibility(value);
+	
 	
 }
 
@@ -182,29 +177,9 @@ void UExSimMainWidget::onApplyConstrButtonClicked()
 	}	
 }
 
-void UExSimMainWidget::onParentButtonClicked()
-{
-	//FString output = "On parent button click! ";
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, output);
-	ParentActor = CurrentActor;
-	if (ParentActor == TargetActor)
-		TargetActor = nullptr;
-	setVisibilityOptionsPanel(false);
-}
 
-void UExSimMainWidget::onTargetButtonClicked()
-{
-	TargetActor = CurrentActor;
-	if (ParentActor == TargetActor)
-		ParentActor = nullptr;
-	
-	setVisibilityOptionsPanel(false);
-}
 
-void UExSimMainWidget::onEscButtonClicked()
-{
-	setVisibilityOptionsPanel(false);
-}
+
 
 static void sendDebug(FString text)
 {
@@ -226,27 +201,18 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 				pt->SetPosition(loc);
 		
 			}
-			CurrentActor = actor;
+			CurrentActor = DataStorage->getExSmComponent(actor);
 			FString pair_info = "Pair info:";
 			pair_info += getParTrgInfo();
 			pair_info += info;
 			DebugText->SetText(FText::FromString(pair_info));
-			if (ParentActor)
-				ParentText->SetText(FText::FromString(TEXT("Parent: ") + ParentActor->GetName()));
-			else
-				ParentText->SetText(FText::FromString(TEXT("Parent: None")));
-			
-			if (TargetActor)
-				TargetText->SetText(FText::FromString(TEXT("Target: ") + TargetActor->GetName()));
-			else
-				TargetText->SetText(FText::FromString(TEXT("Target: None")));
 
-			AExSmplBox * target = static_cast<AExSmplBox*>(actor);
+
 
 			FString out = TEXT("Constraint  pairs list:\n");
-			for(int i = 0; i < target->getEScomponent()->constraints.Num(); i++)
+			for(int i = 0; i < CurrentActor->Constraints.Num(); i++)
 			{
-				const FString n = target->getEScomponent()->constraints[i]->name;
+				const FString n = CurrentActor->Constraints[i]->name;
 				addButtonToTempList(n, i);
 				out += FString::FromInt(i) + TEXT("\t ") + n + TEXT("\n");
 			}
@@ -311,9 +277,14 @@ void UExSimMainWidget::addOptionToStorage(FString name, FString value)
 	OptionsList.Add(Menu);
 	Menu->ValueName->SetText(FText::FromString(name));
 	Menu->ValueText->SetText(FText::FromString(value));
+	Menu->initEditable( 0);
+	
+	Menu->onFullTextChanged.AddDynamic(this, &UExSimMainWidget::onConstraintTypeChanged);
 	StorageWrapBox->AddChild(Menu);
 }
-
+void UExSimMainWidget::onConstraintTypeChanged(FText text, int type, int pt)
+{
+}
 void UExSimMainWidget::addButtonToStorage(FString name)
 {
 	//if (!OptionsButton_Ok)
@@ -400,12 +371,12 @@ void UExSimMainWidget::addConstraintButtonReset()
 
 AActor* UExSimMainWidget::getParentActor()
 {
-	return ParentActor;
+	return ParentActor->Target;
 }
 
 AActor* UExSimMainWidget::getTargetActor()
 {
-	return TargetActor;
+	return TargetActor->Target;
 }
 
 bool UExSimMainWidget::isParTrgPair()
@@ -419,9 +390,9 @@ FString UExSimMainWidget::getParTrgInfo()
 {
 	FString info = "";
 	if (ParentActor)
-		info = TEXT("\npar: ") + ParentActor->GetName();
+		info = TEXT("\npar: ") + ParentActor->getName();
 	if (TargetActor)
-		info += TEXT("\ntrg: ") + TargetActor->GetName();
+		info += TEXT("\ntrg: ") + TargetActor->getName();
 	return info;
 }
 
@@ -510,7 +481,7 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 
 	params->constr_type = SelectedConstraintType;
 
-	DataStorage->createConstraint(ParentActor, params);
+	DataStorage->createConstraint(ParentActor->Target, params);
 }
 
 
@@ -593,7 +564,7 @@ void UExSimMainWidget::onConstrP2PButtonClicked()
 		addOptionToStorage(name, *value);
 	name =  OptionNames[AExactoPhysics::es_options_list::parent_name];
 	value = OptionValuePairs.Find(name);
-	*value += TEXT("_") + ParentActor->GetName() + TEXT("_P2P");
+	*value += TEXT("_") + ParentActor->getName() + TEXT("_P2P");
 	if (value)
 		addOptionToStorage(name, *value);
 
@@ -611,6 +582,9 @@ void UExSimMainWidget::onConstrP2PButtonClicked()
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
 }
+
+
+
 
 bool UExSimMainWidget::Initialize()
 {
@@ -644,23 +618,9 @@ bool UExSimMainWidget::Initialize()
 		
 	}
 
-	if (ParentButton)
-	{
-		ParentButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onParentButtonClicked);
-		ParentButton->SetVisibility(ESlateVisibility::Hidden);
-	}
+	
 
-	if (TargetButton)
-	{
-		TargetButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onTargetButtonClicked);
-		TargetButton->SetVisibility(ESlateVisibility::Hidden);
-	}
-
-	if (escButton)
-	{
-		escButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onEscButtonClicked);
-		escButton->SetVisibility(ESlateVisibility::Hidden);
-	}
+	
 
 	if (GenerateButton)
 	{

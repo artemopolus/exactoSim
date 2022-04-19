@@ -36,12 +36,6 @@ public:
 	UFUNCTION()
 		void onApplyConstrButtonClicked();
 
-	UFUNCTION()
-		void onParentButtonClicked();
-	UFUNCTION()
-		void onTargetButtonClicked();
-	UFUNCTION()
-		void onEscButtonClicked();
 
 	UFUNCTION()
 		void setupConstrainOptions(FVector2D loc, AActor *actor);
@@ -72,7 +66,9 @@ public:
 		void onConstrP2PButtonClicked();
 
 	UFUNCTION()
-		void onConstraintTypeChanged();
+		void onConstraintTypeChanged(FText text, int type, int pt);
+
+	
 	
 	virtual ~UExSimMainWidget() override;
 
@@ -131,20 +127,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock * ApplyConstrText;
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton * ParentButton;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * ParentText;
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton * TargetButton;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * TargetText;
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton * escButton;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * escText;
+
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UEditableTextBox * InputOptions;
@@ -223,11 +208,11 @@ private:
 	UClass * OptionClass;
 	UClass * ComboClass;
 
-	AActor * CurrentActor;
+	AExSimStorage::es_component * CurrentActor;
 	TArray<AExSimStorage::es_constraint_pair *> ConstrPairList;
 	
-	AActor * TargetActor;
-	AActor * ParentActor;
+	AExSimStorage::es_component * TargetActor;
+	AExSimStorage::es_component * ParentActor;
 	BulletHelpers::Constr SelectedConstraintType = BulletHelpers::Constr::NONE;
 	
 	bool checkVectorOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FVector & vect);
