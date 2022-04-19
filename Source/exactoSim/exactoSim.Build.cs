@@ -9,7 +9,7 @@ public class exactoSim : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "SlateCore" });
 
 		PublicDependencyModuleNames.AddRange(new string[]{"Json", "JsonUtilities"});
 		PublicDependencyModuleNames.AddRange(new string[]{"Networking", "Sockets"});
