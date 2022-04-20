@@ -63,6 +63,7 @@ AExSimStorage::AExSimStorage()
     OptionNamesPtr.Add(AExactoPhysics::parent_name, "Parent name");
     OptionNamesPtr.Add(AExactoPhysics::target_name, "Target name");
 	OptionNamesPtr.Add(AExactoPhysics::es_options_list::constraint_t, "Constraint type");
+	OptionNamesPtr.Add(AExactoPhysics::es_options_list::constraint_name, "Constraint Name");
 
 	resetOptVPP();
  
@@ -133,7 +134,10 @@ void AExSimStorage::BeginPlay()
 				p->name = magnet_name;
 				p->parent = nullptr;
 				AExactoPhysics::es_constraint *pp = new AExactoPhysics::es_constraint();
-				pp->pivot_p = magnet_relpivot0;
+				pp->pivot_t = magnet_relpivot0;
+				pp->pivot_p = component->Target->GetActorLocation();
+				pp->name_p = component->Name;
+				pp->constr_type = BulletHelpers::Constr::P2P;
 				p->params = pp;
 				component->Constraints.Add(p);
 
@@ -143,7 +147,10 @@ void AExSimStorage::BeginPlay()
 				p->name = magnet_name + TEXT("_P2P1");
 				p->parent = nullptr;
 				AExactoPhysics::es_constraint *pp1 = new AExactoPhysics::es_constraint();
-				pp1->pivot_p = magnet_relpivot1;
+				pp1->pivot_t = magnet_relpivot1;
+				pp1->pivot_p = component->Target->GetActorLocation();
+				pp1->name_p = component->Name;
+				pp1->constr_type = BulletHelpers::Constr::P2P;
 				p1->params = pp1;
 				component->Constraints.Add(p1);
 				
@@ -192,7 +199,10 @@ void AExSimStorage::BeginPlay()
 				p->name = magnet_name;
 				p->parent = nullptr;
 				AExactoPhysics::es_constraint * fix_params = new AExactoPhysics::es_constraint();
-				fix_params->pivot_p = FVector(0,0,20);
+				fix_params->pivot_t = FVector(0,0,20);
+				fix_params->pivot_p = spring->Target->GetActorLocation();
+				fix_params->name_p = spring->Name;
+				fix_params->constr_type = BulletHelpers::Constr::P2P;
 				p->params = fix_params;
 				spring->Constraints.Add(p);
 
@@ -201,6 +211,9 @@ void AExSimStorage::BeginPlay()
 				gen->type = BulletHelpers::Constr::GEN6DOF_SPRING;
 				gen->name = "Spring Imitator";
 				gen->parent = target;
+				gen->constraint->setUserConstraintPtr(gen);
+				params->name_p = target->Name;
+				params->name_t = spring->Name;
 
 				gen->params = params;
 
@@ -587,6 +600,8 @@ void AExSimStorage::resetOptVPP()
 	const FString vector_str = ExConvert::getStrFromVec(FVector::ZeroVector);
 	const FString value_str = ExConvert::getStrFromFloat(0.f);
 	const FString name_str("default");
+
+	OptionValuePairsPtr.Empty();
 	
 	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::parent_pivot], vector_str);
     OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::target_pivot], vector_str);
@@ -602,23 +617,26 @@ void AExSimStorage::resetOptVPP()
     OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::parent_name], name_str);
     OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::target_name], name_str);
 	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::constraint_t], BulletHelpers::getNameOfConstraint(BulletHelpers::Constr::NONE));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::es_options_list::constraint_name],name_str);
 }
 
-void AExSimStorage::setOptVPP(AExactoPhysics::es_constraint* params)
+void AExSimStorage::setOptVPP(es_constraint_pair* params)
 {
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::parent_pivot], ExConvert::getStrFromVec(params->pivot_p));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::target_pivot], ExConvert::getStrFromVec(params->pivot_t));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::low_lim_lin], ExConvert::getStrFromVec(params->low_lim_lin));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::upp_lim_lin], ExConvert::getStrFromVec(params->upp_lim_lin));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::low_lim_ang], ExConvert::getStrFromVec(params->low_lim_ang));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::upp_lim_ang], ExConvert::getStrFromVec(params->upp_lim_ang));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::stiff_lin], ExConvert::getStrFromVec(params->stiff_lin));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::stiff_ang], ExConvert::getStrFromVec(params->stiff_ang));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::dump_lin], ExConvert::getStrFromVec(params->dump_lin));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::dump_ang], ExConvert::getStrFromVec(params->dump_ang));
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::parent_name], params->name_p);
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::target_name], params->name_t);
-	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::constraint_t], BulletHelpers::getNameOfConstraint(params->constr_type));
+	OptionValuePairsPtr.Empty();
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::parent_pivot], ExConvert::getStrFromVec(params->params->pivot_p));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::target_pivot], ExConvert::getStrFromVec(params->params->pivot_t));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::low_lim_lin], ExConvert::getStrFromVec(params->params->low_lim_lin));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::upp_lim_lin], ExConvert::getStrFromVec(params->params->upp_lim_lin));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::low_lim_ang], ExConvert::getStrFromVec(params->params->low_lim_ang));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::upp_lim_ang], ExConvert::getStrFromVec(params->params->upp_lim_ang));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::stiff_lin], ExConvert::getStrFromVec(params->params->stiff_lin));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::stiff_ang], ExConvert::getStrFromVec(params->params->stiff_ang));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::dump_lin], ExConvert::getStrFromVec(params->params->dump_lin));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::dump_ang], ExConvert::getStrFromVec(params->params->dump_ang));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::parent_name], params->params->name_p);
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::target_name], params->params->name_t);
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::constraint_t], BulletHelpers::getNameOfConstraint(params->type));
+	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::constraint_name], (params->name));
 }
 
 

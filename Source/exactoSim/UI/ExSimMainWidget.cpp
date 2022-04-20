@@ -193,6 +193,7 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 		FString info = "";
 		if (DataStorage->touchActor(actor, info))
 		{
+			clearButtonTempList();
 			if (OptionsPanel)
 			{
 				setVisibilityOptionsPanel(true);
@@ -217,6 +218,12 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 				out += FString::FromInt(i) + TEXT("\t ") + n + TEXT("\n");
 			}
 			sendDebug(out);
+			addButtonToTempList("Add new constraint", -1);
+			out = (ParentActor) ? (TEXT("Parent: ") + ParentActor->getName()) : TEXT("Parent: None");
+			addButtonToTempList(out, -2);
+			out = (TargetActor) ? (TEXT("Target: ") + TargetActor->getName()) : TEXT("Target: None");
+			addButtonToTempList(out, -3);
+			
 		}
 	}
 }
@@ -324,7 +331,28 @@ void UExSimMainWidget::onTempListButtonClicked()
 		if (ButtonTempList[i]->IsHovered())
 		{
 			sendDebug(ButtonTempList[i]->getButtonName());
-			
+			if (ButtonTempList[i]->tag == -1)
+			{
+				DataStorage->resetOptVPP();
+				deleteConstraintOptions();
+				getInputTableOptions();
+				addInputTable();
+			}
+			else if (ButtonTempList[i]->tag == -2)
+			{
+				setCurrentToParent();
+			}
+			else if (ButtonTempList[i]->tag == -3)
+			{
+				setCurrentToTarget();
+			}
+			else if (ButtonTempList[i]->tag  > -1)
+			{
+				DataStorage->setOptVPP(CurrentActor->Constraints[ButtonTempList[i]->tag]);
+				deleteConstraintOptions();
+				getInputTableOptions();
+				addInputTable();
+			}
 		}
 	}
 	clearButtonTempList();
@@ -396,6 +424,22 @@ FString UExSimMainWidget::getParTrgInfo()
 	return info;
 }
 
+void UExSimMainWidget::setCurrentToParent()
+{
+	ParentActor = CurrentActor;
+	if (ParentActor == TargetActor)
+		TargetActor = nullptr;
+}
+
+void UExSimMainWidget::setCurrentToTarget()
+{
+	TargetActor = CurrentActor;
+	if (ParentActor == TargetActor)
+		ParentActor = nullptr;	
+}
+
+
+
 bool UExSimMainWidget::getVectorFromString(FString list, FString splitter, FVector & out)
 {
 	TArray<FString> values;
@@ -414,7 +458,7 @@ bool UExSimMainWidget::getVectorFromString(FString list, FString splitter, FVect
 
 bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, TArray<bool> & vect)
 {
-	if (option->ValueName->GetText().ToString() == OptionNames[ checker ])
+	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr[ checker ])
 	{
 		TArray<FString> values;
 		FString list = option->ValueText->GetText().ToString();
@@ -434,7 +478,7 @@ bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExactoP
 bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExactoPhysics::es_options_list checker,
 	FString& name)
 {
-	if (option->ValueName->GetText().ToString() == OptionNames.FindRef( checker ))
+	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr.FindRef( checker ))
 	{
 		name = option->ValueText->GetText().ToString();
 		return true;
@@ -444,7 +488,7 @@ bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExactoPhysi
 
 bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FVector & vect)
 {
-	if (option->ValueName->GetText().ToString() == OptionNames[ checker ])
+	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr[ checker ])
 	{
 		getVectorFromString(option->ValueText->GetText().ToString(), TEXT(";"),vect);
 		return true;
@@ -487,7 +531,9 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 
 void UExSimMainWidget::deleteConstraintOptions()
 {
+	if (OptionsButton_Ok)
 	OptionsButton_Ok->RemoveFromParent();
+	if (OptionsButton_Esc)
 	OptionsButton_Esc->RemoveFromParent();
 	
 	StorageWrapBox->ClearChildren();
@@ -513,6 +559,15 @@ void UExSimMainWidget::onConstrHingeButtonClicked()
 {
 	addOptionToStorage("Pivot Parent","0.0; 0.0; 0.0;");
 }
+void UExSimMainWidget::getInputTableOptions()
+{
+	if (!OptionNames)
+		OptionNames = &DataStorage->OptionNamesPtr;
+	if (!OptionValuePairs)
+		OptionValuePairs = &DataStorage->OptionValuePairsPtr;
+    
+	SelectedConstraintType = BulletHelpers::Constr::GEN6DOF_SPRING;
+}
 void UExSimMainWidget::addInputTable()
 {
 	UExComboWidget * bt = CreateWidget<UExComboWidget>(this, ComboClass);
@@ -520,10 +575,10 @@ void UExSimMainWidget::addInputTable()
 	for (int i = 0; i < static_cast<int>(BulletHelpers::NONE); i++)
 		bt->ValueComboBox->AddOption(BulletHelpers::getNameOfConstraint(static_cast<BulletHelpers::Constr>(i)));
 	
-	for (auto option : OptionNames)
+	for (TTuple<AExactoPhysics::es_options_list, FString>  option : DataStorage->OptionNamesPtr)
 	{
 		FString name = option.Value;
-		FString * value = OptionValuePairs.Find(name);
+		FString * value = OptionValuePairs->Find(name);
 		if (value)
 			addOptionToStorage(name, *value);
 	}
@@ -539,10 +594,10 @@ void UExSimMainWidget::addInputTable()
 
 void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 {
-	if (!OptionNames.Num())
-		OptionNames = DataStorage->OptionNamesPtr;
-	if (!OptionValuePairs.Num())
-		OptionValuePairs = DataStorage->OptionValuePairsPtr;
+	if (!OptionNames)
+		OptionNames = &DataStorage->OptionNamesPtr;
+	if (!OptionValuePairs)
+		OptionValuePairs = &DataStorage->OptionValuePairsPtr;
 
 	SelectedConstraintType = BulletHelpers::Constr::GEN6DOF_SPRING;
 	addInputTable();
@@ -550,7 +605,7 @@ void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 
 void UExSimMainWidget::onConstrP2PButtonClicked()
 {
-	if (!ParentActor)
+	/*if (!ParentActor)
 		return;
 	if (!OptionNames.Num())
 		OptionNames = DataStorage->OptionNamesPtr;
@@ -580,7 +635,7 @@ void UExSimMainWidget::onConstrP2PButtonClicked()
 		addOptionToStorage(name, *value);
 
 	addConstraintButtonOk();
-	addConstraintButtonEsc();
+	addConstraintButtonEsc();*/
 }
 
 

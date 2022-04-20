@@ -93,6 +93,10 @@ public:
 
 	
 private:
+	void setCurrentToParent();
+	void setCurrentToTarget();
+	void getInputTableOptions();
+	
 	void setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha);
 	void drawPtOnCanvas(int32 x, int32 y, uint8 red, uint8 green, uint8 blue, uint8 alpha);
 	void updateDebugText(const std::string str);
@@ -107,6 +111,9 @@ private:
 	void addInputTable();
 	void addButtonToTempList(const FString name, const int tag);
 	void clearButtonTempList();
+	bool checkVectorOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FVector & vect);
+	bool checkBoolArrayOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, TArray<bool> & vect);
+	bool checkStringOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FString & name);
 	
 protected:
 	bool Initialize() override;
@@ -174,8 +181,8 @@ public:
 
 
 
-	TMap<AExactoPhysics::es_options_list, FString> OptionNames;
-	TMap<FString, FString> OptionValuePairs;
+	TMap<AExactoPhysics::es_options_list, FString> * OptionNames;
+	TMap<FString, FString> * OptionValuePairs;
 	
 
 private:
@@ -215,8 +222,6 @@ private:
 	AExSimStorage::es_component * ParentActor;
 	BulletHelpers::Constr SelectedConstraintType = BulletHelpers::Constr::NONE;
 	
-	bool checkVectorOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FVector & vect);
-	bool checkBoolArrayOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, TArray<bool> & vect);
-	bool checkStringOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FString & name);
+
 	
 };

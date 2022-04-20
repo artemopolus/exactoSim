@@ -178,7 +178,7 @@ public:
 	void loadExSimComplex();
 
 	void resetOptVPP();
-	void setOptVPP(AExactoPhysics::es_constraint * params);
+	void setOptVPP(es_constraint_pair * params);
 	void setOptVPP(AActor * actor, FString constraint_name);
 
 	

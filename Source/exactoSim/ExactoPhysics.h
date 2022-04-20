@@ -69,6 +69,7 @@ public:	//variables
 		string_start,
 		parent_name,
 		target_name,
+		constraint_name,
 		//
 		spec_start,
 		en_spring,
