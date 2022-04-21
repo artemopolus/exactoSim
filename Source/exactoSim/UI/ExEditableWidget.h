@@ -16,8 +16,8 @@ class EXACTOSIM_API UExEditableWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public: //variables
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOptionParamChanged, FText, text, int, type, int, pt);
-	FOptionParamChanged onFullTextChanged;	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOptionParamChanged, FString, ini, FString, gen, int, id, int, type);
+	FOptionParamChanged EventOnTextCommit;	
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock * ValueName;

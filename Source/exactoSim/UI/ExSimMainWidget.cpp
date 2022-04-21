@@ -286,10 +286,16 @@ void UExSimMainWidget::addOptionToStorage(FString name, FString value)
 	Menu->ValueText->SetText(FText::FromString(value));
 	Menu->initEditable( 0);
 	
-	Menu->onFullTextChanged.AddDynamic(this, &UExSimMainWidget::onConstraintTypeChanged);
+	Menu->EventOnTextCommit.AddDynamic(this, &UExSimMainWidget::onConstraintTypeChanged);
 	StorageWrapBox->AddChild(Menu);
 }
-void UExSimMainWidget::onConstraintTypeChanged(FText text, int type, int pt)
+void UExSimMainWidget::onConstraintTypeChanged(FString ini, FString gen, int id, int type)
+{
+	sendDebug("TTTTTTTTTTTTTTTTT");
+	sendDebug(gen);
+}
+
+void UExSimMainWidget::onConstraintResetClicked()
 {
 }
 void UExSimMainWidget::addButtonToStorage(FString name)
@@ -551,9 +557,7 @@ void UExSimMainWidget::onConstraintEscClicked()
 	deleteConstraintOptions();
 }
 
-void UExSimMainWidget::onConstraintResetClicked()
-{
-}
+
 
 void UExSimMainWidget::onConstrHingeButtonClicked()
 {

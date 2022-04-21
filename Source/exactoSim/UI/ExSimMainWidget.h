@@ -66,7 +66,7 @@ public:
 		void onConstrP2PButtonClicked();
 
 	UFUNCTION()
-		void onConstraintTypeChanged(FText text, int type, int pt);
+		void onConstraintTypeChanged(FString ini, FString gen, int id, int type);
 
 	
 	

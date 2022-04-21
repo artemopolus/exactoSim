@@ -18,7 +18,10 @@ void UExEditableWidget::onTextCommitedRegistered(
 	else if (type == ETextCommit::Type::OnUserMovedFocus)
 		out += "[OnUserMovedFocus]";
 
-
+	if (EventOnTextCommit.IsBound())
+	{
+		EventOnTextCommit.Broadcast(TEXT("st"), text.ToString(), 0,static_cast<int>(type));
+	}
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
 }
 
