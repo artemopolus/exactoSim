@@ -43,9 +43,9 @@ void AExSimPlayer::activateDifFunction()
 		options.Add("me");
 		options.Add("reason");
 
-		TargetWidget->addOptionToStorage("Test", "0.0; 0.0; 0.0");
-		TargetWidget->addOptionToStorage("Empty", "0.0; 0.0; 0.0");
-		TargetWidget->addOptionToStorage("gen", "0.0; 0.0; 0.0");
+		TargetWidget->addOptionToStorage("Test", "0.0; 0.0; 0.0",0,0);
+		TargetWidget->addOptionToStorage("Empty", "0.0; 0.0; 0.0",0,0);
+		TargetWidget->addOptionToStorage("gen", "0.0; 0.0; 0.0",0,0);
 
 		TargetWidget->addSelectToStorage("example:", options);
 

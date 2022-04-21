@@ -278,22 +278,7 @@ void UExSimMainWidget::setComboClass(UClass* tmpl)
 	ComboClass = tmpl;
 }
 
-void UExSimMainWidget::addOptionToStorage(FString name, FString value)
-{
-	UExEditableWidget * Menu = CreateWidget<UExEditableWidget>(this, OptionClass);
-	OptionsList.Add(Menu);
-	Menu->ValueName->SetText(FText::FromString(name));
-	Menu->ValueText->SetText(FText::FromString(value));
-	Menu->initEditable( 0);
-	
-	Menu->EventOnTextCommit.AddDynamic(this, &UExSimMainWidget::onConstraintTypeChanged);
-	StorageWrapBox->AddChild(Menu);
-}
-void UExSimMainWidget::onConstraintTypeChanged(FString ini, FString gen, int id, int type)
-{
-	sendDebug("TTTTTTTTTTTTTTTTT");
-	sendDebug(gen);
-}
+
 
 void UExSimMainWidget::onConstraintResetClicked()
 {
@@ -561,7 +546,7 @@ void UExSimMainWidget::onConstraintEscClicked()
 
 void UExSimMainWidget::onConstrHingeButtonClicked()
 {
-	addOptionToStorage("Pivot Parent","0.0; 0.0; 0.0;");
+	addOptionToStorage("Pivot Parent","0.0; 0.0; 0.0;",0,0);
 }
 void UExSimMainWidget::getInputTableOptions()
 {
@@ -582,9 +567,10 @@ void UExSimMainWidget::addInputTable()
 	for (TTuple<AExactoPhysics::es_options_list, FString>  option : DataStorage->OptionNamesPtr)
 	{
 		FString name = option.Value;
+		int type = option.Key;
 		FString * value = OptionValuePairs->Find(name);
 		if (value)
-			addOptionToStorage(name, *value);
+			addOptionToStorage(name, *value,0,type);
 	}
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
@@ -593,7 +579,20 @@ void UExSimMainWidget::addInputTable()
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
 }
-
+void UExSimMainWidget::addOptionToStorage(FString name, FString value, int id, int type)
+{
+	UExEditableWidget * Menu = CreateWidget<UExEditableWidget>(this, OptionClass);
+	OptionsList.Add(Menu);
+	Menu->initEditable( name, value, id,type);
+	
+	Menu->EventOnTextCommit.AddDynamic(this, &UExSimMainWidget::onConstraintTypeChanged);
+	StorageWrapBox->AddChild(Menu);
+}
+void UExSimMainWidget::onConstraintTypeChanged(FString ini, FString gen, int id, int type)
+{
+	sendDebug("TTTTTTTTTTTTTTTTT");
+	sendDebug(gen);
+}
 
 
 void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()

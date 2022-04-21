@@ -78,7 +78,7 @@ public:
 	void setOptionClass(UClass * tmpl);
 	void setComboClass(UClass * tmpl);
 
-	void addOptionToStorage(FString name, FString value);
+	void addOptionToStorage(FString name, FString value, int id, int type);
 	void addButtonToStorage(FString name);
 	void addSelectToStorage(FString name, TArray<FString> option_list);
 

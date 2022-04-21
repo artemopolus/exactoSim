@@ -3,6 +3,8 @@
 
 #include "ExEditableWidget.h"
 
+#include "Components/TextBlock.h"
+
 
 void UExEditableWidget::onTextCommitedRegistered(
 	const FText & text, ETextCommit::Type type
@@ -20,13 +22,18 @@ void UExEditableWidget::onTextCommitedRegistered(
 
 	if (EventOnTextCommit.IsBound())
 	{
-		EventOnTextCommit.Broadcast(TEXT("st"), text.ToString(), 0,static_cast<int>(type));
+		EventOnTextCommit.Broadcast(InitValue, text.ToString(), PtId, PtType);
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
 }
 
-void UExEditableWidget::initEditable( int pt)
+void UExEditableWidget::initEditable(FString name, FString value, int id, int type)
 {
-	PtType = pt;
+	ValueName->SetText(FText::FromString(name));
+	ValueText->SetText(FText::FromString(value));
+	InitValue = value;
+	PtType = type;
+	PtId = id;
 	ValueText->OnTextCommitted.AddDynamic(this,&UExEditableWidget::onTextCommitedRegistered);
 }
+

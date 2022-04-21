@@ -25,10 +25,12 @@ public: //variables
 		class UEditableText * ValueText;
 
 private:
+	int PtId = -1;
 	int PtType = -1;
+	FString InitValue = "";
 public: //functions
 	UFUNCTION()
 		void onTextCommitedRegistered(const FText & text, ETextCommit::Type type);
 		
-	void initEditable( int pt);
+	void initEditable(FString name, FString value, int id, int type);
 };
