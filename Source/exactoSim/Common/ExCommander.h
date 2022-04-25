@@ -7,17 +7,17 @@
 class EXACTOSIM_API ExStringPack
 {
 		FExConstraintParams * Target = nullptr;
-    	AExactoPhysics::es_options_list Type = AExactoPhysics::vector_start;
+    	EConstraintParamNames Type = EConstraintParamNames::vector_start;
     	FString Old;
     	FString Cur;
     public:
-    	void setActive(FExConstraintParams * target, AExactoPhysics::es_options_list type, FString vec)
+    	void setActive(FExConstraintParams * target, EConstraintParamNames type, FString vec)
     	{
     		Target = target;
     		Type = type;
     		Cur = vec;
     	}
-    	bool update(const AExactoPhysics::es_options_list new_type, const FString new_vec);
+    	bool update(const EConstraintParamNames new_type, const FString new_vec);
     	bool revert();
     	bool update()
     	{
@@ -27,17 +27,17 @@ class EXACTOSIM_API ExStringPack
 class EXACTOSIM_API ExVectorPack
 {
 	FExConstraintParams * Target = nullptr;
-	AExactoPhysics::es_options_list Type = AExactoPhysics::vector_start;
+	EConstraintParamNames Type = EConstraintParamNames::vector_start;
 	FVector Old;
 	FVector Cur;
 public:
-	void setActive(FExConstraintParams * target, AExactoPhysics::es_options_list type, FVector vec)
+	void setActive(FExConstraintParams * target, EConstraintParamNames type, FVector vec)
 	{
 		Target = target;
 		Type = type;
 		Cur = vec;
 	}
-	bool update(const AExactoPhysics::es_options_list new_type, const FVector new_vec);
+	bool update(const EConstraintParamNames new_type, const FVector new_vec);
 	bool update()
 	{
 		return update(Type, Cur);
@@ -56,7 +56,7 @@ class EXACTOSIM_API ExUpdateConstraintString : public ExBasicCommand
 {
 	ExStringPack Pack;
 public:
-	ExUpdateConstraintString(FExConstraintParams * target, AExactoPhysics::es_options_list type, FString str)
+	ExUpdateConstraintString(FExConstraintParams * target, EConstraintParamNames type, FString str)
 	{
 		Pack.setActive(target, type, str);
 	}
@@ -73,7 +73,7 @@ class EXACTOSIM_API ExUpdateConstraintVector : public ExBasicCommand
 {
 	ExVectorPack Pack;
 public:
-	ExUpdateConstraintVector(FExConstraintParams * target, AExactoPhysics::es_options_list type, FVector vec) 
+	ExUpdateConstraintVector(FExConstraintParams * target, EConstraintParamNames type, FVector vec) 
 	{
 		Pack.setActive(target, type, vec);
 	}
@@ -110,7 +110,7 @@ public:
 	{
 		ActiveConstraint = constraint;	
 	}
-	void updateConstraint( AExactoPhysics::es_options_list type, FVector vec)
+	void updateConstraint( EConstraintParamNames type, FVector vec)
 	{
 		if (!ActiveConstraint)
 			return;
@@ -124,14 +124,14 @@ public:
 			delete Command;
 		}
 	}
-	void updateConstraint(AExactoPhysics::es_options_list type, FString str)
+	void updateConstraint(EConstraintParamNames type, FString str)
 	{
-		if (( AExactoPhysics::es_options_list::vector_start < type)&&(type <AExactoPhysics::es_options_list::string_start))
+		if (( EConstraintParamNames::vector_start < type)&&(type <EConstraintParamNames::string_start))
 		{
 			const FVector vec = ExConvert::getVecFromStr(str);
 			updateConstraint(type, vec);
 		}
-		else if (( AExactoPhysics::es_options_list::string_start < type)&&(type <AExactoPhysics::es_options_list::spec_start))
+		else if (( EConstraintParamNames::string_start < type)&&(type <EConstraintParamNames::spec_start))
 		{
 			if(!ActiveConstraint)
 				return;

@@ -107,7 +107,7 @@ public:
 		MOVE,
 		END
 	};
-	TMap<AExactoPhysics::es_options_list, FString> OptionNamesPtr;
+	TMap<EConstraintParamNames, FString> OptionNamesPtr;
 	TMap<FString, FString> OptionValuePairsPtr;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FConstraintChanged, int, type, FString, value);
@@ -186,7 +186,7 @@ public:
 	void resetOptVPP();
 	void setOptVPP(es_constraint_pair * params);
 
-	void updateConstraintCommand(AExactoPhysics::es_options_list type, FString str);
+	void updateConstraintCommand(EConstraintParamNames type, FString str);
 	void undoConstraintCommand();
 
 private:

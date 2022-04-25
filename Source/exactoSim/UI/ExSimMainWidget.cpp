@@ -451,7 +451,7 @@ bool UExSimMainWidget::getVectorFromString(FString list, FString splitter, FVect
 
 
 
-bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, TArray<bool> & vect)
+bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, EConstraintParamNames checker, TArray<bool> & vect)
 {
 	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr[ checker ])
 	{
@@ -470,7 +470,7 @@ bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExactoP
 	return false;
 }
 
-bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExactoPhysics::es_options_list checker,
+bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, EConstraintParamNames checker,
 	FString& name)
 {
 	if (option->getName() == DataStorage->OptionNamesPtr.FindRef( checker ))
@@ -481,7 +481,7 @@ bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExactoPhysi
 	return false;	
 }
 
-bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FVector & vect)
+bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, EConstraintParamNames checker, FVector & vect)
 {
 	if (option->getName() == DataStorage->OptionNamesPtr[ checker ])
 	{
@@ -498,21 +498,21 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 
 	for (auto & option : EditableList)
 	{
-		checkVectorOption(option, AExactoPhysics::es_options_list::parent_pivot, params->pivot_p);	
-		checkVectorOption(option, AExactoPhysics::es_options_list::target_pivot, params->pivot_t);
-		checkVectorOption(option, AExactoPhysics::es_options_list::parent_axis, params->axis_p);
-		checkVectorOption(option, AExactoPhysics::es_options_list::target_axis, params->axis_t);
+		checkVectorOption(option, EConstraintParamNames::parent_pivot, params->pivot_p);	
+		checkVectorOption(option, EConstraintParamNames::target_pivot, params->pivot_t);
+		checkVectorOption(option, EConstraintParamNames::parent_axis, params->axis_p);
+		checkVectorOption(option, EConstraintParamNames::target_axis, params->axis_t);
 		
-		checkVectorOption(option, AExactoPhysics::es_options_list::low_lim_lin, params->low_lim_lin);	
-		checkVectorOption(option, AExactoPhysics::es_options_list::upp_lim_lin, params->upp_lim_lin);	
-		checkVectorOption(option, AExactoPhysics::es_options_list::low_lim_ang, params->low_lim_ang);	
-		checkVectorOption(option, AExactoPhysics::es_options_list::upp_lim_ang, params->upp_lim_ang);	
-		checkVectorOption(option, AExactoPhysics::es_options_list::stiff_lin, params->stiff_lin);	
-		checkVectorOption(option, AExactoPhysics::es_options_list::stiff_ang, params->stiff_ang);	
-		checkVectorOption(option, AExactoPhysics::es_options_list::dump_lin, params->dump_lin);
-		checkVectorOption(option, AExactoPhysics::es_options_list::dump_ang, params->dump_ang);
-		checkStringOption(option, AExactoPhysics::es_options_list::parent_name, params->name_p);
-		checkStringOption(option, AExactoPhysics::es_options_list::target_name, params->name_t);
+		checkVectorOption(option, EConstraintParamNames::low_lim_lin, params->low_lim_lin);	
+		checkVectorOption(option, EConstraintParamNames::upp_lim_lin, params->upp_lim_lin);	
+		checkVectorOption(option, EConstraintParamNames::low_lim_ang, params->low_lim_ang);	
+		checkVectorOption(option, EConstraintParamNames::upp_lim_ang, params->upp_lim_ang);	
+		checkVectorOption(option, EConstraintParamNames::stiff_lin, params->stiff_lin);	
+		checkVectorOption(option, EConstraintParamNames::stiff_ang, params->stiff_ang);	
+		checkVectorOption(option, EConstraintParamNames::dump_lin, params->dump_lin);
+		checkVectorOption(option, EConstraintParamNames::dump_ang, params->dump_ang);
+		checkStringOption(option, EConstraintParamNames::parent_name, params->name_p);
+		checkStringOption(option, EConstraintParamNames::target_name, params->name_t);
 	}
 
 	//delete
@@ -569,10 +569,10 @@ void UExSimMainWidget::addInputTable()
 	for (int i = 0; i < static_cast<int>(BulletHelpers::NONE); i++)
 		bt->ValueComboBox->AddOption(BulletHelpers::getNameOfConstraint(static_cast<BulletHelpers::Constr>(i)));
 	
-	for (TTuple<AExactoPhysics::es_options_list, FString>  option : DataStorage->OptionNamesPtr)
+	for (TTuple<EConstraintParamNames, FString>  option : DataStorage->OptionNamesPtr)
 	{
 		FString name = option.Value;
-		int type = option.Key;
+		int type = static_cast<int>(option.Key);
 		FString * value = OptionValuePairs->Find(name);
 		if (value)
 			addEditableToStorageWB(name, *value,0,type);
@@ -593,18 +593,18 @@ void UExSimMainWidget::addEditableToStorageWB(FString name, FString value, int i
 	StorageWrapBox->AddChild(Menu);
 }
 
-void UExSimMainWidget::updateEditable(AExactoPhysics::es_options_list type, FString value)
+void UExSimMainWidget::updateEditable(EConstraintParamNames type, FString value)
 {
 	for(const auto & op : EditableList)
 	{
-		if (op->getType() == type)
+		if (op->getType() == static_cast<int>(type))
 		{
 			op->update(value);
 		}
 	}
 }
 
-void UExSimMainWidget::updateEditable(AExactoPhysics::es_options_list type, FVector value)
+void UExSimMainWidget::updateEditable(EConstraintParamNames type, FVector value)
 {
 	FString v = ExConvert::getStrFromVec(value);
 	updateEditable(type, v);
@@ -615,7 +615,7 @@ void UExSimMainWidget::updateEditable(AExactoPhysics::es_options_list type, FVec
 void UExSimMainWidget::onEditableWidgetChanged(FString ini, FString gen, int id, int type)
 {
 	sendDebug(TEXT("Change is accepted: ") + ini + TEXT(" => ") + gen);
-	DataStorage->updateConstraintCommand(static_cast<AExactoPhysics::es_options_list>(type), gen);
+	DataStorage->updateConstraintCommand(static_cast<EConstraintParamNames>(type), gen);
 }
 
 void UExSimMainWidget::onDataStorageConstraintChanged(int type, FString value)

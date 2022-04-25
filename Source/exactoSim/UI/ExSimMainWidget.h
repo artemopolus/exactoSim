@@ -84,8 +84,8 @@ public:
 	void setComboClass(UClass * tmpl);
 
 	void addEditableToStorageWB(FString name, FString value, int id, int type);
-	void updateEditable(AExactoPhysics::es_options_list type, FString value);
-	void updateEditable(AExactoPhysics::es_options_list type, FVector value);
+	void updateEditable(EConstraintParamNames type, FString value);
+	void updateEditable(EConstraintParamNames type, FVector value);
 	void updateEditableAll();
 	void addButtonToStorage(FString name);
 	void addSelectToStorage(FString name, TArray<FString> option_list);
@@ -119,9 +119,9 @@ private:
 	void addInputTable();
 	void addButtonToTempList(const FString name, const int tag);
 	void clearButtonTempList();
-	bool checkVectorOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FVector & vect);
-	bool checkBoolArrayOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, TArray<bool> & vect);
-	bool checkStringOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FString & name);
+	bool checkVectorOption(UExEditableWidget * option, EConstraintParamNames checker, FVector & vect);
+	bool checkBoolArrayOption(UExEditableWidget * option, EConstraintParamNames checker, TArray<bool> & vect);
+	bool checkStringOption(UExEditableWidget * option, EConstraintParamNames checker, FString & name);
 	
 protected:
 	bool Initialize() override;
@@ -189,7 +189,7 @@ public:
 
 
 
-	TMap<AExactoPhysics::es_options_list, FString> * OptionNames;
+	TMap<EConstraintParamNames, FString> * OptionNames;
 	TMap<FString, FString> * OptionValuePairs;
 	
 

@@ -50,34 +50,7 @@ public:	//variables
 		FVector dump_lin;
 		FVector dump_ang;
 	};
-	enum es_options_list
-	{
-		//fvectors
-		vector_start = 0,
-		parent_pivot,
-		target_pivot,
-		upp_lim_lin,
-		low_lim_lin,
-		upp_lim_ang,
-		low_lim_ang,
-		stiff_lin,
-		stiff_ang,
-		dump_lin,
-		dump_ang,
-		parent_axis,
-		target_axis,
-		//fstrings
-		string_start,
-		parent_name,
-		target_name,
-		constraint_name,
-		//
-		spec_start,
-		en_spring,
-		constraint_t,
-		//
-		opt_end
-	};	
+	
 		
 	// Global objects
 	btCollisionConfiguration* BtCollisionConfig;
