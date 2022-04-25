@@ -81,17 +81,12 @@ public:	//variables
 	{
 		btTypedConstraint * constraint;
 		AActor * parent;
-    	BulletHelpers::Constr constr_type;
 		
 		FVector axis_t;
     	FVector axis_p;
     	FVector pivot_t;
     	FVector pivot_p;
 		
-    	FString name_t;
-    	FString name_p;
-    	uint8_t en_spring[6];
-		TArray<bool> enable_spring;
     	FVector upp_lim_lin;
     	FVector low_lim_lin;
     	FVector upp_lim_ang;
@@ -102,6 +97,16 @@ public:	//variables
     
     	FVector dump_lin;
     	FVector dump_ang;
+
+    	FString name_p;
+    	FString name_t;
+		FString name_constraint;
+
+		
+    	uint8_t en_spring[6];
+    	BulletHelpers::Constr constr_type;
+		TArray<bool> enable_spring;
+		
 		es_constraint()
 		{
 			constraint = nullptr;

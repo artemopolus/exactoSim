@@ -3,6 +3,7 @@
 
 #include "ExSimMainWidget.h"
 
+
 #include "ExComboWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
@@ -181,9 +182,9 @@ void UExSimMainWidget::onApplyConstrButtonClicked()
 
 
 
-static void sendDebug(FString text)
+static void sendDebug(FString text, FColor color = FColor::Green)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, text);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, color, text);
 }
 
 void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
@@ -339,7 +340,10 @@ void UExSimMainWidget::onTempListButtonClicked()
 			}
 			else if (ButtonTempList[i]->tag  > -1)
 			{
-				DataStorage->setOptVPP(CurrentActor->Constraints[ButtonTempList[i]->tag]);
+				auto * constraint = CurrentActor->Constraints[ButtonTempList[i]->tag];
+				CurrentConstraint = constraint;
+				DataStorage->setOptVPP(constraint);
+				
 				deleteConstraintOptions();
 				getInputTableOptions();
 				addInputTable();
@@ -469,9 +473,9 @@ bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, AExactoP
 bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExactoPhysics::es_options_list checker,
 	FString& name)
 {
-	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr.FindRef( checker ))
+	if (option->getName() == DataStorage->OptionNamesPtr.FindRef( checker ))
 	{
-		name = option->ValueText->GetText().ToString();
+		name = option->getValue();
 		return true;
 	}
 	return false;	
@@ -479,9 +483,9 @@ bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, AExactoPhysi
 
 bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExactoPhysics::es_options_list checker, FVector & vect)
 {
-	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr[ checker ])
+	if (option->getName() == DataStorage->OptionNamesPtr[ checker ])
 	{
-		getVectorFromString(option->ValueText->GetText().ToString(), TEXT(";"),vect);
+		getVectorFromString(option->getValue(), TEXT(";"),vect);
 		return true;
 	}
 	return false;
@@ -492,7 +496,7 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 
 	AExactoPhysics::es_constraint * params = new AExactoPhysics::es_constraint();
 
-	for (auto & option : OptionsList)
+	for (auto & option : EditableList)
 	{
 		checkVectorOption(option, AExactoPhysics::es_options_list::parent_pivot, params->pivot_p);	
 		checkVectorOption(option, AExactoPhysics::es_options_list::target_pivot, params->pivot_t);
@@ -528,9 +532,9 @@ void UExSimMainWidget::deleteConstraintOptions()
 	OptionsButton_Esc->RemoveFromParent();
 	
 	StorageWrapBox->ClearChildren();
-	for (auto & option : OptionsList)
-		option->RemoveFromParent();
-	OptionsList.Empty();
+	for (auto & option : EditableList)
+		option->RemoveFromParent(); // don't delete widget directly
+	EditableList.Empty();
 	for (auto & select : SelectorList)
 		select->RemoveFromRoot();
 	SelectorList.Empty();	
@@ -546,7 +550,7 @@ void UExSimMainWidget::onConstraintEscClicked()
 
 void UExSimMainWidget::onConstrHingeButtonClicked()
 {
-	addOptionToStorage("Pivot Parent","0.0; 0.0; 0.0;",0,0);
+	addEditableToStorageWB("Pivot Parent","0.0; 0.0; 0.0;",0,0);
 }
 void UExSimMainWidget::getInputTableOptions()
 {
@@ -557,6 +561,7 @@ void UExSimMainWidget::getInputTableOptions()
     
 	SelectedConstraintType = BulletHelpers::Constr::GEN6DOF_SPRING;
 }
+
 void UExSimMainWidget::addInputTable()
 {
 	UExComboWidget * bt = CreateWidget<UExComboWidget>(this, ComboClass);
@@ -570,7 +575,7 @@ void UExSimMainWidget::addInputTable()
 		int type = option.Key;
 		FString * value = OptionValuePairs->Find(name);
 		if (value)
-			addOptionToStorage(name, *value,0,type);
+			addEditableToStorageWB(name, *value,0,type);
 	}
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
@@ -579,21 +584,56 @@ void UExSimMainWidget::addInputTable()
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
 }
-void UExSimMainWidget::addOptionToStorage(FString name, FString value, int id, int type)
+void UExSimMainWidget::addEditableToStorageWB(FString name, FString value, int id, int type)
 {
 	UExEditableWidget * Menu = CreateWidget<UExEditableWidget>(this, OptionClass);
-	OptionsList.Add(Menu);
 	Menu->initEditable( name, value, id,type);
-	
-	Menu->EventOnTextCommit.AddDynamic(this, &UExSimMainWidget::onConstraintTypeChanged);
+	Menu->EventOnTextCommit.AddDynamic(this, &UExSimMainWidget::onEditableWidgetChanged);
+	EditableList.Add(Menu);
 	StorageWrapBox->AddChild(Menu);
 }
-void UExSimMainWidget::onConstraintTypeChanged(FString ini, FString gen, int id, int type)
+
+void UExSimMainWidget::updateEditable(AExactoPhysics::es_options_list type, FString value)
 {
-	sendDebug("TTTTTTTTTTTTTTTTT");
-	sendDebug(gen);
+	for(const auto & op : EditableList)
+	{
+		if (op->getType() == type)
+		{
+			op->update(value);
+		}
+	}
 }
 
+void UExSimMainWidget::updateEditable(AExactoPhysics::es_options_list type, FVector value)
+{
+	FString v = ExConvert::getStrFromVec(value);
+	updateEditable(type, v);
+}
+
+
+
+void UExSimMainWidget::onEditableWidgetChanged(FString ini, FString gen, int id, int type)
+{
+	sendDebug(TEXT("Change is accepted: ") + ini + TEXT(" => ") + gen);
+	DataStorage->updateConstraintCommand(static_cast<AExactoPhysics::es_options_list>(type), gen);
+}
+
+void UExSimMainWidget::onDataStorageConstraintChanged(int type, FString value)
+{
+	sendDebug(TEXT("Try update new value: ") + value);
+	updateEditableAll();
+}
+void UExSimMainWidget::updateEditableAll()
+{
+	DataStorage->setOptVPP(CurrentConstraint);
+	getInputTableOptions();
+	for (auto & ed : EditableList)
+	{
+		FString name = ed->getName();
+		auto v = DataStorage->OptionValuePairsPtr.FindRef(ed->getName());
+		ed->update(*v);
+	}
+}
 
 void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 {
@@ -671,6 +711,7 @@ bool UExSimMainWidget::Initialize()
 		std::string * str = DataStorage->GenObjType.Find(GenObjKey++);
 		updateSwitchObjText(*str);
 		DataStorage->setTargetWidget(this);
+		DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
 
 		//GetOwningPlayer()->bShowMouseCursor = true;
 		
@@ -698,4 +739,12 @@ bool UExSimMainWidget::Initialize()
 	}
 	
 	return Super::Initialize();
+}
+void UExSimMainWidget::initSimMainWidget()
+{
+	if (DataStorage)
+	{
+			DataStorage->setTargetWidget(this);
+    		DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);	
+	}
 }

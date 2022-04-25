@@ -10,7 +10,6 @@
 #include "ExSelector.h"
 #include "Blueprint/UserWidget.h"
 #include "exactoSim/Common/ExSimStorage.h"
-
 #include "ExSimMainWidget.generated.h"
 
 /**
@@ -31,6 +30,10 @@ public:
 		void clearCanvas();
 	UFUNCTION(BlueprintCallable, Category = DrawingTools)
 		void testDrawFunction();
+
+	UFUNCTION(BlueprintCallable, Category= Common)
+		void initSimMainWidget();
+	
 	UFUNCTION()
 		void onSwitchObjButtonClicked();
 	UFUNCTION()
@@ -66,7 +69,9 @@ public:
 		void onConstrP2PButtonClicked();
 
 	UFUNCTION()
-		void onConstraintTypeChanged(FString ini, FString gen, int id, int type);
+		void onEditableWidgetChanged(FString ini, FString gen, int id, int type);
+	UFUNCTION()
+		void onDataStorageConstraintChanged(int type, FString value);
 
 	
 	
@@ -78,7 +83,10 @@ public:
 	void setOptionClass(UClass * tmpl);
 	void setComboClass(UClass * tmpl);
 
-	void addOptionToStorage(FString name, FString value, int id, int type);
+	void addEditableToStorageWB(FString name, FString value, int id, int type);
+	void updateEditable(AExactoPhysics::es_options_list type, FString value);
+	void updateEditable(AExactoPhysics::es_options_list type, FVector value);
+	void updateEditableAll();
 	void addButtonToStorage(FString name);
 	void addSelectToStorage(FString name, TArray<FString> option_list);
 
@@ -203,7 +211,7 @@ private:
 
 	
 	
-	TArray<UExEditableWidget *> OptionsList;
+	TArray<UExEditableWidget *> EditableList;
 	TArray<UExSelector *> SelectorList;
 	TArray<UExButtonWidget *> ButtonTempList;
 	UExButtonWidget * OptionsButton_Ok = nullptr;
@@ -216,11 +224,14 @@ private:
 	UClass * ComboClass;
 
 	AExSimStorage::es_component * CurrentActor;
+	AExSimStorage::es_constraint_pair * CurrentConstraint;
 	TArray<AExSimStorage::es_constraint_pair *> ConstrPairList;
 	
 	AExSimStorage::es_component * TargetActor;
 	AExSimStorage::es_component * ParentActor;
 	BulletHelpers::Constr SelectedConstraintType = BulletHelpers::Constr::NONE;
+
+	
 	
 
 	
