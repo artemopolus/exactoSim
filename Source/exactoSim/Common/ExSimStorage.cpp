@@ -659,6 +659,10 @@ void AExSimStorage::undoConstraintCommand()
 {
 	ConstraintCommander.undo();
 	//update constraint
+	if (EssEvOnConstraintChanged.IsBound())
+	{
+		EssEvOnConstraintChanged.Broadcast(-1, TEXT("None"));
+	}
 }
 
 

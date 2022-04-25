@@ -54,6 +54,14 @@ void AExSimPlayer::activateDifFunction()
 	}
 }
 
+void AExSimPlayer::undoFunction()
+{
+	if (DataStorage)
+	{
+		DataStorage->undoConstraintCommand();
+	}
+}
+
 void AExSimPlayer::moveRight(float value) 
 {
 	if (value != 0.f)
@@ -251,6 +259,7 @@ void AExSimPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	InputComponent->BindAction("activateFunction", IE_Pressed, this, &AExSimPlayer::activateFunction);
 	InputComponent->BindAction("activateDifFunction", IE_Pressed, this, &AExSimPlayer::activateDifFunction);
+	InputComponent->BindAction("undoFunction", IE_Pressed, this, &AExSimPlayer::undoFunction);
 	//InputComponent->BindAction("moveRight",IE_Pressed, this, &AExSimPlayer::moveRight);
 	//InputComponent->BindAction("moveLeft",IE_Pressed, this, &AExSimPlayer::moveLeft);
 

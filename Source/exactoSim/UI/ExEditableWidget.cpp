@@ -11,6 +11,8 @@ void UExEditableWidget::onTextCommitedRegistered(
 	const FText & text, ETextCommit::Type type
 	)
 {
+	if (text.ToString() == InitValue)
+		return;
 	FString out = TEXT("TextChanged: ") + text.ToString();
 	if (type == ETextCommit::Default)
 		out += "[Default]";

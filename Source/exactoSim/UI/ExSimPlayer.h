@@ -69,6 +69,7 @@ public:
 	//actions
 	void activateFunction() ;
 	void activateDifFunction() ;
+	void undoFunction();
 	//axis
 	void moveRight(float value) ;
 	void moveLeft(float value) ;
