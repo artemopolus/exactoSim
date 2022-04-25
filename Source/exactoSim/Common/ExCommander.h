@@ -94,7 +94,18 @@ class EXACTOSIM_API ExCommander
 	TArray<ExBasicCommand*> DoneCommands;
 	ExBasicCommand * Command = nullptr;
 	AExactoPhysics::es_constraint * ActiveConstraint = nullptr;
+	int DoneCommandMax = 20;
 public:
+	ExCommander(){}
+	~ExCommander()
+	{
+		for (int i = 0; i < DoneCommands.Num(); i++)
+		{
+			auto * c = DoneCommands[i];
+			delete c;
+		}
+		DoneCommands.Empty(); //don't know for what?
+	}
 	void setActiveConstraint(AExactoPhysics::es_constraint * constraint)
 	{
 		ActiveConstraint = constraint;	
@@ -106,6 +117,12 @@ public:
 		Command = new ExUpdateConstraintVector(ActiveConstraint, type, vec);
 		Command->execute();
 		DoneCommands.Add(Command);
+		if (DoneCommands.Num() >= DoneCommandMax)
+		{
+			Command = DoneCommands[0];
+			DoneCommands.Remove(Command);
+			delete Command;
+		}
 	}
 	void updateConstraint(AExactoPhysics::es_options_list type, FString str)
 	{

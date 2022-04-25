@@ -90,12 +90,12 @@ bool ExVectorPack::update(const AExactoPhysics::es_options_list new_type, const 
 	else if (new_type == AExactoPhysics::es_options_list::upp_lim_ang)
 	{
 		Old = Target->upp_lim_ang;
-		Target->low_lim_ang = new_vec;		
+		Target->upp_lim_ang = new_vec;		
 	}
 	else if (new_type == AExactoPhysics::es_options_list::upp_lim_lin)
 	{
 		Old = Target->upp_lim_lin;
-		Target->low_lim_lin = new_vec;		
+		Target->upp_lim_lin = new_vec;		
 	}
 	else
 		return false;
