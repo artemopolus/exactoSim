@@ -154,6 +154,8 @@ public:
 	void createSceneObj(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
 	void createConstraint(AActor * target, AActor * parent, FExConstraintParams params);
 	void createConstraint(AActor * target, FExConstraintParams * params);
+	void updateConstraint();
+	
 	bool getConstraint(const AActor * target, TArray<es_constraint_pair *> * constr);
 
 	void setSceneObjName(FString name, FString type_name);

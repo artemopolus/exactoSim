@@ -435,6 +435,17 @@ void AExScene::removeConstrain()
 	}
 }
 
+void AExScene::updateConstraint(btPoint2PointConstraint* c, FExConstraintParams* params)
+{
+	if(c)
+	{
+		const btVector3 p = BulletHelpers::ToBtSize(params->pivot_p);
+		c->setPivotA(p);
+	}
+}
+
+
+
 btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FVector location)
 {
 	if (body)

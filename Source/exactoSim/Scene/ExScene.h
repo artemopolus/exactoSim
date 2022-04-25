@@ -78,6 +78,8 @@ public:
 	void createConstraint(btRigidBody * target, btRigidBody * parent, FExConstraintParams params);
 	void removeConstrain();
 
+	void updateConstraint(btPoint2PointConstraint * c, FExConstraintParams * params);
+
 	btTypedConstraint * fixP2PBody(btRigidBody * body, FVector location);
 	btTypedConstraint * fixP2PBody(btRigidBody * body, FExConstraintParams * params);
 	

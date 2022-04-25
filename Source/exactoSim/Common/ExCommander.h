@@ -4,6 +4,7 @@
 #include "exactoSim/ExactoPhysics.h"
 #include "exactoSim/Utils/ExConvert.h"
 
+//TODO: use template for pack
 class EXACTOSIM_API ExStringPack
 {
 		FExConstraintParams * Target = nullptr;

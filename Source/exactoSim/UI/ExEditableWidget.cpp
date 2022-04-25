@@ -4,6 +4,7 @@
 #include "ExEditableWidget.h"
 
 #include "Components/TextBlock.h"
+#include "exactoSim/DataTypes/FExConstraintParams.h"
 #include "exactoSim/Utils/ExConvert.h"
 
 
@@ -28,7 +29,8 @@ void UExEditableWidget::onTextCommitedRegistered(
 		(type == ETextCommit::Type::OnEnter)
 		))
 	{
-		if (!ExConvert::checkVecStr(text.ToString()))
+		EConstraintParamNames p = static_cast<EConstraintParamNames>(PtType);
+		if (p > EConstraintParamNames::vector_start && p < EConstraintParamNames::string_start &&!ExConvert::checkVecStr(text.ToString()))
 		{
 			ValueText->SetText(FText::FromString(InitValue));
 			return;

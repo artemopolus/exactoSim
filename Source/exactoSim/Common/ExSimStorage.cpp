@@ -372,6 +372,8 @@ void AExSimStorage::createConstraint(AActor* target, FExConstraintParams * param
     component->Constraints.Add(p);
 }
 
+
+
 bool AExSimStorage::getConstraint(const AActor* target, TArray<es_constraint_pair *> * constr )
 {
 	if (constr->Num()>0)
@@ -639,16 +641,28 @@ void AExSimStorage::setOptVPP(es_constraint_pair* params)
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_ang], ExConvert::getStrFromVec(params->params->dump_ang));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_name], params->params->name_p);
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_name], params->params->name_t);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], BulletHelpers::getNameOfConstraint(params->type));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name], (params->name));
+	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], BulletHelpers::getNameOfConstraint(params->params->constr_type));
+	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name], (params->params->name_constraint));
 }
 
-
+void AExSimStorage::updateConstraint()
+{
+	if (CurrentScene&&CurrentConstraintPtr)
+	{
+		CurrentConstraintPtr->name = CurrentConstraintPtr->params->name_constraint;
+		if (CurrentConstraintPtr->params->constr_type == BulletHelpers::Constr::P2P)
+		{
+			btPoint2PointConstraint * p = static_cast<btPoint2PointConstraint*>(CurrentConstraintPtr->constraint);
+			CurrentScene->updateConstraint(p, CurrentConstraintPtr->params);
+		}
+	}
+}
 
 void AExSimStorage::updateConstraintCommand(EConstraintParamNames type, FString str)
 {
 	ConstraintCommander.updateConstraint(type, str);
 	//update constraint
+	updateConstraint();
 	if (EssEvOnConstraintChanged.IsBound())
 	{
 		EssEvOnConstraintChanged.Broadcast(static_cast<int>(type), str);
