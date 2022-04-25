@@ -583,7 +583,7 @@ void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> * system)
 	}*/
 }
 
-btTypedConstraint * AExactoPhysics::createConstraint(btRigidBody* target, btRigidBody* parent, es_constraint params)
+btTypedConstraint * AExactoPhysics::createConstraint(btRigidBody* target, btRigidBody* parent, FExConstraintParams params)
 {
 	if (params.constr_type == BulletHelpers::Constr::HINGE)
 	{

@@ -494,7 +494,7 @@ bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, AExactoPhys
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
 
-	AExactoPhysics::es_constraint * params = new AExactoPhysics::es_constraint();
+	FExConstraintParams * params = new FExConstraintParams();
 
 	for (auto & option : EditableList)
 	{

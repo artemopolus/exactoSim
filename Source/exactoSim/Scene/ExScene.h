@@ -75,13 +75,13 @@ public:
 	void generateCar();
 	void removeCar();
 
-	void createConstraint(btRigidBody * target, btRigidBody * parent, AExactoPhysics::es_constraint params);
+	void createConstraint(btRigidBody * target, btRigidBody * parent, FExConstraintParams params);
 	void removeConstrain();
 
 	btTypedConstraint * fixP2PBody(btRigidBody * body, FVector location);
-	btTypedConstraint * fixP2PBody(btRigidBody * body, AExactoPhysics::es_constraint * params);
+	btTypedConstraint * fixP2PBody(btRigidBody * body, FExConstraintParams * params);
 	
-	btTypedConstraint * fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, AExactoPhysics::es_constraint params);
+	btTypedConstraint * fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params);
 	void pickTrgBody(btRigidBody * body, FVector location);
 	void moveTrgBody(FVector location);
 	void letTrgBody();

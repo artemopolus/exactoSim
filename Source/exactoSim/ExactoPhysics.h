@@ -14,6 +14,7 @@
 #include "BulletSpec/BulletCustomMotionState.h"
 #include "BulletSpec/BulletDebugDraw.h"
 #include "BulletSpec/BulletDynamicComponent.h"
+#include "DataTypes/FExConstraintParams.h"
 #include "Scene/ExCollideResult.h"
 #include "ExactoPhysics.generated.h"
 
@@ -77,48 +78,7 @@ public:	//variables
 		//
 		opt_end
 	};	
-	struct es_constraint
-	{
-		btTypedConstraint * constraint;
-		AActor * parent;
 		
-		FVector axis_t;
-    	FVector axis_p;
-    	FVector pivot_t;
-    	FVector pivot_p;
-		
-    	FVector upp_lim_lin;
-    	FVector low_lim_lin;
-    	FVector upp_lim_ang;
-    	FVector low_lim_ang;
-    
-    	FVector stiff_lin;
-    	FVector stiff_ang;
-    
-    	FVector dump_lin;
-    	FVector dump_ang;
-
-    	FString name_p;
-    	FString name_t;
-		FString name_constraint;
-
-		
-    	uint8_t en_spring[6];
-    	BulletHelpers::Constr constr_type;
-		TArray<bool> enable_spring;
-		
-		es_constraint()
-		{
-			constraint = nullptr;
-			parent = nullptr;
-			constr_type = BulletHelpers::Constr::NONE;
-			en_spring[0] = 0;	en_spring[1] = 0;	en_spring[2] = 0;	en_spring[3] = 0;	en_spring[4] = 0;	en_spring[5] = 0;	
-			axis_p =  axis_t =  pivot_t =  pivot_p = FVector::ZeroVector;
-			name_p = name_t = "";
-			upp_lim_ang = low_lim_lin = upp_lim_lin = low_lim_ang = FVector::ZeroVector;
-			stiff_ang = stiff_lin = dump_ang = dump_lin = FVector::ZeroVector;
-		}
-	};	
 	// Global objects
 	btCollisionConfiguration* BtCollisionConfig;
 	btCollisionDispatcher* BtCollisionDispatcher;
@@ -213,7 +173,7 @@ public:
 
 	void AddComplexBody(TArray<ConnectedBodies> * system);
 
-	btTypedConstraint * createConstraint(btRigidBody * target, btRigidBody * parent, es_constraint params);
+	btTypedConstraint * createConstraint(btRigidBody * target, btRigidBody * parent, FExConstraintParams params);
 
 	void removeRigidBody(btRigidBody * body);
 	void removeConstrain(btTypedConstraint * constr);

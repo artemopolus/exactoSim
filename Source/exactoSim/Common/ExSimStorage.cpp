@@ -135,7 +135,7 @@ void AExSimStorage::BeginPlay()
 				p->type = BulletHelpers::Constr::P2P;
 				p->name = magnet_name;
 				p->parent = nullptr;
-				AExactoPhysics::es_constraint *pp = new AExactoPhysics::es_constraint();
+				FExConstraintParams *pp = new FExConstraintParams();
 				pp->pivot_t = magnet_relpivot0;
 				pp->pivot_p = component->Target->GetActorLocation();
 				pp->name_p = component->Name;
@@ -148,7 +148,7 @@ void AExSimStorage::BeginPlay()
 				p->type = BulletHelpers::Constr::P2P;
 				p->name = magnet_name + TEXT("_P2P1");
 				p->parent = nullptr;
-				AExactoPhysics::es_constraint *pp1 = new AExactoPhysics::es_constraint();
+				FExConstraintParams *pp1 = new FExConstraintParams();
 				pp1->pivot_t = magnet_relpivot1;
 				pp1->pivot_p = component->Target->GetActorLocation();
 				pp1->name_p = component->Name;
@@ -161,7 +161,7 @@ void AExSimStorage::BeginPlay()
 			}
 		}
 	}
-	AExactoPhysics::es_constraint *params = new AExactoPhysics::es_constraint();
+	FExConstraintParams *params = new FExConstraintParams();
 	params->pivot_p = PivotP;
 	params->pivot_t = PivotT;
 
@@ -200,7 +200,7 @@ void AExSimStorage::BeginPlay()
 				p->type = BulletHelpers::Constr::P2P;
 				p->name = magnet_name;
 				p->parent = nullptr;
-				AExactoPhysics::es_constraint * fix_params = new AExactoPhysics::es_constraint();
+				FExConstraintParams * fix_params = new FExConstraintParams();
 				fix_params->pivot_t = FVector(0,0,20);
 				fix_params->pivot_p = spring->Target->GetActorLocation();
 				fix_params->name_p = spring->Name;
@@ -334,7 +334,7 @@ void AExSimStorage::createSceneObj(FString name, FString path, float mass, FVect
 	}
 }
 
-void AExSimStorage::createConstraint(AActor* target, AActor* parent, AExactoPhysics::es_constraint params)
+void AExSimStorage::createConstraint(AActor* target, AActor* parent, FExConstraintParams params)
 {
 	AExSmplBox * parent_actor = static_cast<AExSmplBox*>(parent);
 	es_component * parent_component = parent_actor->getEScomponent();
@@ -354,7 +354,7 @@ void AExSimStorage::createConstraint(AActor* target, AActor* parent, AExactoPhys
 	parent_component->Basis->components.Add(target_component);
 }
 
-void AExSimStorage::createConstraint(AActor* target, AExactoPhysics::es_constraint * params)
+void AExSimStorage::createConstraint(AActor* target, FExConstraintParams * params)
 {
 	if (params->constr_type != BulletHelpers::Constr::P2P)
 		return;

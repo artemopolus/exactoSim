@@ -6,12 +6,12 @@
 
 class EXACTOSIM_API ExStringPack
 {
-		AExactoPhysics::es_constraint * Target = nullptr;
+		FExConstraintParams * Target = nullptr;
     	AExactoPhysics::es_options_list Type = AExactoPhysics::vector_start;
     	FString Old;
     	FString Cur;
     public:
-    	void setActive(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FString vec)
+    	void setActive(FExConstraintParams * target, AExactoPhysics::es_options_list type, FString vec)
     	{
     		Target = target;
     		Type = type;
@@ -26,12 +26,12 @@ class EXACTOSIM_API ExStringPack
 };
 class EXACTOSIM_API ExVectorPack
 {
-	AExactoPhysics::es_constraint * Target = nullptr;
+	FExConstraintParams * Target = nullptr;
 	AExactoPhysics::es_options_list Type = AExactoPhysics::vector_start;
 	FVector Old;
 	FVector Cur;
 public:
-	void setActive(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FVector vec)
+	void setActive(FExConstraintParams * target, AExactoPhysics::es_options_list type, FVector vec)
 	{
 		Target = target;
 		Type = type;
@@ -56,7 +56,7 @@ class EXACTOSIM_API ExUpdateConstraintString : public ExBasicCommand
 {
 	ExStringPack Pack;
 public:
-	ExUpdateConstraintString(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FString str)
+	ExUpdateConstraintString(FExConstraintParams * target, AExactoPhysics::es_options_list type, FString str)
 	{
 		Pack.setActive(target, type, str);
 	}
@@ -73,7 +73,7 @@ class EXACTOSIM_API ExUpdateConstraintVector : public ExBasicCommand
 {
 	ExVectorPack Pack;
 public:
-	ExUpdateConstraintVector(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FVector vec) 
+	ExUpdateConstraintVector(FExConstraintParams * target, AExactoPhysics::es_options_list type, FVector vec) 
 	{
 		Pack.setActive(target, type, vec);
 	}
@@ -93,7 +93,7 @@ class EXACTOSIM_API ExCommander
 {
 	TArray<ExBasicCommand*> DoneCommands;
 	ExBasicCommand * Command = nullptr;
-	AExactoPhysics::es_constraint * ActiveConstraint = nullptr;
+	FExConstraintParams * ActiveConstraint = nullptr;
 	int DoneCommandMax = 20;
 public:
 	ExCommander(){}
@@ -106,7 +106,7 @@ public:
 		}
 		DoneCommands.Empty(); //don't know for what?
 	}
-	void setActiveConstraint(AExactoPhysics::es_constraint * constraint)
+	void setActiveConstraint(FExConstraintParams * constraint)
 	{
 		ActiveConstraint = constraint;	
 	}

@@ -64,7 +64,7 @@ public:
 		es_component * parent;
 		btTypedConstraint *constraint;
 		BulletHelpers::Constr type;
-		AExactoPhysics::es_constraint * params;
+		FExConstraintParams * params;
 	};
 	struct es_component
 	{
@@ -152,8 +152,8 @@ public:
 
 	void createSceneObj(void);
 	void createSceneObj(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
-	void createConstraint(AActor * target, AActor * parent, AExactoPhysics::es_constraint params);
-	void createConstraint(AActor * target, AExactoPhysics::es_constraint * params);
+	void createConstraint(AActor * target, AActor * parent, FExConstraintParams params);
+	void createConstraint(AActor * target, FExConstraintParams * params);
 	bool getConstraint(const AActor * target, TArray<es_constraint_pair *> * constr);
 
 	void setSceneObjName(FString name, FString type_name);

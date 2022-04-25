@@ -412,7 +412,7 @@ void AExScene::removeCar()
 	SystemsList.Empty();
 }
 
-void AExScene::createConstraint(btRigidBody* target, btRigidBody* parent, AExactoPhysics::es_constraint params)
+void AExScene::createConstraint(btRigidBody* target, btRigidBody* parent, FExConstraintParams params)
 {
 	if (ExPhyzX)
 	{
@@ -450,7 +450,7 @@ btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FVector location)
 	return nullptr;
 }
 
-btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, AExactoPhysics::es_constraint* params)
+btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FExConstraintParams* params)
 {
 	if (body)
 	{
@@ -466,7 +466,7 @@ btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, AExactoPhysics::es_co
 	return nullptr;
 }
 
-btTypedConstraint* AExScene::fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, AExactoPhysics::es_constraint params)
+btTypedConstraint* AExScene::fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params)
 {
 	btTransform tr;
 	tr.setIdentity();
