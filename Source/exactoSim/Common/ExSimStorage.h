@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ExCommander.h"
 #include "exactoSim/exactoWorld.h"
 #include "exactoSim/Scene/ExScene.h"
 #include "GameFramework/Actor.h"
@@ -108,7 +109,9 @@ public:
 	};
 	TMap<AExactoPhysics::es_options_list, FString> OptionNamesPtr;
 	TMap<FString, FString> OptionValuePairsPtr;
-	
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FConstraintChanged, int, type, FString, value);
+	FConstraintChanged EssEvOnConstraintChanged;
 private:
 	int CurrentMode = es_modes::EDIT;
 	TMap<int, FString> ModeList;
@@ -120,6 +123,9 @@ private:
 
 	FVector TargetLocation;
 	FRotator TargetRotation;
+	
+	ExCommander ConstraintCommander;
+	es_constraint_pair * CurrentConstraintPtr;
 
 
 	
@@ -179,9 +185,9 @@ public:
 
 	void resetOptVPP();
 	void setOptVPP(es_constraint_pair * params);
-	void setOptVPP(AActor * actor, FString constraint_name);
 
-	
+	void updateConstraintCommand(AExactoPhysics::es_options_list type, FString str);
+	void undoConstraintCommand();
 
 private:
 	void createComplex(es_component * component, FString new_complex_name);

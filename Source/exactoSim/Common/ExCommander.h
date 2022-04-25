@@ -1,43 +1,86 @@
 #pragma once
-#include <vector>
+// #include <vector>
 
 #include "exactoSim/ExactoPhysics.h"
+#include "exactoSim/Utils/ExConvert.h"
 
-
-class ExPack
+class EXACTOSIM_API ExStringPack
+{
+		AExactoPhysics::es_constraint * Target = nullptr;
+    	AExactoPhysics::es_options_list Type = AExactoPhysics::vector_start;
+    	FString Old;
+    	FString Cur;
+    public:
+    	void setActive(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FString vec)
+    	{
+    		Target = target;
+    		Type = type;
+    		Cur = vec;
+    	}
+    	bool update(const AExactoPhysics::es_options_list new_type, const FString new_vec);
+    	bool revert();
+    	bool update()
+    	{
+    		return update(Type, Cur);
+    	}
+};
+class EXACTOSIM_API ExVectorPack
 {
 	AExactoPhysics::es_constraint * Target = nullptr;
 	AExactoPhysics::es_options_list Type = AExactoPhysics::vector_start;
 	FVector Old;
 	FVector Cur;
 public:
-	void setActive(AExactoPhysics::es_constraint * target);
+	void setActive(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FVector vec)
+	{
+		Target = target;
+		Type = type;
+		Cur = vec;
+	}
 	bool update(const AExactoPhysics::es_options_list new_type, const FVector new_vec);
+	bool update()
+	{
+		return update(Type, Cur);
+	}
 	bool revert();
 };
 
-class ExBasicCommand
+class EXACTOSIM_API ExBasicCommand
 {
 public:
 	virtual ~ExBasicCommand(){}
 	virtual void execute() = 0;
 	virtual void unExecute() = 0;
 };
-
-class ExUpdateConstraintVector : public ExBasicCommand
+class EXACTOSIM_API ExUpdateConstraintString : public ExBasicCommand
 {
-	ExPack Pack;
-	AExactoPhysics::es_options_list Type;
-	FVector Vec = FVector::ZeroVector;
+	ExStringPack Pack;
 public:
-	ExUpdateConstraintVector(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FVector vec) : Type(type), Vec(vec)
+	ExUpdateConstraintString(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FString str)
 	{
-		Pack.setActive(target);
+		Pack.setActive(target, type, str);
+	}
+	virtual void execute() override
+	{
+		Pack.update();
+	}
+	virtual void unExecute() override
+	{
+		Pack.revert();
+	}
+};
+class EXACTOSIM_API ExUpdateConstraintVector : public ExBasicCommand
+{
+	ExVectorPack Pack;
+public:
+	ExUpdateConstraintVector(AExactoPhysics::es_constraint * target, AExactoPhysics::es_options_list type, FVector vec) 
+	{
+		Pack.setActive(target, type, vec);
 	}
 
 	virtual void execute() override
 	{
-		Pack.update(Type, Vec);
+		Pack.update();
 	}
 
 	virtual void unExecute() override
@@ -46,9 +89,9 @@ public:
 	}
 };
 
-class ExCommander
+class EXACTOSIM_API ExCommander
 {
-	std::vector<ExBasicCommand*> DoneCommands;
+	TArray<ExBasicCommand*> DoneCommands;
 	ExBasicCommand * Command = nullptr;
 	AExactoPhysics::es_constraint * ActiveConstraint = nullptr;
 public:
@@ -62,16 +105,32 @@ public:
 			return;
 		Command = new ExUpdateConstraintVector(ActiveConstraint, type, vec);
 		Command->execute();
-		DoneCommands.push_back(Command);
+		DoneCommands.Add(Command);
+	}
+	void updateConstraint(AExactoPhysics::es_options_list type, FString str)
+	{
+		if (( AExactoPhysics::es_options_list::vector_start < type)&&(type <AExactoPhysics::es_options_list::string_start))
+		{
+			const FVector vec = ExConvert::getVecFromStr(str);
+			updateConstraint(type, vec);
+		}
+		else if (( AExactoPhysics::es_options_list::string_start < type)&&(type <AExactoPhysics::es_options_list::spec_start))
+		{
+			if(!ActiveConstraint)
+				return;
+			Command = new ExUpdateConstraintString(ActiveConstraint, type, str);
+			Command->execute();
+			DoneCommands.Add(Command);
+		}
 	}
 	void undo()
 	{
-		if (DoneCommands.size() == 0)
+		if (DoneCommands.Num() == 0)
 		{}
 		else
 		{
-			Command = DoneCommands.back();
-			DoneCommands.pop_back();
+			Command = DoneCommands.Pop();
+			// DoneCommands.pop_back();
 			Command->unExecute();
 			delete Command;
 		}

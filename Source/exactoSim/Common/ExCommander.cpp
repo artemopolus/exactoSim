@@ -1,12 +1,41 @@
 #include "ExCommander.h"
 
 
-void ExPack::setActive(AExactoPhysics::es_constraint* target)
+
+bool ExStringPack::update(const AExactoPhysics::es_options_list new_type, const FString new_vec)
 {
-	Target = target;
+	if (new_type == AExactoPhysics::es_options_list::constraint_name)
+	{
+		Old = Target->name_constraint;
+		Target->name_constraint = new_vec;
+	}
+	else if (new_type == AExactoPhysics::es_options_list::parent_name)
+         	{
+         		Old = Target->name_p;
+         		Target->name_p = new_vec;
+         	}
+	else if (new_type == AExactoPhysics::es_options_list::target_name)
+         	{
+         		Old = Target->name_t;
+         		Target->name_t = new_vec;
+         	}
+	else return false;
+	return true;
 }
 
-bool ExPack::update(const AExactoPhysics::es_options_list new_type, const FVector new_vec)
+bool ExStringPack::revert()
+{
+	if (Type == AExactoPhysics::es_options_list::constraint_name)
+		Target->name_constraint = Old;
+	else if (Type == AExactoPhysics::es_options_list::parent_name)
+		Target->name_p = Old;
+	else if (Type == AExactoPhysics::es_options_list::target_name)
+		Target->name_t = Old;
+	else return false;
+	return true;
+}
+
+bool ExVectorPack::update(const AExactoPhysics::es_options_list new_type, const FVector new_vec)
 {
 	if (new_type == AExactoPhysics::es_options_list::dump_ang)
 	{
@@ -74,7 +103,7 @@ bool ExPack::update(const AExactoPhysics::es_options_list new_type, const FVecto
 	return true;	
 }
 
-bool ExPack::revert()
+bool ExVectorPack::revert()
 {
 		if (Type == AExactoPhysics::es_options_list::dump_ang)
     	{

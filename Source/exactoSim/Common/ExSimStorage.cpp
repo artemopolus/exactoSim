@@ -65,6 +65,8 @@ AExSimStorage::AExSimStorage()
 	OptionNamesPtr.Add(AExactoPhysics::es_options_list::constraint_t, "Constraint type");
 	OptionNamesPtr.Add(AExactoPhysics::es_options_list::constraint_name, "Constraint Name");
 
+
+
 	resetOptVPP();
  
 	
@@ -622,6 +624,8 @@ void AExSimStorage::resetOptVPP()
 
 void AExSimStorage::setOptVPP(es_constraint_pair* params)
 {
+	CurrentConstraintPtr = params;//???
+	ConstraintCommander.setActiveConstraint(params->params);
 	OptionValuePairsPtr.Empty();
 	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::parent_pivot], ExConvert::getStrFromVec(params->params->pivot_p));
 	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::target_pivot], ExConvert::getStrFromVec(params->params->pivot_t));
@@ -637,6 +641,24 @@ void AExSimStorage::setOptVPP(es_constraint_pair* params)
 	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::target_name], params->params->name_t);
 	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::constraint_t], BulletHelpers::getNameOfConstraint(params->type));
 	OptionValuePairsPtr.Add(OptionNamesPtr[AExactoPhysics::constraint_name], (params->name));
+}
+
+
+
+void AExSimStorage::updateConstraintCommand(AExactoPhysics::es_options_list type, FString str)
+{
+	ConstraintCommander.updateConstraint(type, str);
+	//update constraint
+	if (EssEvOnConstraintChanged.IsBound())
+	{
+		EssEvOnConstraintChanged.Broadcast(type, str);
+	}
+}
+
+void AExSimStorage::undoConstraintCommand()
+{
+	ConstraintCommander.undo();
+	//update constraint
 }
 
 
