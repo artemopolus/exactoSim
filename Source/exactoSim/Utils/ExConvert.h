@@ -7,6 +7,7 @@ public:
 	static FString getStrFromFloat(float val);
 
 	static FVector getVecFromStr(FString str);
+	static bool checkVecStr(const FString str);
 	static float getFloatFromStr(FString str);
 	
 };

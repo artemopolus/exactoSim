@@ -24,6 +24,34 @@ FVector ExConvert::getVecFromStr(FString str)
 	return out;
 }
 
+bool ExConvert::checkVecStr(const FString str)
+{
+	TArray<FString> values;
+	FString blank = str;
+	blank.RemoveSpacesInline();
+	
+	blank.ParseIntoArray(values, TEXT(";"), true);
+	if (values.Num() == 3)
+	{
+		for (auto v : values)
+		{
+			TArray<FString> pp;
+			v.ParseIntoArray(pp, TEXT("."), true);
+			if ((pp.Num() == 2)||(pp.Num() == 1))
+			{
+				for (auto p : pp)
+				{
+					if(!p.IsNumeric())
+						return false;
+				}
+			}
+			else return false;
+		}
+		return true;
+	}
+	return false;
+}
+
 float ExConvert::getFloatFromStr(FString str)
 {
 	return FCString::Atof(*str);
