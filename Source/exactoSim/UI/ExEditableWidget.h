@@ -33,4 +33,9 @@ public: //functions
 		void onTextCommitedRegistered(const FText & text, ETextCommit::Type type);
 		
 	void initEditable(FString name, FString value, int id, int type);
+	void update(FString value);
+	int getId() const {return PtId;}
+	int getType() const {return PtType;}
+	FString getName() const;
+	FString getValue() const;
 };
