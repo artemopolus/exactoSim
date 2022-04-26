@@ -4,90 +4,76 @@
 #include "exactoSim/ExactoPhysics.h"
 #include "exactoSim/Utils/ExConvert.h"
 
-//TODO: use template for pack
-class EXACTOSIM_API ExStringPack
-{
-		FExConstraintParams * Target = nullptr;
-    	EConstraintParamNames Type = EConstraintParamNames::vector_start;
-    	FString Old;
-    	FString Cur;
-    public:
-    	void setActive(FExConstraintParams * target, EConstraintParamNames type, FString vec)
-    	{
-    		Target = target;
-    		Type = type;
-    		Cur = vec;
-    	}
-    	bool update(const EConstraintParamNames new_type, const FString new_vec);
-    	bool revert();
-    	bool update()
-    	{
-    		return update(Type, Cur);
-    	}
-};
-class EXACTOSIM_API ExVectorPack
+
+template<typename T>
+class EXACTOSIM_API TExPack 
 {
 	FExConstraintParams * Target = nullptr;
 	EConstraintParamNames Type = EConstraintParamNames::vector_start;
-	FVector Old;
-	FVector Cur;
+	T Cur;
+	T Old;
 public:
-	void setActive(FExConstraintParams * target, EConstraintParamNames type, FVector vec)
-	{
-		Target = target;
-		Type = type;
-		Cur = vec;
-	}
-	bool update(const EConstraintParamNames new_type, const FVector new_vec);
-	bool update()
-	{
-		return update(Type, Cur);
-	}
-	bool revert();
+	void setActive(FExConstraintParams * target, EConstraintParamNames type, T vec) ;
+	bool update() ;
+	bool revert() ;
 };
+
+template <typename T>
+void TExPack<T>::setActive(FExConstraintParams* target, EConstraintParamNames type, T vec)
+{
+	Target = target;
+	Type = type;
+	Cur = vec;
+}
+
+template <typename T>
+bool TExPack<T>::update()
+{
+	ExConvert::getParams(Target, Type, &Old);
+	return ExConvert::updateParams(Target, Type, Cur);
+}
+
+template <typename T>
+bool TExPack<T>::revert()
+{
+	return ExConvert::updateParams(Target, Type, Old);
+}
+
+
 
 class EXACTOSIM_API ExBasicCommand
 {
 public:
-	virtual ~ExBasicCommand(){}
-	virtual void execute() = 0;
-	virtual void unExecute() = 0;
+	virtual ~ExBasicCommand()
+	{
+	}
+	virtual void execute() = 0; 
+	virtual void unExecute() = 0; 
 };
 class EXACTOSIM_API ExUpdateConstraintString : public ExBasicCommand
 {
-	ExStringPack Pack;
+	TExPack<FString> Pack;
 public:
-	ExUpdateConstraintString(FExConstraintParams * target, EConstraintParamNames type, FString str)
+	ExUpdateConstraintString(FExConstraintParams* target, EConstraintParamNames type, FString str)
 	{
 		Pack.setActive(target, type, str);
 	}
-	virtual void execute() override
-	{
-		Pack.update();
-	}
-	virtual void unExecute() override
-	{
-		Pack.revert();
-	}
+
+	virtual void execute() override { Pack.update(); }
+	virtual void unExecute() override { Pack.revert(); }
 };
+
 class EXACTOSIM_API ExUpdateConstraintVector : public ExBasicCommand
 {
-	ExVectorPack Pack;
+	TExPack<FVector> Pack;
 public:
-	ExUpdateConstraintVector(FExConstraintParams * target, EConstraintParamNames type, FVector vec) 
+	ExUpdateConstraintVector(FExConstraintParams* target, EConstraintParamNames type, FVector vec)
 	{
 		Pack.setActive(target, type, vec);
 	}
 
-	virtual void execute() override
-	{
-		Pack.update();
-	}
-
-	virtual void unExecute() override
-	{
-		Pack.revert();
-	}
+	virtual void execute() override { Pack.update(); }
+	virtual void unExecute() override { Pack.revert(); }
 };
 
 class EXACTOSIM_API ExCommander
@@ -111,36 +97,10 @@ public:
 	{
 		ActiveConstraint = constraint;	
 	}
-	void updateConstraint( EConstraintParamNames type, FVector vec)
-	{
-		if (!ActiveConstraint)
-			return;
-		Command = new ExUpdateConstraintVector(ActiveConstraint, type, vec);
-		Command->execute();
-		DoneCommands.Add(Command);
-		if (DoneCommands.Num() >= DoneCommandMax)
-		{
-			Command = DoneCommands[0];
-			DoneCommands.Remove(Command);
-			delete Command;
-		}
-	}
-	void updateConstraint(EConstraintParamNames type, FString str)
-	{
-		if (( EConstraintParamNames::vector_start < type)&&(type <EConstraintParamNames::string_start))
-		{
-			const FVector vec = ExConvert::getVecFromStr(str);
-			updateConstraint(type, vec);
-		}
-		else if (( EConstraintParamNames::string_start < type)&&(type <EConstraintParamNames::spec_start))
-		{
-			if(!ActiveConstraint)
-				return;
-			Command = new ExUpdateConstraintString(ActiveConstraint, type, str);
-			Command->execute();
-			DoneCommands.Add(Command);
-		}
-	}
+	void updateConstraint( EConstraintParamNames type, FVector vec);
+
+	void updateConstraint(EConstraintParamNames type, FString str);
+
 	void undo()
 	{
 		if (DoneCommands.Num() == 0)
