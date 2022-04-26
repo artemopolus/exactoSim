@@ -56,3 +56,116 @@ float ExConvert::getFloatFromStr(FString str)
 {
 	return FCString::Atof(*str);
 }
+
+bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, FString val)
+{
+	if (type == EConstraintParamNames::constraint_name)
+		trg->name_constraint = val;
+	else if (type == EConstraintParamNames::parent_name)
+		trg->name_p = val;
+	else if (type == EConstraintParamNames::target_name)
+		trg->name_t = val;
+	else return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, FVector val)
+{
+	if (type == EConstraintParamNames::dump_ang)
+		trg->dump_ang = val;
+	else if (type == EConstraintParamNames::dump_lin)
+		trg->dump_lin = val;
+	else if (type == EConstraintParamNames::low_lim_ang)
+		trg->low_lim_ang = val;
+	else if (type == EConstraintParamNames::low_lim_lin)
+		trg->low_lim_lin = val;
+	else if (type == EConstraintParamNames::parent_axis)
+		trg->axis_p = val;
+	else if (type == EConstraintParamNames::parent_pivot)
+		trg->pivot_p = val;
+	else if (type == EConstraintParamNames::stiff_ang)
+		trg->stiff_ang = val;
+	else if (type == EConstraintParamNames::stiff_lin)
+		trg->stiff_lin = val;
+	else if (type == EConstraintParamNames::target_axis)
+		trg->axis_t = val;
+	else if (type == EConstraintParamNames::target_pivot)
+		trg->pivot_t = val;
+	else if (type == EConstraintParamNames::upp_lim_ang)
+		trg->upp_lim_ang = val;
+	else if (type == EConstraintParamNames::upp_lim_lin)
+		trg->upp_lim_lin = val;
+	else return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, BulletHelpers::Constr val)
+{
+	if (type == EConstraintParamNames::constraint_t)
+		trg->constr_type = val;
+	else
+		return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, float val)
+{
+	return true;
+}
+
+bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, FString* trg)
+{
+	if (type == EConstraintParamNames::constraint_name)
+		*trg = src->name_constraint;
+	else if (type == EConstraintParamNames::parent_name)
+		*trg = src->name_p;
+	else if (type == EConstraintParamNames::target_name)
+		*trg = src->name_t;
+	else return false;
+	return true;
+}
+
+bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, FVector* trg)
+{
+	if (type == EConstraintParamNames::dump_ang)
+		*trg = src->dump_ang;
+	else if (type == EConstraintParamNames::dump_lin)
+		*trg = src->dump_lin;
+	else if (type == EConstraintParamNames::low_lim_ang)
+		*trg = src->low_lim_ang;
+	else if (type == EConstraintParamNames::low_lim_lin)
+		*trg = src->low_lim_lin;
+	else if (type == EConstraintParamNames::parent_axis)
+		*trg = src->axis_p;
+	else if (type == EConstraintParamNames::parent_pivot)
+		*trg = src->pivot_p;
+	else if (type == EConstraintParamNames::stiff_ang)
+		*trg = src->stiff_ang;
+	else if (type == EConstraintParamNames::stiff_lin)
+		*trg = src->stiff_lin;
+	else if (type == EConstraintParamNames::target_axis)
+		*trg = src->axis_t;
+	else if (type == EConstraintParamNames::target_pivot)
+		*trg = src->pivot_t;
+	else if (type == EConstraintParamNames::upp_lim_ang)
+		*trg = src->upp_lim_ang;
+	else if (type == EConstraintParamNames::upp_lim_lin)
+		*trg = src->upp_lim_lin;
+	else
+		return false;
+	return true;
+}
+
+bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, BulletHelpers::Constr* trg)
+{
+	if (type == EConstraintParamNames::constraint_t)
+		*trg = src->constr_type;
+	else
+		return false;
+	return true;
+}
+
+bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, float* trg)
+{
+	return true;
+}
