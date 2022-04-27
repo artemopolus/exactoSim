@@ -88,11 +88,11 @@ AExactoPhysics::~AExactoPhysics()
 	BtStaticObjects.Empty();
 	BtRigidBodies.Empty();
 }
-btRigidBody* AExactoPhysics::AddRigidBody(AActor* actor)
+btRigidBody* AExactoPhysics::AddRigidBody(AActor* actor, float mass)
 {
 	if (actor != nullptr)
 	{
-		const CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, 1.0);
+		const CachedDynamicShapeData data = GetCachedDynamicShapeData(actor, mass);
 		btRigidBody* body = AddRigidBody(actor, data, PhysicsStatic1Friction, PhysicsStatic1Restitution);
 		return body;
 	}
@@ -121,6 +121,31 @@ void AExactoPhysics::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	btDispatcher * dp = BtWorld->getDispatcher();
+	const int num_man = dp->getNumManifolds();
+	for (int m = 0; m < num_man; m++)
+	{
+		btPersistentManifold* man = dp->getManifoldByIndexInternal( m );
+		const int numc = man->getNumContacts();
+		const btRigidBody* body_a = static_cast<const btRigidBody*>(man->getBody0());
+		const btRigidBody * body_b = static_cast<const btRigidBody*> (man->getBody1());
+		const btRigidBody* trg = nullptr;
+		if (body_a == BtStaticObjects[0])
+			trg = body_a;
+		else if (body_b == BtStaticObjects[0])
+			trg = body_b;
+		if ((numc > 0)&&(trg != nullptr))
+		{
+			for (int c = 0; c < numc; ++c)
+			{
+				btManifoldPoint pt = man->getContactPoint(c);
+				btVector3 r =  pt.getPositionWorldOnA();
+				//UE_LOG(LogTemp, Warning, TEXT("Text, %f %f %f"), r.x() , r.y(), r.z()  );
+				//здесь мы загружаем данные от датчиков и так далее
+			}
+			__nop();
+		}
+	}
 	StepPhysics(DeltaTime);
 }
 
@@ -146,8 +171,23 @@ btCollisionObject* AExactoPhysics::AddStaticCollision(btCollisionShape* Shape, c
 	Obj->setFriction(Friction);
 	Obj->setRestitution(Restitution);
 	Obj->setUserPointer(Actor);
+
+	Obj->setCollisionFlags(btCollisionObject::CF_STATIC_OBJECT);
+	
 	BtWorld->addCollisionObject(Obj);
 	BtStaticObjects.Add(Obj);
+	//if (TestCollider == nullptr)
+	{
+	//	TestCollider = new ExCollideResult(&OutputData);
+		/*
+		int flag = Obj->getCollisionFlags();
+		flag |= btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK;
+		Obj->setCollisionFlags(flag);
+		ExCollideResult TestCollider(&OutputData);
+		TestCollider.m_closestDistanceThreshold = 1;
+		BtWorld->contactTest(Obj,TestCollider);
+		*/
+	}
 	return Obj;
 }
 
@@ -425,8 +465,10 @@ const AExactoPhysics::CachedDynamicShapeData& AExactoPhysics::GetCachedDynamicSh
 	return CachedDynamicShapes.Last();
 }
 
+
+
 btRigidBody* AExactoPhysics::AddRigidBody(AActor* Actor, const CachedDynamicShapeData& ShapeData, float Friction,
-	float Restitution)
+                                          float Restitution)
 {
 	return AddRigidBody(Actor, ShapeData.Shape, ShapeData.Inertia, ShapeData.Mass, Friction, Restitution);
 }
@@ -439,10 +481,144 @@ btRigidBody* AExactoPhysics::AddRigidBody(AActor* Actor, btCollisionShape* Colli
 	const btRigidBody::btRigidBodyConstructionInfo rbInfo(Mass, MotionState, CollisionShape, Inertia);
 	btRigidBody* Body = new btRigidBody(rbInfo);
 	Body->setUserPointer(Actor);
-	BtWorld->addRigidBody(Body);
-	BtRigidBodies.Add(Body);
+	Body->setCollisionFlags(btCollisionObject::CF_DYNAMIC_OBJECT|btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	BtWorld->addRigidBody(Body,btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);
 
+
+	BtRigidBodies.Add(Body);
+	/*cbbbb = new ExCollideResult(&OutputData);
+	cbbbb->m_closestDistanceThreshold = 0.1f;
+	btCollisionObject * a = BtStaticObjects[0];
+	btCollisionObject * b = BtRigidBodies[0];
+	BtWorld->contactPairTest(a,b,*cbbbb);*/
 	return Body;
+}
+
+void AExactoPhysics::AddComplexBody(TArray<ConnectedBodies> * system)
+{
+	//create all
+	TArray<btRigidBody*> body_list;
+	TArray<btTypedConstraint*> constr_list;
+	for (ConnectedBodies & component : *system)
+	{
+		if (component.target != nullptr)
+		{
+			btRigidBody * one_body =  AddRigidBody(component.target);
+			one_body->setActivationState(DISABLE_DEACTIVATION);
+			body_list.Add(one_body);
+			component.trg_body = one_body;
+		}
+	}
+	//connect using list
+	for ( auto& component : *system)
+	{
+		if (component.parent != nullptr)
+		{
+			for (auto & body : body_list)
+			{
+				AActor * parent = static_cast<AActor*>(body->getUserPointer());
+				AActor * child = static_cast<AActor*>(component.trg_body->getUserPointer());
+				if (parent == component.parent)
+				{
+					FString name_trg = child->GetName();
+					FString name_par = parent->GetName();
+					FString result = TEXT("Connect ") + name_trg + TEXT(" to ") + name_par;
+					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, result);
+
+					btVector3 axisA = BulletHelpers::ToBtSize(component.axis_p);
+					btVector3 axisB = BulletHelpers::ToBtSize(component.axis_t);
+					btVector3 pivotA = BulletHelpers::ToBtSize(component.pivot_p);
+					btVector3 pivotB = BulletHelpers::ToBtSize(component.pivot_t);
+					if (component.constr_type == BulletHelpers::HINGE)
+					{
+						btHingeConstraint* p_hinge2 = new btHingeConstraint(*body, *component.trg_body, pivotA, pivotB, axisA, axisB);
+						BtWorld->addConstraint(p_hinge2);
+						p_hinge2->setDbgDrawSize(btScalar(5.f));
+						constr_list.Add(p_hinge2);
+						component.trg_constr = p_hinge2;
+
+						p_hinge2->setLimit(0,0);
+					}
+					else if (component.constr_type == BulletHelpers::HINGE2)
+					{
+						btHinge2Constraint * p_hinge2 = new btHinge2Constraint(*body, *component.trg_body, pivotA, axisA, axisB);
+						BtWorld->addConstraint(p_hinge2);
+						constr_list.Add(p_hinge2);
+						component.trg_constr = p_hinge2;						
+
+						p_hinge2->enableMotor(0, true);
+					}
+					else if (component.constr_type == BulletHelpers::GEN6DOF_SPRING)
+					{
+						btTransform frame_a, frame_b;
+						frame_a = btTransform::getIdentity();
+						frame_a.setOrigin(pivotA);
+						frame_b = btTransform::getIdentity();
+						frame_b.setOrigin(pivotB);
+						btGeneric6DofSpringConstraint * p_6dof_spring = new btGeneric6DofSpringConstraint(*body, *component.trg_body,
+																frame_a, frame_b, true);
+						p_6dof_spring->setLinearUpperLimit(BulletHelpers::ToBtSize(component.upp_lim_lin));
+						p_6dof_spring->setLinearLowerLimit(BulletHelpers::ToBtSize(component.low_lim_lin));
+						
+					}
+					else
+					{
+						btHingeConstraint* p_hinge2 = new btHingeConstraint(*body, *component.trg_body, pivotA, pivotB, axisA, axisB);
+						BtWorld->addConstraint(p_hinge2);
+						p_hinge2->setDbgDrawSize(btScalar(5.f));
+						constr_list.Add(p_hinge2);
+						component.trg_constr = p_hinge2;						
+					}
+				}
+			}
+		}
+	}
+	/*if (constr_list.Num() > 1)
+	{
+	btHingeConstraint * constr0 = static_cast<btHingeConstraint*>(constr_list[0]);
+	constr0->enableAngularMotor(true, -1.f, 1.65f);
+	constr0->setLimit(0.f,SIMD_HALF_PI);		
+	btHingeConstraint * constr1 = static_cast<btHingeConstraint*>(constr_list[1]);
+	constr1->setLimit(0.f,0.f);		
+	}*/
+}
+
+btTypedConstraint * AExactoPhysics::createConstraint(btRigidBody* target, btRigidBody* parent, FExConstraintParams params)
+{
+	if (params.constr_type == BulletHelpers::Constr::HINGE)
+	{
+		btVector3 axisA = BulletHelpers::ToBtSize(params.axis_p);
+    	btVector3 axisB = BulletHelpers::ToBtSize(params.axis_t);
+    	btVector3 pivotA = BulletHelpers::ToBtSize(params.pivot_p);
+    	btVector3 pivotB = BulletHelpers::ToBtSize(params.pivot_t);
+		
+		btHingeConstraint* p_hinge2 = new btHingeConstraint(*parent, *target, pivotA, pivotB, axisA, axisB);
+		BtWorld->addConstraint(p_hinge2);
+		p_hinge2->setLimit(params.low_lim_lin[0],params.upp_lim_lin[0]);
+		return p_hinge2;
+	}
+	else if (params.constr_type == BulletHelpers::Constr::HINGE2)
+	{
+		btVector3 anchor = BulletHelpers::ToBtSize(params.pivot_p);
+		btVector3 axis1 = BulletHelpers::ToBtSize(params.axis_p);
+		btVector3 axis2 = BulletHelpers::ToBtSize(params.axis_t);
+		btHinge2Constraint * p_hinge2 = new btHinge2Constraint(*parent, *target, anchor, axis1, axis2);
+		return p_hinge2;	
+	}
+	else if (params.constr_type == BulletHelpers::Constr::GEN6DOF_SPRING)
+	{
+		btTransform frame_a, frame_b;
+    	frame_a = btTransform::getIdentity();
+    	frame_a.setOrigin(BulletHelpers::ToBtSize(params.axis_p));
+    	frame_b = btTransform::getIdentity();
+    	frame_b.setOrigin( BulletHelpers::ToBtSize(params.axis_t));
+    	btGeneric6DofSpringConstraint * p_6dof_spring = new btGeneric6DofSpringConstraint(*parent, *target,
+    				frame_a, frame_b, true);
+    	p_6dof_spring->setLinearUpperLimit(BulletHelpers::ToBtSize(params.upp_lim_lin));
+    	p_6dof_spring->setLinearLowerLimit(BulletHelpers::ToBtSize(params.low_lim_lin));
+		return p_6dof_spring;	
+	}
+	return nullptr;
 }
 
 void AExactoPhysics::removeRigidBody(btRigidBody* body)
@@ -454,4 +630,10 @@ void AExactoPhysics::removeRigidBody(btRigidBody* body)
 	delete body->getMotionState();
 	delete body;
 	
+}
+
+void AExactoPhysics::removeConstrain(btTypedConstraint* constr)
+{
+	BtWorld->removeConstraint(constr);
+	delete constr;
 }

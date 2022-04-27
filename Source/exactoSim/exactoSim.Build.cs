@@ -9,8 +9,12 @@ public class exactoSim : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "SlateCore" });
 
+		PublicDependencyModuleNames.AddRange(new string[]{"Json", "JsonUtilities"});
+		PublicDependencyModuleNames.AddRange(new string[]{"Networking", "Sockets"});
+		PublicDependencyModuleNames.AddRange(new string[]{"ProceduralMeshComponent"});
+		
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		// Uncomment if you are using Slate UI
@@ -21,6 +25,7 @@ public class exactoSim : ModuleRules
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 		AddBullet();
+		AddAssimp();
 	}
 	private string ThirdPartyPath
 	{
@@ -49,5 +54,21 @@ public class exactoSim : ModuleRules
 		PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "bullet3", "src"));
 		PublicDefinitions.Add("WITH_BULLET_BINDING=1");
 
+	}
+
+	protected void AddAssimp()
+	{
+		bool bDebug = Target.Configuration == UnrealTargetConfiguration.Debug || Target.Configuration == UnrealTargetConfiguration.DebugGame;
+		bool bDevelopment = Target.Configuration == UnrealTargetConfiguration.Development;
+		
+		string buildFolder = bDebug ? "Debug" :
+			bDevelopment ? "RelWithDebInfo" : "Release";
+		string buildSuffix = bDebug ? "d" : "";
+		
+		
+		string librariesPath = Path.Combine(ThirdPartyPath, "assimp", "build", "code", buildFolder);
+		PublicAdditionalLibraries.Add(Path.Combine(librariesPath, "assimp-vc142-mt" + buildSuffix + ".lib" ));
+		
+		PublicIncludePaths.Add(Path.Combine(ThirdPartyPath, "assimp", "lib", "include"));
 	}
 }

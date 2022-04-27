@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Common/ExSimFileManager.h"
 #include "GameFramework/Actor.h"
+#include "ProceduralMeshComponent.h"
 #include "exactoWorld.generated.h"
 UCLASS()
 class EXACTOSIM_API AExactoWorld : public AActor
@@ -13,6 +15,9 @@ class EXACTOSIM_API AExactoWorld : public AActor
 public:
 	// Sets default values for this actor's properties
 	AExactoWorld();
+
+	AExSimFileManager * ExFileManager;
+	UProceduralMeshComponent * Mesh;
 
 protected:
 	// Called when the game starts or when spawned

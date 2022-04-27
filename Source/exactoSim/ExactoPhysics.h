@@ -14,6 +14,8 @@
 #include "BulletSpec/BulletCustomMotionState.h"
 #include "BulletSpec/BulletDebugDraw.h"
 #include "BulletSpec/BulletDynamicComponent.h"
+#include "DataTypes/FExConstraintParams.h"
+#include "Scene/ExCollideResult.h"
 #include "ExactoPhysics.generated.h"
 
 UCLASS()
@@ -22,6 +24,34 @@ class EXACTOSIM_API AExactoPhysics : public AActor
 	GENERATED_BODY()
 	
 public:	//variables
+	//struct for body constructor
+	struct ConnectedBodies
+	{
+		AActor * target;
+		AActor * parent;
+		btRigidBody * trg_body;
+		btTypedConstraint * trg_constr;
+		FVector axis_t;
+		FVector axis_p;
+		FVector pivot_t;
+		FVector pivot_p;
+		FString name_t;
+		FString name_p;
+		BulletHelpers::Constr constr_type;
+		uint8_t en_spring[6];
+		FVector upp_lim_lin;
+		FVector low_lim_lin;
+		FVector upp_lim_ang;
+		FVector low_lim_ang;
+
+		FVector stiff_lin;
+		FVector stiff_ang;
+
+		FVector dump_lin;
+		FVector dump_ang;
+	};
+	
+		
 	// Global objects
 	btCollisionConfiguration* BtCollisionConfig;
 	btCollisionDispatcher* BtCollisionDispatcher;
@@ -73,6 +103,10 @@ public:	//variables
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bullet Physics|Options")
 		bool bPhysicsShowDebug = false;
 	// I chose not to use spinning / rolling friction in the end since it had issues!
+private:
+	//ExCollideResult * TestCollider = nullptr;
+	ExCollideResult * cbbbb = nullptr;
+	ExSensorData OutputData;
 public: //functions
 	// Sets default values for this actor's properties
 	AExactoPhysics();
@@ -106,9 +140,14 @@ public:
 	void SetupStaticGeometryPhysics(TArray<AActor*> Actors, float Friction, float Restitution);
 	const CachedDynamicShapeData& GetCachedDynamicShapeData(AActor* Actor, float Mass);
 
-	btRigidBody* AddRigidBody(AActor* Actor);
+	btRigidBody* AddRigidBody(AActor* Actor, float Mass = 1.0f);
 	btRigidBody* AddRigidBody(AActor* Actor, const CachedDynamicShapeData& ShapeData, float Friction, float Restitution);
 	btRigidBody* AddRigidBody(AActor* Actor, btCollisionShape* CollisionShape, btVector3 Inertia, float Mass, float Friction, float Restitution);
 
+	void AddComplexBody(TArray<ConnectedBodies> * system);
+
+	btTypedConstraint * createConstraint(btRigidBody * target, btRigidBody * parent, FExConstraintParams params);
+
 	void removeRigidBody(btRigidBody * body);
+	void removeConstrain(btTypedConstraint * constr);
 };
