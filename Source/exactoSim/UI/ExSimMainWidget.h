@@ -223,12 +223,12 @@ private:
 	UClass * OptionClass;
 	UClass * ComboClass;
 
-	AExSimStorage::es_component * CurrentActor;
-	AExSimStorage::es_constraint_pair * CurrentConstraint;
-	TArray<AExSimStorage::es_constraint_pair *> ConstrPairList;
+	ExSimComponent * CurrentActor;
+	ExSimConstraintPair * CurrentConstraint;
+	TArray<ExSimConstraintPair *> ConstrPairList;
 	
-	AExSimStorage::es_component * TargetActor;
-	AExSimStorage::es_component * ParentActor;
+	ExSimComponent * TargetActor;
+	ExSimComponent * ParentActor;
 	BulletHelpers::Constr SelectedConstraintType = BulletHelpers::Constr::NONE;
 
 	

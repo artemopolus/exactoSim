@@ -17,11 +17,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		AActor * RenBody;
 	AExSmplBox();
-	void setEScomponent(AExSimStorage::es_component * trg);
-	AExSimStorage::es_component * getEScomponent();
+	void setEScomponent(ExSimComponent * trg);
+	ExSimComponent * getEScomponent();
 	
 private:
-	AExSimStorage::es_component * ESCompPtr = nullptr;
+	ExSimComponent * ESCompPtr = nullptr;
 
 protected:
 	// Called when the game starts or when spawned

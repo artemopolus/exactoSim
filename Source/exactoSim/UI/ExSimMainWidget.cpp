@@ -212,9 +212,10 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 
 
 			FString out = TEXT("Constraint  pairs list:\n");
-			for(int i = 0; i < CurrentActor->Constraints.Num(); i++)
+			auto cstr = *CurrentActor->getConstraints();
+			for(int i = 0; i < cstr.Num(); i++)
 			{
-				const FString n = CurrentActor->Constraints[i]->name;
+				const FString n = cstr[i]->getName();
 				addButtonToTempList(n, i);
 				out += FString::FromInt(i) + TEXT("\t ") + n + TEXT("\n");
 			}
@@ -340,7 +341,8 @@ void UExSimMainWidget::onTempListButtonClicked()
 			}
 			else if (ButtonTempList[i]->tag  > -1)
 			{
-				auto * constraint = CurrentActor->Constraints[ButtonTempList[i]->tag];
+				const auto cstr = *CurrentActor->getConstraints();
+				auto * constraint = cstr[ButtonTempList[i]->tag];
 				CurrentConstraint = constraint;
 				DataStorage->setOptVPP(constraint);
 				
@@ -394,12 +396,12 @@ void UExSimMainWidget::addConstraintButtonReset()
 
 AActor* UExSimMainWidget::getParentActor()
 {
-	return ParentActor->Target;
+	return ParentActor->getTarget();
 }
 
 AActor* UExSimMainWidget::getTargetActor()
 {
-	return TargetActor->Target;
+	return TargetActor->getTarget();
 }
 
 bool UExSimMainWidget::isParTrgPair()
@@ -520,7 +522,7 @@ void UExSimMainWidget::onOptionsButtonOkClicked()
 
 	params->constr_type = SelectedConstraintType;
 
-	DataStorage->createConstraint(ParentActor->Target, params);
+	DataStorage->createConstraint(ParentActor->getTarget(), params);
 }
 
 

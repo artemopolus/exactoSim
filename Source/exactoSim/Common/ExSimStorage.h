@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ExCommander.h"
 #include "exactoSim/exactoWorld.h"
+#include "exactoSim/DataTypes/ExSimComponent.h"
 #include "exactoSim/Scene/ExScene.h"
 #include "GameFramework/Actor.h"
 #include "ExSimStorage.generated.h"
@@ -56,49 +57,8 @@ public:
 		EXCT_DELETE,
 		EXCT_SWITCH
 	};
-	struct es_complex;
-	struct es_component;
-	struct es_constraint_pair
-	{
-		FString name;
-		es_component * parent;
-		btTypedConstraint *constraint;
-		BulletHelpers::Constr type;
-		FExConstraintParams * params;
-	};
-	struct es_component
-	{
-		FString Name;
-		FString Path;
-		AActor * Target;
-		btRigidBody * Body;
-		TArray<es_constraint_pair*> Constraints; 
-		es_complex * Basis;
-		es_component()
-		{
-			Target = nullptr;
-			Body = nullptr;
-			Basis = nullptr;
-		}
-		bool getConstraintNames(TArray<FString> * names);
-		bool addConstraint(FString name);
-		bool removeConstraint(FString name);
-		FString getName();
-		void setName(FString name);
-	};
-	struct es_complex
-	{
-		FString name;
-		es_component * basis;
-		TArray<es_component *> components;
-		es_complex()
-		{
-			name = "Default";
-			basis = nullptr;
-		}
-		
-	};
-	TArray<es_complex*> ExSimComplexList;
+	
+	TArray<ExSimComplex*> ExSimComplexList;
 	TMap<int, std::string> GenObjType;
 	TMap<int, std::string> ConstrType;
 	enum es_modes
@@ -125,7 +85,7 @@ private:
 	FRotator TargetRotation;
 	
 	ExCommander ConstraintCommander;
-	es_constraint_pair * CurrentConstraintPtr;
+	ExSimConstraintPair * CurrentConstraintPtr;
 
 
 	
@@ -156,7 +116,7 @@ public:
 	void createConstraint(AActor * target, FExConstraintParams * params);
 	void updateConstraint();
 	
-	bool getConstraint(const AActor * target, TArray<es_constraint_pair *> * constr);
+	bool getConstraint(const AActor * target, TArray<ExSimConstraintPair *> * constr);
 
 	void setSceneObjName(FString name, FString type_name);
 
@@ -171,27 +131,27 @@ public:
 	void manipulateGenerator(FVector loc, FRotator rot);
 
 	bool touchActor(AActor * actor, FString & output);
-	es_component * getExSmComponent(AActor * actor);
+	ExSimComponent * getExSmComponent(AActor * actor);
 	void pickActor(AActor * actor, FVector location);
 	void moveActor(FVector location);
 	void letActor();
 	bool getActorInfo(FVector & pos);
 
-	void saveExSimComplex(es_complex * target);
+	void saveExSimComplex(ExSimComplex * target);
 	
-	void convertExSimComplex(es_complex * target, const AExSimFileManager::es_complex_params * src);
+	void convertExSimComplex(ExSimComplex * target, const AExSimFileManager::es_complex_params * src);
 
 	void saveExSimComplex(int index);
 
 	void loadExSimComplex();
 
 	void resetOptVPP();
-	void setOptVPP(es_constraint_pair * params);
+	void setOptVPP(ExSimConstraintPair * params);
 
 	void updateConstraintCommand(EConstraintParamNames type, FString str);
 	void undoConstraintCommand();
 
 private:
-	void createComplex(es_component * component, FString new_complex_name);
+	void createComplex(ExSimComponent * component, FString new_complex_name);
 	
 };

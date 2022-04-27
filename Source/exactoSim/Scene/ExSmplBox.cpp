@@ -11,12 +11,12 @@ AExSmplBox::AExSmplBox()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AExSmplBox::setEScomponent(AExSimStorage::es_component* trg)
+void AExSmplBox::setEScomponent(ExSimComponent* trg)
 {
 	ESCompPtr = trg;
 }
 
-AExSimStorage::es_component* AExSmplBox::getEScomponent()
+ExSimComponent* AExSmplBox::getEScomponent()
 {
 	return ESCompPtr;
 }
