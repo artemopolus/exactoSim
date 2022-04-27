@@ -205,6 +205,40 @@ bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody*
 	return result;
 }
 
+bool AExScene::addObjByPath(ExSimComponent** component, const FString path, const FString name, float mass,
+	FVector location, FRotator rotation, bool use_genloc, FVector impulse, FVector impulse_pos)
+{
+	if (use_genloc && CurrentGenerator)
+	{
+		location = CurrentGenerator->GetActorLocation();
+		rotation = CurrentGenerator->GetActorRotation();
+	}
+	bool result = false;
+	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *path);
+	if ((obj != nullptr)&&ExPhyzX)
+	{
+		FActorSpawnParameters params;
+		params.Name = FName(name);
+		APawn *spawned_obj = static_cast<APawn*>(this->GetWorld()->SpawnActor(obj,&location, &rotation, params));
+		spawned_obj->Tags.Add(ToCStr(BaseTag));
+		spawned_obj->Tags.Add(ToCStr(PhysicsTag));
+		spawned_obj->Tags.Add(ToCStr(DynamicTag));
+		btRigidBody * body = ExPhyzX->AddRigidBody(spawned_obj, mass);
+		if (body)
+		{
+ 			AExSmplBox * target = static_cast<AExSmplBox*>(body->getUserPointer());
+			*component = new ExSimComponent();
+			target->setEScomponent(*component);
+			(*component)->setBody(body);
+			(*component)->setTarget( target );
+			(*component)->setName( name );
+			(*component)->setPath( path );
+			result = true;
+		}
+	}
+	return result;
+}
+
 
 void AExScene::addCarGen(FVector location, FRotator rotation)
 {
@@ -444,6 +478,15 @@ void AExScene::updateConstraint(btPoint2PointConstraint* c, FExConstraintParams*
 	}
 }
 
+void AExScene::updateConstraint(ExSimConstraintPair* pair)
+{
+	pair->setName(pair->getParams()->name_constraint);
+	if (pair->getParams()->constr_type == BulletHelpers::Constr::P2P)
+	{
+		btPoint2PointConstraint* p = static_cast<btPoint2PointConstraint*>(pair->getConstraint());
+		updateConstraint(p, pair->getParams());
+	}
+}
 
 
 btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FVector location)
@@ -527,6 +570,13 @@ void AExScene::pickTrgBody(btRigidBody* body, FVector location)
 		p2p->m_setting.m_tau = 0.001f;
 	}
 }
+
+void AExScene::pickTrgBody(ExSimComponent* component, FVector location)
+{
+	btRigidBody * body = component->getBody();
+	pickTrgBody(body, location);
+}
+
 
 void AExScene::moveTrgBody(FVector location)
 {

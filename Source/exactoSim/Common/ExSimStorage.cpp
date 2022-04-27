@@ -262,20 +262,6 @@ void AExSimStorage::createSceneObj()
 	{
 		FString path = ExWorld->ExFileManager->getPathToBlueprint(TargetType);
 		FString name = TargetName + TEXT("_") + TargetType + TEXT("_") + FString::FromInt(SceneObjCreated);
-		/*btRigidBody * body = nullptr;
-		if (CurrentScene->addObjByPath(path, name, &body))
-		{
-			if (!body)
-				return;
-			AExSmplBox * target = static_cast<AExSmplBox*>(body->getUserPointer());
-			es_component * component = new es_component();
-			target->setEScomponent(component);
-			component->body = body;
-			component->target = target;
-			es_complex * complex = ExSimComplexList[0]; //for free component
-			component->basis = complex;
-			complex->components.Add(component);
-		}*/
 		createSceneObj(name, path, 1.0f, FVector(0,0,0), FRotator(0,0,0), true);
 	}
 }
@@ -285,21 +271,15 @@ void AExSimStorage::createSceneObj(FString name, FString path, float mass, FVect
 	SceneObjCreated++;
 	if (CurrentScene)
 	{
-		btRigidBody * body = nullptr;
-		if (CurrentScene->addObjByPath(path, name, &body, mass, loc, rot, use_genloc))
+		ExSimComponent* component = nullptr;
+		if (CurrentScene->addObjByPath(&component, path, name, mass, loc, rot, use_genloc))
 		{
-			if (!body)
-				return;
-			AExSmplBox * target = static_cast<AExSmplBox*>(body->getUserPointer());
-			ExSimComponent * component = new ExSimComponent();
-			target->setEScomponent(component);
-			component->setBody( body);
-			component->setTarget( target);
-			component->setName( name);
-			component->setPath( path);
-			ExSimComplex * complex = ExSimComplexList[0]; //for free component
-			component->setBasis( complex);
-			complex->getComponents()->Add(component);			
+			if (component != nullptr)
+			{
+				ExSimComplex* complex = ExSimComplexList[0]; //for free component
+				component->setBasis(complex);
+				complex->getComponents()->Add(component);
+			}
 		}
 	}
 }
@@ -445,8 +425,7 @@ void AExSimStorage::pickActor(AActor* actor, FVector location)
 	if (actor&&CurrentScene)
 	{
 		AExSmplBox * target = static_cast<AExSmplBox*>(actor);
-		btRigidBody * body = target->getEScomponent()->getBody();
-		CurrentScene->pickTrgBody(body, location);
+		CurrentScene->pickTrgBody(target->getEScomponent(), location);
 	}
 }
 
@@ -618,12 +597,7 @@ void AExSimStorage::updateConstraint()
 {
 	if (CurrentScene&&CurrentConstraintPtr)
 	{
-		CurrentConstraintPtr->setName( CurrentConstraintPtr->getParams()->name_constraint);
-		if (CurrentConstraintPtr->getParams()->constr_type == BulletHelpers::Constr::P2P)
-		{
-			btPoint2PointConstraint * p = static_cast<btPoint2PointConstraint*>(CurrentConstraintPtr->getConstraint());
-			CurrentScene->updateConstraint(p, CurrentConstraintPtr->getParams());
-		}
+		CurrentScene->updateConstraint(CurrentConstraintPtr);
 	}
 }
 

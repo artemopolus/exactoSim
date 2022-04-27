@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "exactoSim/ExactoPhysics.h"
+#include "exactoSim/DataTypes/ExSimComponent.h"
 #include "GameFramework/Actor.h"
 #include "ExScene.generated.h"
 
@@ -69,7 +70,11 @@ public:
 	bool addObjByPath( const FString path, const FString name, btRigidBody ** body, float mass = 1.0f,
 		FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0), bool use_genloc = true,
 		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
-
+	
+	bool addObjByPath(ExSimComponent ** component, const FString path, const FString name, float mass = 1.0f,
+		FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0), bool use_genloc = true,
+		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
+	
 	void deleteSceneObjByPrefix(std::string prefix);
 
 	void generateCar();
@@ -79,12 +84,14 @@ public:
 	void removeConstrain();
 
 	void updateConstraint(btPoint2PointConstraint * c, FExConstraintParams * params);
+	void updateConstraint(ExSimConstraintPair * pair);
 
 	btTypedConstraint * fixP2PBody(btRigidBody * body, FVector location);
 	btTypedConstraint * fixP2PBody(btRigidBody * body, FExConstraintParams * params);
 	
 	btTypedConstraint * fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params);
 	void pickTrgBody(btRigidBody * body, FVector location);
+	void pickTrgBody(ExSimComponent * component, FVector location);
 	void moveTrgBody(FVector location);
 	void letTrgBody();
 	bool getTrgBody(AActor ** actor);
