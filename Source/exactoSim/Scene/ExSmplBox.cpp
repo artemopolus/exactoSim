@@ -11,6 +11,16 @@ AExSmplBox::AExSmplBox()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AExSmplBox::setEScomponent(ExSimComponent* trg)
+{
+	ESCompPtr = trg;
+}
+
+ExSimComponent* AExSmplBox::getEScomponent()
+{
+	return ESCompPtr;
+}
+
 // Called when the game starts or when spawned
 void AExSmplBox::BeginPlay()
 {

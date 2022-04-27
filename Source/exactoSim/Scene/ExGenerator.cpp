@@ -11,6 +11,13 @@ AExGenerator::AExGenerator()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GeneratedObjPrefix = "gen_obj_";
+	GenObjInfo.enabled = false;
+	GenObjInfo.prefix = "Class'/Game/Blueprint/";
+	GenObjInfo.folder = "Scene/";
+	GenObjInfo.genobjcnt = 0;
+	GenObjInfo.genobjname = "gen_obj_";
+	GenObjInfo.name = "Simple";
+	GenObjInfo.name_prefix = "BP_ExSmplBox_";
 }
 
 void AExGenerator::generateObj()
@@ -24,10 +31,9 @@ void AExGenerator::generateObj(FVector impulse)
 {
 	if (ParentScene)
 	{
-		FVector my_loc =  this->GetActorLocation();
-		FRotator my_rot = this->GetActorRotation();
+
 		//my	_loc.Y += 100;
-		const std::string name = GeneratedObjPrefix + std::to_string(GenObjectCount++);
+		/*const std::string name = GeneratedObjPrefix + std::to_string(GenObjectCount++);
 		static uint8_t i = 0;
 		i++;
 		std::string path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox.BP_ExSmplBox_C'";
@@ -43,8 +49,18 @@ void AExGenerator::generateObj(FVector impulse)
 		basis = "BP_ExSmplBox_Shoes";
 		basis = "BP_ExSmplBox_Book";
 		basis = "BP_ExSmplBox_Folder";
-		path = prefix + folder_path + basis + "." + basis + suffix;
-		ParentScene->addObjByPath(my_loc, my_rot, path, name, impulse);
+		path = prefix + folder_path + basis + "." + basis + suffix;*/
+		if (GenObjInfo.enabled)
+		{
+			const std::string name_output = GenObjInfo.genobjname + std::to_string(GenObjInfo.genobjcnt++);
+			FVector my_loc =  this->GetActorLocation();
+			FRotator my_rot = this->GetActorRotation();
+			const std::string path = getPathTo();
+			UE_LOG(LogTemp, Warning, TEXT("Path to generated object: %s "), *FString(path.c_str())  );
+			
+			ParentScene->addObjByPath(my_loc, my_rot, path, name_output, impulse);
+			
+		}
 	}
 }
 
@@ -56,6 +72,27 @@ void AExGenerator::setGeneratedObjPrefix(std::string name)
 std::string AExGenerator::getGeneratedObjPrefix()
 {
 	return GeneratedObjPrefix;
+}
+
+
+
+void AExGenerator::setGenObjInfo(AExScene::actor_info info)
+{
+	GenObjInfo = info;
+}
+
+void AExGenerator::setGenObjInfo(std::string name)
+{
+	GenObjInfo.name = name;
+	if (GenObjInfo.enabled == false)
+		GenObjInfo.enabled = true;
+}
+
+std::string AExGenerator::getPathTo()
+{
+	const std::string suffix = "_C'";
+	const std::string trg_name = GenObjInfo.name_prefix + GenObjInfo.name;
+	return  GenObjInfo.prefix + GenObjInfo.folder + trg_name + "." + trg_name + suffix;
 }
 
 // Called when the game starts or when spawned

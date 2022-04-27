@@ -29,6 +29,7 @@ class btCompoundShape;
 class btSphereShape;
 class btRigidBody;
 class btCollisionObject;
+class btCollisionWorld;
 
 PRAGMA_POP_PLATFORM_DEFAULT_PACKING
 THIRD_PARTY_INCLUDES_END

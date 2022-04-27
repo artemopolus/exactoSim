@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "exactoSim/Common/ExSimStorage.h"
 #include "GameFramework/Actor.h"
 #include "ExSmplBox.generated.h"
 
@@ -16,6 +17,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		AActor * RenBody;
 	AExSmplBox();
+	void setEScomponent(ExSimComponent * trg);
+	ExSimComponent * getEScomponent();
+	
+private:
+	ExSimComponent * ESCompPtr = nullptr;
 
 protected:
 	// Called when the game starts or when spawned

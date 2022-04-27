@@ -2,6 +2,7 @@
 
 #pragma once
 
+
 #include "CoreMinimal.h"
 #include "ExScene.h"
 #include "GameFramework/Actor.h"
@@ -9,25 +10,24 @@
 #include "exactoSim/ExactoPhysics.h"
 #include "ExGenerator.generated.h"
 
+
 UCLASS()
 class EXACTOSIM_API AExGenerator : public AActor
 {
 	GENERATED_BODY()
 
+
 public:
-	// Sets default values for this actor's properties
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		TArray<AExSmplBox*> targets;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		AExactoPhysics * ExPhyzX;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-		AExScene * ParentScene;
 	AExGenerator();
 
-	void generateObj();
-	void generateObj(FVector impulse);
+	virtual void generateObj();
+	virtual void generateObj(FVector impulse);
 	void setGeneratedObjPrefix(std::string name);
 	std::string getGeneratedObjPrefix();
+	void setGenObjInfo(AExScene::actor_info info);
+	void setGenObjInfo(std::string name);
+private:
+	std::string getPathTo();
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,6 +38,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 private:
 	int GenObjectCount = 0;
-	TArray<btRigidBody*> GenBody;
 	std::string GeneratedObjPrefix;
+	AExScene::actor_info GenObjInfo;
+
+public:
+	// Sets default values for this actor's properties
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TArray<AExSmplBox*> targets;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		AExactoPhysics * ExPhyzX;*/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+		AExScene * ParentScene;
 };
