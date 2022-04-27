@@ -1,6 +1,7 @@
 #pragma once
 #include <BulletDynamics/ConstraintSolver/btTypedConstraint.h>
 
+#include "ExSimPhyzHelpers.h"
 #include "exactoSim/BulletSpec/BulletHelpers.h"
 #include "FExConstraintParams.generated.h"
 
@@ -32,14 +33,14 @@ struct FExConstraintParams
 	FString name_t;
 	FString name_constraint;
 	uint8_t en_spring[6];
-	BulletHelpers::Constr constr_type;
+	ExSimPhyzHelpers::Constraint constr_type;
 	TArray<bool> enable_spring;
 
 	FExConstraintParams()
 	{
 		constraint = nullptr;
 		parent = nullptr;
-		constr_type = BulletHelpers::Constr::NONE;
+		constr_type = ExSimPhyzHelpers::Constraint::NONE;
 		en_spring[0] = 0;
 		en_spring[1] = 0;
 		en_spring[2] = 0;

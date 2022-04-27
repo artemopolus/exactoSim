@@ -481,7 +481,7 @@ void AExScene::updateConstraint(btPoint2PointConstraint* c, FExConstraintParams*
 void AExScene::updateConstraint(ExSimConstraintPair* pair)
 {
 	pair->setName(pair->getParams()->name_constraint);
-	if (pair->getParams()->constr_type == BulletHelpers::Constr::P2P)
+	if (pair->getParams()->constr_type == ExSimPhyzHelpers::Constraint::P2P)
 	{
 		btPoint2PointConstraint* p = static_cast<btPoint2PointConstraint*>(pair->getConstraint());
 		updateConstraint(p, pair->getParams());

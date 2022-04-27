@@ -2,7 +2,6 @@
 
 
 #include "ExSimStorage.h"
-#include "exactoSim/BulletSpec/BulletMinimal.h"
 #include "exactoSim/Utils/ExConvert.h"
 #include <string>
 
@@ -23,11 +22,11 @@ AExSimStorage::AExSimStorage()
 	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SHOE,			std::string ("Shoe"));
 	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_TREE_STICK,		std::string ("Stick"));
 
-	ConstrType.Add(BulletHelpers::Constr::HINGE,			std::string("Hinge"));
-	ConstrType.Add(BulletHelpers::Constr::HINGE2,			std::string("Hinge2"));
-	ConstrType.Add(BulletHelpers::Constr::GEN6DOF_SPRING,	std::string("Gen6DOF_Spring"));
-	ConstrType.Add(BulletHelpers::Constr::P2P, std::string("P2P"));
-	ConstrType.Add(BulletHelpers::Constr::NONE, std::string(""));
+	ConstrType.Add(ExSimPhyzHelpers::Constraint::HINGE,			std::string("Hinge"));
+	ConstrType.Add(ExSimPhyzHelpers::Constraint::HINGE2,			std::string("Hinge2"));
+	ConstrType.Add(ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING,	std::string("Gen6DOF_Spring"));
+	ConstrType.Add(ExSimPhyzHelpers::Constraint::P2P, std::string("P2P"));
+	ConstrType.Add(ExSimPhyzHelpers::Constraint::NONE, std::string(""));
 	
 	ModeList.Add(es_modes::EDIT,FString("Edit"));
 	ModeList.Add(es_modes::MOVE, FString("Move"));
@@ -111,7 +110,7 @@ void AExSimStorage::BeginPlay()
 				pp->pivot_t = magnet_relpivot0;
 				pp->pivot_p = component->getTarget()->GetActorLocation();
 				pp->name_p = component->getName();
-				pp->constr_type = BulletHelpers::Constr::P2P;
+				pp->constr_type = ExSimPhyzHelpers::Constraint::P2P;
 				p->setParams(pp);
 				component->getConstraints()->Add(p);
 
@@ -123,7 +122,7 @@ void AExSimStorage::BeginPlay()
 				pp1->pivot_t = magnet_relpivot1;
 				pp1->pivot_p = component->getTarget()->GetActorLocation();
 				pp1->name_p = component->getName();
-				pp1->constr_type = BulletHelpers::Constr::P2P;
+				pp1->constr_type = ExSimPhyzHelpers::Constraint::P2P;
 				p1->setParams(pp1);
 				component->getConstraints()->Add(p1);
 				
@@ -174,7 +173,7 @@ void AExSimStorage::BeginPlay()
 				fix_params->pivot_t = FVector(0,0,20);
 				fix_params->pivot_p = spring->getTarget()->GetActorLocation();
 				fix_params->name_p = spring->getName();
-				fix_params->constr_type = BulletHelpers::Constr::P2P;
+				fix_params->constr_type = ExSimPhyzHelpers::Constraint::P2P;
 				p->setParams( fix_params);
 				spring->getConstraints()->Add(p);
 
@@ -306,7 +305,7 @@ void AExSimStorage::createConstraint(AActor* target, AActor* parent, FExConstrai
 
 void AExSimStorage::createConstraint(AActor* target, FExConstraintParams * params)
 {
-	if (params->constr_type != BulletHelpers::Constr::P2P)
+	if (params->constr_type != ExSimPhyzHelpers::Constraint::P2P)
 		return;
 	AExSmplBox * actor = static_cast<AExSmplBox*>(target);
 	ExSimComponent * component = actor->getEScomponent();
@@ -568,7 +567,7 @@ void AExSimStorage::resetOptVPP()
     OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::en_spring], "0; 0; 0; 0; 0; 0");
     OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_name], name_str);
     OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_name], name_str);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], BulletHelpers::getNameOfConstraint(BulletHelpers::Constr::NONE));
+	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameOfConstraint(ExSimPhyzHelpers::Constraint::NONE));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name],name_str);
 }
 
@@ -589,7 +588,7 @@ void AExSimStorage::setOptVPP(ExSimConstraintPair* params)
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_ang], ExConvert::getStrFromVec(params->getParams()->dump_ang));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_name], params->getParams()->name_p);
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_name], params->getParams()->name_t);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], BulletHelpers::getNameOfConstraint(params->getParams()->constr_type));
+	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameOfConstraint(params->getParams()->constr_type));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name], (params->getParams()->name_constraint));
 }
 

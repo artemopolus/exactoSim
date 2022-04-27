@@ -207,7 +207,7 @@ private:
 	int brushBufferSize;
 
 	int GenObjKey = 0;
-	int ConstrKey = BulletHelpers::Constr::NONE;
+	int ConstrKey = ExSimPhyzHelpers::Constraint::NONE;
 
 	
 	
@@ -229,7 +229,7 @@ private:
 	
 	ExSimComponent * TargetActor;
 	ExSimComponent * ParentActor;
-	BulletHelpers::Constr SelectedConstraintType = BulletHelpers::Constr::NONE;
+	ExSimPhyzHelpers::Constraint SelectedConstraintType = ExSimPhyzHelpers::Constraint::NONE;
 
 	
 	

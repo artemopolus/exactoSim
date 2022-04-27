@@ -99,7 +99,7 @@ bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames typ
 	return true;
 }
 
-bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, BulletHelpers::Constr val)
+bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, ExSimPhyzHelpers::Constraint val)
 {
 	if (type == EConstraintParamNames::constraint_t)
 		trg->constr_type = val;
@@ -156,7 +156,7 @@ bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, 
 	return true;
 }
 
-bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, BulletHelpers::Constr* trg)
+bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, ExSimPhyzHelpers::Constraint* trg)
 {
 	if (type == EConstraintParamNames::constraint_t)
 		*trg = src->constr_type;

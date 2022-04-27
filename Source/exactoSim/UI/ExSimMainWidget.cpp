@@ -167,7 +167,7 @@ void UExSimMainWidget::onApplyConstrButtonClicked()
 	while(str == nullptr)
 	{
 		str = DataStorage->ConstrType.Find(++ConstrKey);
-		if (ConstrKey >= BulletHelpers::Constr::NONE)
+		if (ConstrKey >= ExSimPhyzHelpers::Constraint::NONE)
 			ConstrKey = -1;
 	}	
 	if (str != nullptr)
@@ -561,15 +561,15 @@ void UExSimMainWidget::getInputTableOptions()
 	if (!OptionValuePairs)
 		OptionValuePairs = &DataStorage->OptionValuePairsPtr;
     
-	SelectedConstraintType = BulletHelpers::Constr::GEN6DOF_SPRING;
+	SelectedConstraintType = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
 }
 
 void UExSimMainWidget::addInputTable()
 {
 	UExComboWidget * bt = CreateWidget<UExComboWidget>(this, ComboClass);
     StorageWrapBox->AddChild(bt);
-	for (int i = 0; i < static_cast<int>(BulletHelpers::NONE); i++)
-		bt->ValueComboBox->AddOption(BulletHelpers::getNameOfConstraint(static_cast<BulletHelpers::Constr>(i)));
+	for (int i = 0; i < static_cast<int>(ExSimPhyzHelpers::NONE); i++)
+		bt->ValueComboBox->AddOption(ExSimPhyzHelpers::getNameOfConstraint(static_cast<ExSimPhyzHelpers::Constraint>(i)));
 	
 	for (TTuple<EConstraintParamNames, FString>  option : DataStorage->OptionNamesPtr)
 	{
@@ -582,7 +582,7 @@ void UExSimMainWidget::addInputTable()
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
 
-	FString out = TEXT("Add table") + BulletHelpers::getNameOfConstraint(SelectedConstraintType);
+	FString out = TEXT("Add table") + ExSimPhyzHelpers::getNameOfConstraint(SelectedConstraintType);
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
 }
@@ -644,7 +644,7 @@ void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 	if (!OptionValuePairs)
 		OptionValuePairs = &DataStorage->OptionValuePairsPtr;
 
-	SelectedConstraintType = BulletHelpers::Constr::GEN6DOF_SPRING;
+	SelectedConstraintType = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
 	addInputTable();
 }
 
