@@ -8,7 +8,8 @@ void ExConstraintDict::updateNames(TMap<EConstraintParamNames, FString>* trg, Ex
 		trg->Empty();
 	if (type == ExSimPhyzHelpers::Constraint::P2P)
 	{
-		trg->Add(EConstraintParamNames::parent_pivot,TEXT("Parent Pivot"));
+		trg->Add(EConstraintParamNames::parent_pivot,TEXT("1st Pivot"));
+		trg->Add(EConstraintParamNames::target_pivot,TEXT("2st Pivot"));
 		trg->Add(EConstraintParamNames::tau,TEXT("Tau"));
 		trg->Add(EConstraintParamNames::impulse_clamp, TEXT("Impulse Clamp"));
 		trg->Add(EConstraintParamNames::constraint_name,TEXT("P2P name"));
@@ -25,6 +26,7 @@ void ExConstraintDict::updateNames(TMap<EConstraintParamNames, FString>* trg, Ex
 		trg->Add(EConstraintParamNames::stiff_lin,TEXT("Linear stiffness"));
 		trg->Add(EConstraintParamNames::dump_lin,TEXT("Linear dumpling"));
 		trg->Add(EConstraintParamNames::constraint_name,TEXT("G6DOF Spring name"));
+		trg->Add(EConstraintParamNames::enables_spring, TEXT("Spring axis on"));
 		return;
 	}
 }
@@ -50,6 +52,8 @@ void ExConstraintDict::updateValues(TMap<EConstraintParamNames, FString>* trg, F
 
 	trg->FindOrAdd(EConstraintParamNames::tau) = ExConvert::getStrFromFloat(params->tau);
 	trg->FindOrAdd(EConstraintParamNames::impulse_clamp) = ExConvert::getStrFromFloat(params->impulse_clamp);
+
+	trg->FindOrAdd(EConstraintParamNames::enables_spring) = ExConvert::getBoolStrFromInt(params->enables_spring, 6);
 
 	trg->FindOrAdd(EConstraintParamNames::constraint_t) = ExSimPhyzHelpers::getNameFromConstraint(params->constr_type); 
 	

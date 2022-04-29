@@ -38,6 +38,7 @@ struct FExConstraintParams
 
 	float tau;
 	float impulse_clamp;
+	int enables_spring;
 
 	FExConstraintParams()
 	{
@@ -55,6 +56,7 @@ struct FExConstraintParams
 		upp_lim_ang = low_lim_lin = upp_lim_lin = low_lim_ang = FVector::ZeroVector;
 		stiff_ang = stiff_lin = dump_ang = dump_lin = FVector::ZeroVector;
 		tau = 0; impulse_clamp = 0;
+		enables_spring = 0;
 	}
 };
 
@@ -87,6 +89,9 @@ enum class EConstraintParamNames : int
 	float_start,
 	tau,
 	impulse_clamp,
+	//
+	int_start,
+	enables_spring,
 	opt_end
 };
 
