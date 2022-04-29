@@ -10,6 +10,57 @@ FString ExConvert::getStrFromFloat(float val)
 	return FString::SanitizeFloat(val);
 }
 
+FString ExConvert::getBoolStrFromInt(uint8_t val, int last)
+{
+	FString out = "";
+	for(int i = 1, k = 0;k < last; i*=2, k++)
+	{
+		if(val&i)
+			out += " 1;";
+		else
+			out += " 0;";
+	}
+	return out;
+}
+bool ExConvert::getBoolArrayFromInt(uint8_t val, TArray<bool>* out, int last)
+{
+	if (val == 0)
+		return false;
+	for (int i = 1, k = 0; k < last; i *= 2, k++)
+	{
+		if (val & i)
+			out->Add(true);
+		else
+			out->Add(false);
+	}
+	return true;
+}
+bool ExConvert::getIntFromBoolStr(FString str, uint8_t* out)
+{
+	TArray<FString> values;
+	FString blank = str;
+	blank.RemoveSpacesInline();
+	blank.ParseIntoArray(values, TEXT(";"), true);
+	int i = 1;
+	*out = 0;
+	if (!values.Num())
+		return false;
+	for (auto v : values)
+	{
+		if (v == "1")
+		{
+			*out += i;
+			i *= 2;
+		}
+		else if (v == "0")
+			i *= 2;
+		else return false;
+	}
+	return true;
+}
+
+
+
 FVector ExConvert::getVecFromStr(FString str)
 {
 	TArray<FString> values;
@@ -110,6 +161,19 @@ bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames typ
 
 bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, float val)
 {
+	if (type == EConstraintParamNames::impulse_clamp)
+		trg->impulse_clamp = val;
+	else if (type == EConstraintParamNames::tau)
+		trg->tau = val;
+	else return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, int val)
+{
+	if (type == EConstraintParamNames::enables_spring)
+		trg->enables_spring = val;
+	else return false;
 	return true;
 }
 
@@ -167,5 +231,20 @@ bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, 
 
 bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, float* trg)
 {
+	if (type == EConstraintParamNames::impulse_clamp)
+		*trg = src->impulse_clamp;
+	else if (type == EConstraintParamNames::tau)
+		*trg = src->tau;
+	else
+		return false;
+	return true;
+}
+
+bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, int* trg)
+{
+	if (type == EConstraintParamNames::enables_spring)
+		*trg = src->enables_spring;
+	else
+		return false;
 	return true;
 }
