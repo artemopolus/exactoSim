@@ -36,6 +36,9 @@ struct FExConstraintParams
 	ExSimPhyzHelpers::Constraint constr_type;
 	TArray<bool> enable_spring;
 
+	float tau;
+	float impulse_clamp;
+
 	FExConstraintParams()
 	{
 		constraint = nullptr;
@@ -48,9 +51,10 @@ struct FExConstraintParams
 		en_spring[4] = 0;
 		en_spring[5] = 0;
 		axis_p = axis_t = pivot_t = pivot_p = FVector::ZeroVector;
-		name_p = name_t = "";
+		name_p = name_t = "Default";
 		upp_lim_ang = low_lim_lin = upp_lim_lin = low_lim_ang = FVector::ZeroVector;
 		stiff_ang = stiff_lin = dump_ang = dump_lin = FVector::ZeroVector;
+		tau = 0; impulse_clamp = 0;
 	}
 };
 
@@ -80,8 +84,17 @@ enum class EConstraintParamNames : int
 	en_spring,
 	constraint_t,
 	//
+	float_start,
+	tau,
+	impulse_clamp,
 	opt_end
 };
 
-
+class EXACTOSIM_API ExConstraintDict
+{
+public:
+	static void updateNames(TMap<EConstraintParamNames, FString> * trg, ExSimPhyzHelpers::Constraint type);
+	static void updateValues(TMap<EConstraintParamNames, FString> * trg, FExConstraintParams * params);
+	static void getNameValuePairs(TMap<EConstraintParamNames, FString> * names, TMap<EConstraintParamNames, FString> * values, TMap<FString, FString> * trg);
+};
 
