@@ -569,7 +569,7 @@ void UExSimMainWidget::addInputTable()
 	UExComboWidget * bt = CreateWidget<UExComboWidget>(this, ComboClass);
     StorageWrapBox->AddChild(bt);
 	for (int i = 0; i < static_cast<int>(ExSimPhyzHelpers::NONE); i++)
-		bt->ValueComboBox->AddOption(ExSimPhyzHelpers::getNameOfConstraint(static_cast<ExSimPhyzHelpers::Constraint>(i)));
+		bt->ValueComboBox->AddOption(ExSimPhyzHelpers::getNameFromConstraint(static_cast<ExSimPhyzHelpers::Constraint>(i)));
 	
 	for (TTuple<EConstraintParamNames, FString>  option : DataStorage->OptionNamesPtr)
 	{
@@ -582,7 +582,7 @@ void UExSimMainWidget::addInputTable()
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
 
-	FString out = TEXT("Add table") + ExSimPhyzHelpers::getNameOfConstraint(SelectedConstraintType);
+	FString out = TEXT("Add table") + ExSimPhyzHelpers::getNameFromConstraint(SelectedConstraintType);
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
 }
