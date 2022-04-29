@@ -88,7 +88,9 @@ public:
 
 	btTypedConstraint * fixP2PBody(btRigidBody * body, FVector location);
 	btTypedConstraint * fixP2PBody(btRigidBody * body, FExConstraintParams * params);
-	
+	ExSimConstraintPair * fixP2P(ExSimComponent * component, FExConstraintParams * params);
+
+	ExSimConstraintPair* AExScene::fixGen6dofSpring(ExSimComponent* comp_a, ExSimComponent* comp_b, FExConstraintParams* params);
 	btTypedConstraint * fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params);
 	void pickTrgBody(btRigidBody * body, FVector location);
 	void pickTrgBody(ExSimComponent * component, FVector location);

@@ -172,29 +172,41 @@ void AExSimStorage::BeginPlay()
 
 		if (spring)
 		{
-				ExSimConstraintPair * p = new ExSimConstraintPair();
-				p->setConstraint( CurrentScene->fixP2PBody(spring->getBody(), FVector(0,0,20)));
-				p->setType(ExSimPhyzHelpers::Constraint::P2P);
-				p->setName( magnet_name);
-				FExConstraintParams * fix_params = new FExConstraintParams();
-				fix_params->pivot_t = FVector(0,0,20);
-				fix_params->pivot_p = spring->getTarget()->GetActorLocation();
-				fix_params->name_p = spring->getName();
-				fix_params->constr_type = ExSimPhyzHelpers::Constraint::P2P;
-				p->setParams( fix_params);
-				spring->getConstraints()->Add(p);
+			FExConstraintParams* fix_params = new FExConstraintParams();
+			fix_params->pivot_p = FVector(0, 0, 20);
+			fix_params->pivot_t = spring->getTarget()->GetActorLocation();
+			fix_params->name_p = spring->getName();
+			fix_params->constr_type = ExSimPhyzHelpers::Constraint::P2P;
+			fix_params->name_constraint = TEXT("P2P magnet");
+			fix_params->impulse_clamp = 30.f;
+			fix_params->tau = 0.001f;
+			
+			// ExSimConstraintPair* p = new ExSimConstraintPair();
+			// p->setConstraint(CurrentScene->fixP2PBody(spring->getBody(), FVector(0, 0, 20)));
+			// p->setType(ExSimPhyzHelpers::Constraint::P2P);
+			// p->setName(magnet_name);
+			// p->setParams(fix_params);
+			
+			ExSimConstraintPair* p = CurrentScene->fixP2P(spring, fix_params);
+			spring->getConstraints()->Add(p);
 
-				ExSimConstraintPair * gen = new ExSimConstraintPair();
-				gen->setConstraint( CurrentScene->fixGen6dofSpring(target->getBody(), spring->getBody(), *params));
-				gen->setType(ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING);
-				gen->setName( "Spring Imitator");
-				gen->setParent(target);	
-				gen->getConstraint()->setUserConstraintPtr(gen);
-				params->name_p = target->getName();
-				params->name_t = spring->getName();
+				
+
+				params->enables_spring = 7;
 				params->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
-
-				gen->setParams( params);
+				params->name_constraint = TEXT("Spring imitator");
+				ExSimConstraintPair * gen = CurrentScene->fixGen6dofSpring(target,spring,params);
+				// ExSimConstraintPair * gen = new ExSimConstraintPair();
+				//
+				// gen->setConstraint( CurrentScene->fixGen6dofSpring(target->getBody(), spring->getBody(), *params));
+				// gen->setType(ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING);
+				// gen->setName( "Spring Imitator");
+				// gen->setParent(target);	
+				// gen->getConstraint()->setUserConstraintPtr(gen);
+				// params->name_p = target->getName();
+				// params->name_t = spring->getName();
+				//
+				// gen->setParams( params);
 
 				spring->getConstraints()->Add(gen);
 
@@ -630,6 +642,7 @@ void AExSimStorage::undoConstraintCommand()
 {
 	ConstraintCommander.undo();
 	//update constraint
+	updateConstraint();
 	if (EssEvOnConstraintChanged.IsBound())
 	{
 		EssEvOnConstraintChanged.Broadcast(-1, TEXT("None"));

@@ -475,6 +475,7 @@ void AExScene::updateConstraint(btPoint2PointConstraint* c, FExConstraintParams*
 	{
 		const btVector3 p = BulletHelpers::ToBtSize(params->pivot_p);
 		c->setPivotA(p);
+		c->setPivotB(BulletHelpers::ToBtSize(params->pivot_t));
 		c->m_setting.m_tau = params->tau;
 		c->m_setting.m_impulseClamp = params->impulse_clamp;
 	}
@@ -532,6 +533,71 @@ btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FExConstraintParams* 
 		return p2p;
 	}
 	return nullptr;
+}
+
+ExSimConstraintPair* AExScene::fixP2P(ExSimComponent* component, FExConstraintParams* params)
+{
+	if (!component && !params && params->constr_type == ExSimPhyzHelpers::NONE && !component->getBody())
+		return nullptr;
+	btRigidBody* body = component->getBody();
+	body->setActivationState(DISABLE_DEACTIVATION);
+	const btVector3 pivot = BulletHelpers::ToBtSize(params->pivot_p);
+	btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body, pivot);
+	ExPhyzX->BtWorld->addConstraint(p2p);
+	p2p->m_setting.m_impulseClamp = params->impulse_clamp;
+	p2p->m_setting.m_tau = params->tau;
+	ExSimConstraintPair* p = new ExSimConstraintPair();
+	p->setParams(params);
+	p->setName(params->name_constraint);
+	p->setParent(component);
+	p->setConstraint(p2p);
+	p->setType(ExSimPhyzHelpers::P2P);
+	return p;
+}
+
+ExSimConstraintPair* AExScene::fixGen6dofSpring(ExSimComponent* comp_a, ExSimComponent* comp_b, FExConstraintParams* params)
+{
+	btRigidBody * p_body_a = comp_a->getBody();
+	btRigidBody * p_body_b = comp_b->getBody();
+	btTransform tr;
+	tr.setIdentity();
+	p_body_a->setActivationState(DISABLE_DEACTIVATION);
+	p_body_b->setActivationState(DISABLE_DEACTIVATION);
+	btTransform frameInA, frameInB;
+	frameInA = btTransform::getIdentity();
+	frameInA.setOrigin(BulletHelpers::ToBtSize(params->pivot_p));
+	frameInB = btTransform::getIdentity();
+	frameInB.setOrigin(BulletHelpers::ToBtSize(params->pivot_t));
+	btGeneric6DofSpringConstraint * g6dof = new btGeneric6DofSpringConstraint(*p_body_a, *p_body_b, frameInA, frameInB, true);
+	
+	g6dof->setLinearLowerLimit(BulletHelpers::ToBtSize(params->low_lim_lin));
+	g6dof->setLinearUpperLimit(BulletHelpers::ToBtSize(params->upp_lim_lin));
+
+	g6dof->setAngularLowerLimit(BulletHelpers::ToBtSize(params->low_lim_ang));
+	g6dof->setAngularUpperLimit(BulletHelpers::ToBtSize(params->upp_lim_ang));
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (params->en_spring[i])
+		g6dof->enableSpring(i,true);
+	}
+	g6dof->setStiffness(0,params->stiff_lin.X);
+	g6dof->setStiffness(1,params->stiff_lin.Y);
+	g6dof->setStiffness(2,params->stiff_lin.Z);
+	g6dof->setDamping(0, params->dump_lin.X);
+	g6dof->setDamping(1, params->dump_lin.Y);
+	g6dof->setDamping(2, params->dump_lin.Z);
+
+	ExPhyzX->BtWorld->addConstraint(g6dof);
+	ExSimConstraintPair* p = new ExSimConstraintPair();
+	params->name_p = comp_a->getName();
+	params->name_t = comp_b->getName();
+	p->setParams(params);
+	p->setName(params->name_constraint);
+	p->setParent(comp_a);
+	p->setConstraint(g6dof);
+	p->setType(ExSimPhyzHelpers::GEN6DOF_SPRING);
+	return p;
 }
 
 btTypedConstraint* AExScene::fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params)
