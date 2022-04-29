@@ -80,6 +80,13 @@ void AExSimStorage::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// FExConstraintParams par;
+	// par.pivot_p = FVector(0,0,1);
+	// TMap<EConstraintParamNames, FString> trg;
+	// ExConstraintDict::updateValues(&trg,&par);
+	// par.pivot_p = FVector(0,3,3);
+	// ExConstraintDict::updateValues(&trg,&par);
+
 	//createTest("HelloWorld");
 	FString path = "Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'";
 	const FString magnet_name = "Magnet";
@@ -179,12 +186,13 @@ void AExSimStorage::BeginPlay()
 
 				ExSimConstraintPair * gen = new ExSimConstraintPair();
 				gen->setConstraint( CurrentScene->fixGen6dofSpring(target->getBody(), spring->getBody(), *params));
-				p->setType(ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING);
+				gen->setType(ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING);
 				gen->setName( "Spring Imitator");
 				gen->setParent(target);	
 				gen->getConstraint()->setUserConstraintPtr(gen);
 				params->name_p = target->getName();
 				params->name_t = spring->getName();
+				params->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
 
 				gen->setParams( params);
 
@@ -567,7 +575,7 @@ void AExSimStorage::resetOptVPP()
     OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::en_spring], "0; 0; 0; 0; 0; 0");
     OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_name], name_str);
     OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_name], name_str);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameOfConstraint(ExSimPhyzHelpers::Constraint::NONE));
+	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameFromConstraint(ExSimPhyzHelpers::Constraint::NONE));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name],name_str);
 }
 
@@ -575,8 +583,15 @@ void AExSimStorage::setOptVPP(ExSimConstraintPair* params)
 {
 	CurrentConstraintPtr = params;//???
 	ConstraintCommander.setActiveConstraint(params->getParams());
-	OptionValuePairsPtr.Empty();
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_pivot], ExConvert::getStrFromVec(params->getParams()->pivot_p));
+	// OptionValuePairsPtr.Empty();
+
+	ExConstraintDict::updateNames(&OptionNamesPtr, params->getType());
+	ExConstraintDict::updateValues(&OptionValuesPtr,params->getParams());
+	ExConstraintDict::getNameValuePairs(&OptionNamesPtr,&OptionValuesPtr, &OptionValuePairsPtr);
+
+	__nop();
+	
+	/*OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_pivot], ExConvert::getStrFromVec(params->getParams()->pivot_p));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_pivot], ExConvert::getStrFromVec(params->getParams()->pivot_t));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::low_lim_lin], ExConvert::getStrFromVec(params->getParams()->low_lim_lin));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::upp_lim_lin], ExConvert::getStrFromVec(params->getParams()->upp_lim_lin));
@@ -588,8 +603,8 @@ void AExSimStorage::setOptVPP(ExSimConstraintPair* params)
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_ang], ExConvert::getStrFromVec(params->getParams()->dump_ang));
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_name], params->getParams()->name_p);
 	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_name], params->getParams()->name_t);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameOfConstraint(params->getParams()->constr_type));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name], (params->getParams()->name_constraint));
+	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameFromConstraint(params->getParams()->constr_type));
+	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name], (params->getParams()->name_constraint));*/
 }
 
 void AExSimStorage::updateConstraint()

@@ -68,6 +68,7 @@ public:
 		END
 	};
 	TMap<EConstraintParamNames, FString> OptionNamesPtr;
+	TMap<EConstraintParamNames, FString> OptionValuesPtr;
 	TMap<FString, FString> OptionValuePairsPtr;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FConstraintChanged, int, type, FString, value);

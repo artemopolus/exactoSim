@@ -475,6 +475,8 @@ void AExScene::updateConstraint(btPoint2PointConstraint* c, FExConstraintParams*
 	{
 		const btVector3 p = BulletHelpers::ToBtSize(params->pivot_p);
 		c->setPivotA(p);
+		c->m_setting.m_tau = params->tau;
+		c->m_setting.m_impulseClamp = params->impulse_clamp;
 	}
 }
 
@@ -485,6 +487,18 @@ void AExScene::updateConstraint(ExSimConstraintPair* pair)
 	{
 		btPoint2PointConstraint* p = static_cast<btPoint2PointConstraint*>(pair->getConstraint());
 		updateConstraint(p, pair->getParams());
+	}
+	if (pair->getParams()->constr_type == ExSimPhyzHelpers::Constraint::HINGE)
+	{
+		
+	}
+	if (pair->getParams()->constr_type == ExSimPhyzHelpers::Constraint::HINGE2)
+	{
+		
+	}
+	if (pair->getParams()->constr_type == ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING)
+	{
+		
 	}
 }
 
