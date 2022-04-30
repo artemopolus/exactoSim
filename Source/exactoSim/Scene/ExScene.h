@@ -86,8 +86,8 @@ public:
 	void updateConstraint(btPoint2PointConstraint * c, FExConstraintParams * params);
 	void updateConstraint(ExSimConstraintPair * pair);
 
-	btTypedConstraint * fixP2PBody(btRigidBody * body, FVector location);
-	btTypedConstraint * fixP2PBody(btRigidBody * body, FExConstraintParams * params);
+	btTypedConstraint * fixP2P(btRigidBody * body, FVector location);
+	btTypedConstraint * fixP2P(btRigidBody * body, FExConstraintParams * params);
 	ExSimConstraintPair * fixP2P(ExSimComponent * component, FExConstraintParams * params);
 
 	ExSimConstraintPair* AExScene::fixGen6dofSpring(ExSimComponent* comp_a, ExSimComponent* comp_b, FExConstraintParams* params);

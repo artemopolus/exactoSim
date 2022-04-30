@@ -32,9 +32,7 @@ struct FExConstraintParams
 	FString name_p;
 	FString name_t;
 	FString name_constraint;
-	uint8_t en_spring[6];
 	ExSimPhyzHelpers::Constraint constr_type;
-	TArray<bool> enable_spring;
 
 	float tau;
 	float impulse_clamp;
@@ -45,12 +43,7 @@ struct FExConstraintParams
 		constraint = nullptr;
 		parent = nullptr;
 		constr_type = ExSimPhyzHelpers::Constraint::NONE;
-		en_spring[0] = 0;
-		en_spring[1] = 0;
-		en_spring[2] = 0;
-		en_spring[3] = 0;
-		en_spring[4] = 0;
-		en_spring[5] = 0;
+
 		axis_p = axis_t = pivot_t = pivot_p = FVector::ZeroVector;
 		name_p = name_t = "Default";
 		upp_lim_ang = low_lim_lin = upp_lim_lin = low_lim_ang = FVector::ZeroVector;

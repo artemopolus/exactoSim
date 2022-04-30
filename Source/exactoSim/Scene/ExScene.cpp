@@ -504,7 +504,7 @@ void AExScene::updateConstraint(ExSimConstraintPair* pair)
 }
 
 
-btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FVector location)
+btTypedConstraint* AExScene::fixP2P(btRigidBody* body, FVector location)
 {
 	if (body)
 	{
@@ -519,7 +519,7 @@ btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FVector location)
 	return nullptr;
 }
 
-btTypedConstraint* AExScene::fixP2PBody(btRigidBody* body, FExConstraintParams* params)
+btTypedConstraint* AExScene::fixP2P(btRigidBody* body, FExConstraintParams* params)
 {
 	if (body)
 	{
@@ -576,11 +576,11 @@ ExSimConstraintPair* AExScene::fixGen6dofSpring(ExSimComponent* comp_a, ExSimCom
 	g6dof->setAngularLowerLimit(BulletHelpers::ToBtSize(params->low_lim_ang));
 	g6dof->setAngularUpperLimit(BulletHelpers::ToBtSize(params->upp_lim_ang));
 
-	for (int i = 0; i < 6; i++)
-	{
-		if (params->en_spring[i])
-		g6dof->enableSpring(i,true);
-	}
+	TArray<bool> enables_spring;
+	ExConvert::getBoolArrayFromInt(params->enables_spring, &enables_spring, 6);
+	for (int i =0; i < enables_spring.Num(); i++)
+		g6dof->enableSpring(i, enables_spring[i]);
+	
 	g6dof->setStiffness(0,params->stiff_lin.X);
 	g6dof->setStiffness(1,params->stiff_lin.Y);
 	g6dof->setStiffness(2,params->stiff_lin.Z);
@@ -618,12 +618,12 @@ btTypedConstraint* AExScene::fixGen6dofSpring(btRigidBody * p_body_a, btRigidBod
 
 	p->setAngularLowerLimit(BulletHelpers::ToBtSize(params.low_lim_ang));
 	p->setAngularUpperLimit(BulletHelpers::ToBtSize(params.upp_lim_ang));
-
-	for (int i = 0; i < 6; i++)
-	{
-		if (params.en_spring[i])
-		p->enableSpring(i,true);
-	}
+	
+	TArray<bool> enables_spring;
+	ExConvert::getBoolArrayFromInt(params.enables_spring, &enables_spring, 6);
+	for (int i =0; i < enables_spring.Num(); i++)
+		p->enableSpring(i, enables_spring[i]);
+	
 	p->setStiffness(0,params.stiff_lin.X);
 	p->setStiffness(1,params.stiff_lin.Y);
 	p->setStiffness(2,params.stiff_lin.Z);

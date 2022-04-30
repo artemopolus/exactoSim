@@ -108,29 +108,41 @@ void AExSimStorage::BeginPlay()
 		{
 			if (component->getName() == magnet_name)
 			{
-				ExSimConstraintPair * p = new ExSimConstraintPair();
-				// p->constraint = CurrentScene->fixP2PBody(component->Body, magnet_relpivot0);
-				p->setConstraint(CurrentScene->fixP2PBody(component->getBody(), magnet_relpivot0));
-				p->setType(ExSimPhyzHelpers::Constraint::P2P);
-				p->setName(magnet_name);
+				
 				FExConstraintParams *pp = new FExConstraintParams();
-				pp->pivot_t = magnet_relpivot0;
-				pp->pivot_p = component->getTarget()->GetActorLocation();
+				pp->pivot_p = magnet_relpivot0;
+				pp->axis_p = component->getTarget()->GetActorLocation();
 				pp->name_p = component->getName();
 				pp->constr_type = ExSimPhyzHelpers::Constraint::P2P;
-				p->setParams(pp);
+				pp->name_constraint = magnet_name + TEXT("_1");
+				pp->impulse_clamp = 30.f;
+				pp->tau = 0.001f;
+				ExSimConstraintPair * p = CurrentScene->fixP2P(component, pp);
+				// ExSimConstraintPair* p = new ExSimConstraintPair();
+				// p->setConstraint(CurrentScene->fixP2P(component->getBody(), magnet_relpivot0));
+				// p->setType(ExSimPhyzHelpers::Constraint::P2P);
+				// p->setName(magnet_name);
+				// p->setParams(pp);
 				component->getConstraints()->Add(p);
 
-				ExSimConstraintPair * p1 = new ExSimConstraintPair();
-				p->setConstraint( CurrentScene->fixP2PBody(component->getBody(), magnet_relpivot1));
-				p->setType(ExSimPhyzHelpers::Constraint::P2P);
-				p->setName( magnet_name + TEXT("_P2P1"));
-				FExConstraintParams *pp1 = new FExConstraintParams();
-				pp1->pivot_t = magnet_relpivot1;
-				pp1->pivot_p = component->getTarget()->GetActorLocation();
-				pp1->name_p = component->getName();
-				pp1->constr_type = ExSimPhyzHelpers::Constraint::P2P;
-				p1->setParams(pp1);
+
+				// FExConstraintParams *pp1 = new FExConstraintParams();
+				// pp1->name_constraint = magnet_name + TEXT("_2");
+				// pp1->pivot_p = magnet_relpivot1;
+				// pp1->axis_p = component->getTarget()->GetActorLocation();
+				// pp1->name_p = component->getName();
+				// pp1->constr_type = ExSimPhyzHelpers::Constraint::P2P;
+				// pp1->impulse_clamp = 30.f;
+				// pp1->tau = 0.001f;
+
+				pp->name_constraint = magnet_name + TEXT("_2");
+				pp->pivot_p = magnet_relpivot1;				
+				ExSimConstraintPair *p1 = CurrentScene->fixP2P(component,pp);
+				// ExSimConstraintPair * p1 = new ExSimConstraintPair();
+				// p1->setConstraint( CurrentScene->fixP2P(component->getBody(), magnet_relpivot1));
+				// p1->setType(ExSimPhyzHelpers::Constraint::P2P);
+				// p1->setName( magnet_name + TEXT("_P2P1"));
+				// p1->setParams(pp1);
 				component->getConstraints()->Add(p1);
 				
 				target = component;
@@ -148,9 +160,6 @@ void AExSimStorage::BeginPlay()
 	params->low_lim_ang = FVector::ZeroVector;
 	params->upp_lim_ang = FVector::ZeroVector;
 
-	params->en_spring[0] = 1;
-	params->en_spring[1] = 1;
-	params->en_spring[2] = 1;
 
 	float stiff = Stiffness;
 	float dump = Dumping;
@@ -174,7 +183,7 @@ void AExSimStorage::BeginPlay()
 		{
 			FExConstraintParams* fix_params = new FExConstraintParams();
 			fix_params->pivot_p = FVector(0, 0, 20);
-			fix_params->pivot_t = spring->getTarget()->GetActorLocation();
+			fix_params->axis_p = spring->getTarget()->GetActorLocation();
 			fix_params->name_p = spring->getName();
 			fix_params->constr_type = ExSimPhyzHelpers::Constraint::P2P;
 			fix_params->name_constraint = TEXT("P2P magnet");
@@ -186,35 +195,33 @@ void AExSimStorage::BeginPlay()
 			// p->setType(ExSimPhyzHelpers::Constraint::P2P);
 			// p->setName(magnet_name);
 			// p->setParams(fix_params);
-			
+
 			ExSimConstraintPair* p = CurrentScene->fixP2P(spring, fix_params);
 			spring->getConstraints()->Add(p);
 
-				
 
-				params->enables_spring = 7;
-				params->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
-				params->name_constraint = TEXT("Spring imitator");
-				ExSimConstraintPair * gen = CurrentScene->fixGen6dofSpring(target,spring,params);
-				// ExSimConstraintPair * gen = new ExSimConstraintPair();
-				//
-				// gen->setConstraint( CurrentScene->fixGen6dofSpring(target->getBody(), spring->getBody(), *params));
-				// gen->setType(ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING);
-				// gen->setName( "Spring Imitator");
-				// gen->setParent(target);	
-				// gen->getConstraint()->setUserConstraintPtr(gen);
-				// params->name_p = target->getName();
-				// params->name_t = spring->getName();
-				//
-				// gen->setParams( params);
+			params->enables_spring = 7;
+			params->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
+			params->name_constraint = TEXT("g6dof spring");
+			ExSimConstraintPair* gen = CurrentScene->fixGen6dofSpring(target, spring, params);
+			// ExSimConstraintPair * gen = new ExSimConstraintPair();
+			//
+			// gen->setConstraint( CurrentScene->fixGen6dofSpring(target->getBody(), spring->getBody(), *params));
+			// gen->setType(ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING);
+			// gen->setName( "Spring Imitator");
+			// gen->setParent(target);	
+			// gen->getConstraint()->setUserConstraintPtr(gen);
+			// params->name_p = target->getName();
+			// params->name_t = spring->getName();
+			//
+			// gen->setParams( params);
 
-				spring->getConstraints()->Add(gen);
+			spring->getConstraints()->Add(gen);
 
-				spring->getBasis()->getComponents()->Remove(spring);
-				spring->setBasis( target->getBasis());
-				target->getBasis()->getComponents()->Add(spring);			
+			spring->getBasis()->getComponents()->Remove(spring);
+			spring->setBasis(target->getBasis());
+			target->getBasis()->getComponents()->Add(spring);
 		}
-		
 	}
 }
 
@@ -333,7 +340,7 @@ void AExSimStorage::createConstraint(AActor* target, FExConstraintParams * param
 		createComplex(component, component->getName() + TEXT("_Complex"));
 
 	ExSimConstraintPair * p = new ExSimConstraintPair();
-    p->setConstraint( CurrentScene->fixP2PBody(component->getBody(), params));
+    p->setConstraint( CurrentScene->fixP2P(component->getBody(), params));
 	p->setType(ExSimPhyzHelpers::Constraint::P2P);
     p->setName( params->name_p);
 	p->setParams( params);
