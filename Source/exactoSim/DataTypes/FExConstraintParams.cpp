@@ -52,6 +52,8 @@ void ExConstraintDict::updateValues(TMap<EConstraintParamNames, FString>* trg, F
 
 	trg->FindOrAdd(EConstraintParamNames::tau) = ExConvert::getStrFromFloat(params->tau);
 	trg->FindOrAdd(EConstraintParamNames::impulse_clamp) = ExConvert::getStrFromFloat(params->impulse_clamp);
+	trg->FindOrAdd(EConstraintParamNames::lower_limit) = ExConvert::getStrFromFloat(params->lower_limit);
+	trg->FindOrAdd(EConstraintParamNames::upper_limit) = ExConvert::getStrFromFloat(params->upper_limit);
 
 	trg->FindOrAdd(EConstraintParamNames::enables_spring) = ExConvert::getBoolStrFromInt(params->enables_spring, 6);
 
