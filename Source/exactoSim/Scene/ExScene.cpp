@@ -546,12 +546,8 @@ ExSimConstraintPair* AExScene::fixP2P(ExSimComponent* component, FExConstraintPa
 	ExPhyzX->BtWorld->addConstraint(p2p);
 	p2p->m_setting.m_impulseClamp = params->impulse_clamp;
 	p2p->m_setting.m_tau = params->tau;
-	ExSimConstraintPair* p = new ExSimConstraintPair();
-	p->setParams(params);
-	p->setName(params->name_constraint);
-	p->setParent(component);
+	ExSimConstraintPair* p = new ExSimConstraintPair(component, params);
 	p->setConstraint(p2p);
-	p->setType(ExSimPhyzHelpers::P2P);
 	return p;
 }
 
@@ -589,14 +585,142 @@ ExSimConstraintPair* AExScene::fixGen6dofSpring(ExSimComponent* comp_a, ExSimCom
 	g6dof->setDamping(2, params->dump_lin.Z);
 
 	ExPhyzX->BtWorld->addConstraint(g6dof);
-	ExSimConstraintPair* p = new ExSimConstraintPair();
 	params->name_p = comp_a->getName();
 	params->name_t = comp_b->getName();
-	p->setParams(params);
-	p->setName(params->name_constraint);
-	p->setParent(comp_a);
+	ExSimConstraintPair* p = new ExSimConstraintPair(comp_a, params);
 	p->setConstraint(g6dof);
-	p->setType(ExSimPhyzHelpers::GEN6DOF_SPRING);
+	return p;
+}
+
+ExSimConstraintPair* AExScene::fixHinge2Constraint(ExSimComponent* par, ExSimComponent* trg,
+	FExConstraintParams* params)
+{
+	btRigidBody * p_body_a = par->getBody();
+	btRigidBody * p_body_b = trg->getBody();
+	p_body_a->setActivationState(DISABLE_DEACTIVATION);
+	p_body_b->setActivationState(DISABLE_DEACTIVATION);
+	btVector3 p_axis(BulletHelpers::ToBtSize(params->axis_p));
+	btVector3 t_axis(BulletHelpers::ToBtSize(params->axis_t));
+	btVector3 anchor(BulletHelpers::ToBtSize(params->pivot_p));
+	btHinge2Constraint * hinge = new btHinge2Constraint(*p_body_a,*p_body_b, anchor,p_axis, t_axis);
+	hinge->setLowerLimit(BulletHelpers::ToBtSize(params->lower_limit));
+	hinge->setUpperLimit(BulletHelpers::ToBtSize(params->upper_limit));
+
+	ExPhyzX->BtWorld->addConstraint(hinge);
+	params->name_p = par->getName();
+	params->name_t = trg->getName();
+	ExSimConstraintPair* p = new ExSimConstraintPair(par, params);
+	p->setConstraint(hinge);
+	return p;
+}
+
+ExSimConstraintPair* AExScene::fixHinge1Constraint(ExSimComponent* par, ExSimComponent* trg,
+	FExConstraintParams* params)
+{
+	btRigidBody * p_body_p = par->getBody();
+	btRigidBody * p_body_t = trg->getBody();
+	p_body_p->setActivationState(DISABLE_DEACTIVATION);
+	p_body_t->setActivationState(DISABLE_DEACTIVATION);
+	const btVector3 axis_p(BulletHelpers::ToBtSize(params->axis_p));
+	const btVector3 axis_t(BulletHelpers::ToBtSize(params->axis_t));
+	const btVector3 pivot_p(BulletHelpers::ToBtSize(params->pivot_p));
+	const btVector3 pivot_t(BulletHelpers::ToBtSize(params->pivot_t));
+	btHingeConstraint * hinge = new btHingeConstraint(*p_body_p,*p_body_t, pivot_p,pivot_t, axis_p, axis_t);
+	hinge->setLimit(params->lower_limit, params->upper_limit);
+	params->name_p = par->getName();
+	params->name_t = trg->getName();
+	ExPhyzX->BtWorld->addConstraint(hinge);
+	ExSimConstraintPair* p = new ExSimConstraintPair(par, params);
+	p->setConstraint(hinge);
+	return p;
+}
+
+ExSimConstraintPair* AExScene::fixUniConstraint(ExSimComponent* par, ExSimComponent* trg, FExConstraintParams* params)
+{
+	btRigidBody * p_body_p = par->getBody();
+	btRigidBody * p_body_t = trg->getBody();
+	p_body_p->setActivationState(DISABLE_DEACTIVATION);
+	p_body_t->setActivationState(DISABLE_DEACTIVATION);
+	const btVector3 axis_p(BulletHelpers::ToBtSize(params->axis_p));
+	const btVector3 axis_t(BulletHelpers::ToBtSize(params->axis_t));
+	const btVector3 anchor(BulletHelpers::ToBtSize(params->pivot_p));
+	btUniversalConstraint * uni = new btUniversalConstraint(*p_body_p, *p_body_t,anchor, axis_p, axis_t);
+	uni->setLowerLimit(BulletHelpers::ToBtSize(params->low_lim_lin.X), BulletHelpers::ToBtSize(params->low_lim_lin.Y));
+	uni->setUpperLimit(BulletHelpers::ToBtSize(params->upp_lim_lin.X), BulletHelpers::ToBtSize(params->upp_lim_lin.Y));
+	ExPhyzX->BtWorld->addConstraint(uni);
+	ExSimConstraintPair* p = new ExSimConstraintPair(par, params);
+	p->setConstraint(uni);
+	return p;
+}
+
+ExSimConstraintPair* AExScene::fixConeTwist(ExSimComponent* par, ExSimComponent* trg, FExConstraintParams* params)
+{
+	btRigidBody * p_body_p = par->getBody();
+	btRigidBody * p_body_t = trg->getBody();
+	p_body_p->setActivationState(DISABLE_DEACTIVATION);
+
+	btTransform frame_in_p, frame_in_t;
+	frame_in_p = btTransform::getIdentity();
+	frame_in_p.getBasis().setEulerZYX(	BulletHelpers::ToBtSize(params->axis_p.X),
+										BulletHelpers::ToBtSize(params->axis_p.Y),
+										BulletHelpers::ToBtSize(params->axis_p.Z));
+	frame_in_p.setOrigin(BulletHelpers::ToBtSize(params->pivot_p));
+	
+	frame_in_t = btTransform::getIdentity();
+	frame_in_t.getBasis().setEulerZYX(	BulletHelpers::ToBtSize(params->axis_t.X),
+										BulletHelpers::ToBtSize(params->axis_t.Y),
+										BulletHelpers::ToBtSize(params->axis_t.Z));
+	frame_in_t.setOrigin(BulletHelpers::ToBtSize(params->pivot_p));
+
+	btConeTwistConstraint * cone = new btConeTwistConstraint(*p_body_p, *p_body_t,frame_in_p, frame_in_t);
+	cone->setLimit(
+		BulletHelpers::ToBtSize(params->low_lim_lin.X),
+		BulletHelpers::ToBtSize(params->low_lim_lin.Y),
+		BulletHelpers::ToBtSize(params->low_lim_lin.Z),
+		BulletHelpers::ToBtSize(params->lower_limit)
+		);
+	ExPhyzX->BtWorld->addConstraint(cone);
+	ExSimConstraintPair* p = new ExSimConstraintPair(par, params);
+	p->setConstraint(cone);
+	return p;	
+}
+
+ExSimConstraintPair* AExScene::fixSlider(ExSimComponent* par, ExSimComponent* trg, FExConstraintParams* params)
+{
+	btTransform frame_in_a, frame_in_b;
+	frame_in_a = btTransform::getIdentity();
+	frame_in_b = btTransform::getIdentity();
+	btRigidBody * p_body_p = par->getBody();
+	btRigidBody * p_body_t = trg->getBody();
+	p_body_p->setActivationState(DISABLE_DEACTIVATION);
+	p_body_t->setActivationState(DISABLE_DEACTIVATION);
+	btSliderConstraint * sl = new btSliderConstraint(*p_body_p,*p_body_t,frame_in_a, frame_in_b, true);
+	sl->setLowerLinLimit(BulletHelpers::ToBtSize(params->low_lim_lin.X));
+	sl->setUpperLinLimit(BulletHelpers::ToBtSize(params->low_lim_lin.Y));
+	sl->setLowerAngLimit(BulletHelpers::ToBtSize(params->low_lim_ang.X));
+	sl->setUpperAngLimit(BulletHelpers::ToBtSize(params->low_lim_ang.Y));
+	ExPhyzX->BtWorld->addConstraint(sl);
+	ExSimConstraintPair* p = new ExSimConstraintPair(par, params);
+	p->setConstraint(sl);
+	return p;
+}
+
+ExSimConstraintPair* AExScene::fixGear(ExSimComponent* par, ExSimComponent* trg, FExConstraintParams* params)
+{
+	btRigidBody * p_body_p = par->getBody();
+	btRigidBody * p_body_t = trg->getBody();
+	p_body_p->setActivationState(DISABLE_DEACTIVATION);
+	p_body_t->setActivationState(DISABLE_DEACTIVATION);
+	const btVector3 axis_p(BulletHelpers::ToBtSize(params->axis_p));
+	 btVector3 axis_t(BulletHelpers::ToBtSize(params->axis_t));
+	btQuaternion orn(BulletHelpers::ToBtSize(params->axis_t), params->tau);
+	btMatrix3x3 mat(orn);
+	axis_t = mat.getRow(1);
+
+	btGearConstraint * g = new btGearConstraint(*p_body_p, *p_body_t, axis_p, axis_t, params->impulse_clamp);
+	ExPhyzX->BtWorld->addConstraint(g);
+	ExSimConstraintPair* p = new ExSimConstraintPair(par, params);
+	p->setConstraint(g);
 	return p;
 }
 
