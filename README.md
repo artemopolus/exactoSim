@@ -3,6 +3,16 @@
 
 -- For building objects using constraints of Bullet or another physics engine
 
+# Test 
+
+Bullet v. 3.17
+
+Unreal engine 4.27.1
+
+Visual studio community 2019 16.11.12
+
+Windows 10 SDK 10.0.19041.0
+
 # Build
 
 Build Bullet from https://github.com/bulletphysics/bullet3
