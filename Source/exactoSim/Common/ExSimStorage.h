@@ -147,10 +147,13 @@ public:
 	void loadExSimComplex();
 
 	void resetOptVPP();
+	void updateOptVPP();
 	void setOptVPP(ExSimConstraintPair * params);
 
 	void updateConstraintCommand(EConstraintParamNames type, FString str);
 	void undoConstraintCommand();
+
+	ExSimConstraintPair * getNewConstraintPair();
 
 private:
 	void createComplex(ExSimComponent * component, FString new_complex_name);

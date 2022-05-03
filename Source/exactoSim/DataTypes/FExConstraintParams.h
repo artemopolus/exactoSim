@@ -48,7 +48,7 @@ struct FExConstraintParams
 		constr_type = ExSimPhyzHelpers::Constraint::NONE;
 
 		axis_p = axis_t = pivot_t = pivot_p = FVector::ZeroVector;
-		name_p = name_t = "Default";
+		name_p = name_t = name_constraint = TEXT("Default");
 		upp_lim_ang = low_lim_lin = upp_lim_lin = low_lim_ang = FVector::ZeroVector;
 		stiff_ang = stiff_lin = dump_ang = dump_lin = FVector::ZeroVector;
 		tau = impulse_clamp = lower_limit = upper_limit = 0.f;

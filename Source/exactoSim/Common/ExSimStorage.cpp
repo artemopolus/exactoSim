@@ -531,36 +531,23 @@ void AExSimStorage::loadExSimComplex()
 
 void AExSimStorage::resetOptVPP()
 {
-	const FString vector_str = ExConvert::getStrFromVec(FVector::ZeroVector);
-	const FString value_str = ExConvert::getStrFromFloat(0.f);
-	const FString name_str("default");
 
-	OptionValuePairsPtr.Empty();
-	
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_pivot], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_pivot], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::low_lim_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::upp_lim_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::low_lim_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::upp_lim_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::stiff_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::stiff_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::en_spring], "0; 0; 0; 0; 0; 0");
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_name], name_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_name], name_str);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameFromConstraint(ExSimPhyzHelpers::Constraint::NONE));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name],name_str);
+	ExSimConstraintPair * params = new ExSimConstraintPair();
+
+	setOptVPP(params);
+}
+
+void AExSimStorage::updateOptVPP()
+{
+	setOptVPP(CurrentConstraintPtr);
 }
 
 void AExSimStorage::setOptVPP(ExSimConstraintPair* params)
 {
 	CurrentConstraintPtr = params;//???
 	ConstraintCommander.setActiveConstraint(params->getParams());
-	// OptionValuePairsPtr.Empty();
 
-	ExConstraintDict::updateNames(&OptionNamesPtr, params->getType());
+	ExConstraintDict::updateNames(&OptionNamesPtr, params->getParams()->constr_type);
 	ExConstraintDict::updateValues(&OptionValuesPtr,params->getParams());
 	ExConstraintDict::getNameValuePairs(&OptionNamesPtr,&OptionValuesPtr, &OptionValuePairsPtr);
 
@@ -595,6 +582,11 @@ void AExSimStorage::undoConstraintCommand()
 	{
 		EssEvOnConstraintChanged.Broadcast(-1, TEXT("None"));
 	}
+}
+
+ExSimConstraintPair* AExSimStorage::getNewConstraintPair()
+{
+	return new ExSimConstraintPair();
 }
 
 
