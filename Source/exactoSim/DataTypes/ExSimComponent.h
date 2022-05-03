@@ -13,6 +13,10 @@ class EXACTOSIM_API ExSimConstraintPair
 	ExSimPhyzHelpers::Constraint Type = ExSimPhyzHelpers::Constraint::NONE;
 	FExConstraintParams* Params = nullptr;
 public:
+	ExSimConstraintPair()
+	{
+		Params = new FExConstraintParams();
+	}
 	ExSimConstraintPair(ExSimComponent * p, FExConstraintParams * params):
 		Name(params->name_constraint), Parent(p), Type(params->constr_type), Params(params)
 	{}
