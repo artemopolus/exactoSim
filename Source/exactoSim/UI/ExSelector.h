@@ -22,7 +22,17 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock * SelectorText;
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FEvSelectorValueChanged, FString, value, ESelectInfo::Type, type, int, id);
+	FEvSelectorValueChanged EventOnSelectorValueChanged;
+private:
+	int Id = -1;
+
+public:
+
 	void setSelectorText(FString name);
 	void addSelectorValue(FString text);
+	void init(FString name, int id);
+	UFUNCTION()
+		void onSelectorValueChanged(FString name, ESelectInfo::Type type);
 	
 };

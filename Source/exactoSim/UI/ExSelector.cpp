@@ -11,4 +11,20 @@ void UExSelector::setSelectorText(FString name)
 void UExSelector::addSelectorValue(FString text)
 {
 	SelectorCombo->AddOption(text);
+	if (SelectorCombo->GetOptionCount() == 1)
+		SelectorCombo->OnSelectionChanged.AddDynamic(this,&UExSelector::onSelectorValueChanged);
+}
+
+void UExSelector::init(FString name, int id)
+{
+	setSelectorText(name);
+	Id = id;
+}
+
+void UExSelector::onSelectorValueChanged(FString name, ESelectInfo::Type type)
+{
+	if(EventOnSelectorValueChanged.IsBound())
+	{
+		EventOnSelectorValueChanged.Broadcast(name, type, Id);
+	}
 }
