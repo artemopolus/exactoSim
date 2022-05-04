@@ -35,6 +35,10 @@ public:
 		// For clarity; this is for box sizes so no offset
 		return ToBtDir(Sv);
 	}
+	static FVector ToUEPos(const btVector3& V)
+	{
+		return FVector(V.x(), V.y(), V.z()) * BULLET_TO_WORLD_SCALE;
+	}
 	static FVector ToUEPos(const btVector3& V, const FVector& WorldOrigin)
 	{
 		return FVector(V.x(), V.y(), V.z()) * BULLET_TO_WORLD_SCALE + WorldOrigin;
