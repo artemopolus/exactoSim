@@ -111,10 +111,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void createTest(FString name, float mass = 1.0f, FVector loc = FVector(0,0,50), FRotator rot = FRotator(0,0,0));
 
-	void createSceneObj(void);
-	void createSceneObj(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
+	void createComponent(void);
+	void createComponent(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
 	void createConstraint(AActor * target, AActor * parent, FExConstraintParams params);
 	void createConstraint(AActor * target, FExConstraintParams * params);
+	void createConstraint(ExSimComponent * target, ExSimComponent * parent);
 	void updateConstraint();
 	
 	bool getConstraint(const AActor * target, TArray<ExSimConstraintPair *> * constr);

@@ -497,33 +497,13 @@ bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, EConstraint
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
 
-	FExConstraintParams * params = new FExConstraintParams();
+	
 
-	for (auto & option : EditableList)
-	{
-		checkVectorOption(option, EConstraintParamNames::parent_pivot, params->pivot_p);	
-		checkVectorOption(option, EConstraintParamNames::target_pivot, params->pivot_t);
-		checkVectorOption(option, EConstraintParamNames::parent_axis, params->axis_p);
-		checkVectorOption(option, EConstraintParamNames::target_axis, params->axis_t);
-		
-		checkVectorOption(option, EConstraintParamNames::low_lim_lin, params->low_lim_lin);	
-		checkVectorOption(option, EConstraintParamNames::upp_lim_lin, params->upp_lim_lin);	
-		checkVectorOption(option, EConstraintParamNames::low_lim_ang, params->low_lim_ang);	
-		checkVectorOption(option, EConstraintParamNames::upp_lim_ang, params->upp_lim_ang);	
-		checkVectorOption(option, EConstraintParamNames::stiff_lin, params->stiff_lin);	
-		checkVectorOption(option, EConstraintParamNames::stiff_ang, params->stiff_ang);	
-		checkVectorOption(option, EConstraintParamNames::dump_lin, params->dump_lin);
-		checkVectorOption(option, EConstraintParamNames::dump_ang, params->dump_ang);
-		checkStringOption(option, EConstraintParamNames::parent_name, params->name_p);
-		checkStringOption(option, EConstraintParamNames::target_name, params->name_t);
-	}
-
-	//delete
+	//delete table of constraint option 
 	deleteConstraintOptions();
 
-	params->constr_type = SelectedConstraintType;
+	DataStorage->createConstraint(ParentActor, TargetActor);
 
-	DataStorage->createConstraint(ParentActor->getTarget(), params);
 }
 
 
@@ -660,7 +640,7 @@ void UExSimMainWidget::onSelectorWidgetChanged(FString value, ESelectInfo::Type 
 
 void UExSimMainWidget::updateEditableAll()
 {
-	DataStorage->setOptVPP(CurrentConstraint);
+	DataStorage->updateOptVPP();
 	getInputTableOptions();
 	for (auto & ed : EditableList)
 	{

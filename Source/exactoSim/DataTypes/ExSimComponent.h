@@ -20,7 +20,7 @@ public:
 	ExSimConstraintPair(ExSimComponent * p, FExConstraintParams * params):
 		Name(params->name_constraint), Parent(p), Type(params->constr_type), Params(params)
 	{}
-	~ExSimConstraintPair();
+	~ExSimConstraintPair(){}
 	FString getName(){return Name;}
 	FExConstraintParams * getParams(){return Params;}
 	btTypedConstraint * getConstraint(){return Constraint;}

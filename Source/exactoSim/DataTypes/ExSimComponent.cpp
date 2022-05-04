@@ -1,11 +1,6 @@
 #include "ExSimComponent.h"
 
 
-ExSimConstraintPair::~ExSimConstraintPair()
-{
-	if (Params)
-		delete Params;
-}
 
 bool ExSimComponent::getConstraintNames(TArray<FString>* names)
 {

@@ -85,12 +85,13 @@ void AExSimStorage::BeginPlay()
 	const FVector magnet_pos(0,0,200);
 	const FVector magnet_relpivot0(0,0,20);
 	const FVector magnet_relpivot1(20,0,20);
-	createSceneObj(magnet_name, path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
+	createComponent(magnet_name, path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
 	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";	
-	createSceneObj("HelloWorld", path, 1.0f, FVector(0,0,50), FRotator(0,0,0), false);
+	createComponent("Hello", path, 1.0f, FVector(0,-50,50), FRotator(0,0,0), false);
+	createComponent("Cubic", path, 1.0f, FVector(0,50,50), FRotator(0,0,0), false);
 	path = "Class'/Game/Blueprint/Scene/BP_ESB_Spring.BP_ESB_Spring_C'";
 	const FString spring_name = "Spring";
-	createSceneObj(spring_name, path, 1.0f, FVector(0,50,250), FRotator(0,0,0), false);
+	createComponent(spring_name, path, 1.0f, FVector(0,50,250), FRotator(0,0,0), false);
 
 	ExSimComponent * target = nullptr;
 
@@ -234,21 +235,21 @@ void AExSimStorage::createTest(FString name, float mass, FVector loc, FRotator r
 {
 	const FString path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";
 	
-	createSceneObj(name, path, mass, loc, rot, false);	
+	createComponent(name, path, mass, loc, rot, false);	
 }
 
-void AExSimStorage::createSceneObj()
+void AExSimStorage::createComponent()
 {
 	//SceneObjCreated++;
 	if (ExWorld && ExWorld->ExFileManager)
 	{
 		FString path = ExWorld->ExFileManager->getPathToBlueprint(TargetType);
 		FString name = TargetName + TEXT("_") + TargetType + TEXT("_") + FString::FromInt(SceneObjCreated);
-		createSceneObj(name, path, 1.0f, FVector(0,0,0), FRotator(0,0,0), true);
+		createComponent(name, path, 1.0f, FVector(0,0,0), FRotator(0,0,0), true);
 	}
 }
 
-void AExSimStorage::createSceneObj(FString name, FString path, float mass, FVector loc, FRotator rot, bool use_genloc)
+void AExSimStorage::createComponent(FString name, FString path, float mass, FVector loc, FRotator rot, bool use_genloc)
 {
 	SceneObjCreated++;
 	if (CurrentScene)
@@ -303,6 +304,29 @@ void AExSimStorage::createConstraint(AActor* target, FExConstraintParams * param
     component->getConstraints()->Add(p);
 }
 
+void AExSimStorage::createConstraint(ExSimComponent * parent_component, ExSimComponent * target_component)
+{
+	if (CurrentScene->checkConstraint(CurrentConstraintPtr))
+		return;
+	//Add to parent complex or create new one
+	if (parent_component->getBasis() == ExSimComplexList[0])
+	{
+		parent_component->setBasis( new ExSimComplex());
+		parent_component->getBasis()->setName( parent_component->getName());
+		ExSimComplexList.Add(parent_component->getBasis());
+		ExSimComplexList[0]->getComponents()->Remove(parent_component);
+	}
+	//create constraint 	
+	ExSimConstraintPair * p = CurrentScene->createConstraint(parent_component, target_component, CurrentConstraintPtr->getParams());
+	delete CurrentConstraintPtr;
+	CurrentConstraintPtr = p;
+
+	//rebase component
+	target_component->getBasis()->getComponents()->Remove(target_component);
+	target_component->setBasis( parent_component->getBasis());
+	parent_component->getBasis()->getComponents()->Add(target_component);
+	
+}
 
 
 bool AExSimStorage::getConstraint(const AActor* target, TArray<ExSimConstraintPair *> * constr )
