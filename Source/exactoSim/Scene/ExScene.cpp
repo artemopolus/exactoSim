@@ -473,8 +473,7 @@ void AExScene::updateConstraint(btPoint2PointConstraint* c, FExConstraintParams*
 {
 	if(c)
 	{
-		const btVector3 p = BulletHelpers::ToBtSize(params->pivot_p);
-		c->setPivotA(p);
+		c->setPivotA(BulletHelpers::ToBtSize(params->pivot_p));
 		c->setPivotB(BulletHelpers::ToBtSize(params->pivot_t));
 		c->m_setting.m_tau = params->tau;
 		c->m_setting.m_impulseClamp = params->impulse_clamp;
@@ -547,6 +546,8 @@ ExSimConstraintPair* AExScene::fixP2P(ExSimComponent* component, FExConstraintPa
 	p2p->m_setting.m_impulseClamp = params->impulse_clamp;
 	p2p->m_setting.m_tau = params->tau;
 	ExSimConstraintPair* p = new ExSimConstraintPair(component, params);
+	params->pivot_p = BulletHelpers::ToUEPos(p2p->getPivotInA());
+	params->pivot_t = BulletHelpers::ToUEPos(p2p->getPivotInB());
 	p->setConstraint(p2p);
 	return p;
 }
@@ -722,6 +723,27 @@ ExSimConstraintPair* AExScene::fixGear(ExSimComponent* par, ExSimComponent* trg,
 	ExSimConstraintPair* p = new ExSimConstraintPair(par, params);
 	p->setConstraint(g);
 	return p;
+}
+
+ExSimConstraintPair* AExScene::createConstraint(ExSimComponent* par, ExSimComponent* trg, FExConstraintParams* params)
+{
+	ExSimConstraintPair * pt = nullptr;
+	if (params->constr_type == ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING)
+	{
+		pt = fixGen6dofSpring(par, trg, params);
+	}
+	if(pt)
+	{
+		par->getConstraints()->Add(pt);
+	}
+	return pt;
+}
+
+bool AExScene::checkConstraint(ExSimConstraintPair* trg)
+{
+	if(trg->getConstraint() != nullptr)
+		return true;
+	return false;
 }
 
 btTypedConstraint* AExScene::fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params)

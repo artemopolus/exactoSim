@@ -97,6 +97,9 @@ public:
 	ExSimConstraintPair * fixConeTwist(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
 	ExSimConstraintPair * fixSlider(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
 	ExSimConstraintPair * fixGear(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
+
+	ExSimConstraintPair * createConstraint(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
+	bool checkConstraint(ExSimConstraintPair * trg);
 	
 	btTypedConstraint * fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params);
 	void pickTrgBody(btRigidBody * body, FVector location);
