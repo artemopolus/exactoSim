@@ -68,6 +68,7 @@ public:
 		END
 	};
 	TMap<EConstraintParamNames, FString> OptionNamesPtr;
+	TMap<EConstraintParamNames, FString> OptionValuesPtr;
 	TMap<FString, FString> OptionValuePairsPtr;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FConstraintChanged, int, type, FString, value);
@@ -110,10 +111,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void createTest(FString name, float mass = 1.0f, FVector loc = FVector(0,0,50), FRotator rot = FRotator(0,0,0));
 
-	void createSceneObj(void);
-	void createSceneObj(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
+	void createComponent(void);
+	void createComponent(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
 	void createConstraint(AActor * target, AActor * parent, FExConstraintParams params);
 	void createConstraint(AActor * target, FExConstraintParams * params);
+	void createConstraint(ExSimComponent * target, ExSimComponent * parent);
 	void updateConstraint();
 	
 	bool getConstraint(const AActor * target, TArray<ExSimConstraintPair *> * constr);
@@ -146,10 +148,13 @@ public:
 	void loadExSimComplex();
 
 	void resetOptVPP();
+	void updateOptVPP();
 	void setOptVPP(ExSimConstraintPair * params);
 
 	void updateConstraintCommand(EConstraintParamNames type, FString str);
 	void undoConstraintCommand();
+
+	ExSimConstraintPair * getNewConstraintPair();
 
 private:
 	void createComplex(ExSimComponent * component, FString new_complex_name);

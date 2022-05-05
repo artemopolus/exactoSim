@@ -72,6 +72,8 @@ public:
 		void onEditableWidgetChanged(FString ini, FString gen, int id, int type);
 	UFUNCTION()
 		void onDataStorageConstraintChanged(int type, FString value);
+	UFUNCTION()
+		void onSelectorWidgetChanged(FString value, ESelectInfo::Type type, int id);
 
 	
 	
@@ -99,6 +101,7 @@ public:
 	bool isParTrgPair();
 	FString getParTrgInfo();
 
+
 	
 private:
 	void setCurrentToParent();
@@ -116,7 +119,10 @@ private:
 
 	void deleteConstraintOptions();
 
+	void addOptionToTable();
+	void clearOptionFromTable();
 	void addInputTable();
+	
 	void addButtonToTempList(const FString name, const int tag);
 	void clearButtonTempList();
 	bool checkVectorOption(UExEditableWidget * option, EConstraintParamNames checker, FVector & vect);
@@ -232,7 +238,7 @@ private:
 	ExSimPhyzHelpers::Constraint SelectedConstraintType = ExSimPhyzHelpers::Constraint::NONE;
 
 	
-	
+		
 
 	
 };

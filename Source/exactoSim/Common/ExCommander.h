@@ -71,11 +71,42 @@ public:
 	{
 		Pack.setActive(target, type, vec);
 	}
-
 	virtual void execute() override { Pack.update(); }
 	virtual void unExecute() override { Pack.revert(); }
 };
-
+class EXACTOSIM_API ExUpdateConstraintFloat : public ExBasicCommand
+{
+	TExPack<float> Pack;
+public:
+	ExUpdateConstraintFloat(FExConstraintParams* target, EConstraintParamNames type, float vec)
+	{
+		Pack.setActive(target, type, vec);
+	}
+	virtual void execute() override { Pack.update(); }
+	virtual void unExecute() override { Pack.revert(); }
+};
+class EXACTOSIM_API ExUpdateConstraintInt : public ExBasicCommand
+{
+	TExPack<int> Pack;
+public:
+	ExUpdateConstraintInt(FExConstraintParams* target, EConstraintParamNames type, int vec)
+	{
+		Pack.setActive(target, type, vec);
+	}
+	virtual void execute() override { Pack.update(); }
+	virtual void unExecute() override { Pack.revert(); }
+};
+class EXACTOSIM_API ExUpdateConstraintType : public ExBasicCommand
+{
+	TExPack<ExSimPhyzHelpers::Constraint> Pack;
+public:
+	ExUpdateConstraintType(FExConstraintParams* target, EConstraintParamNames type, ExSimPhyzHelpers::Constraint vec)
+	{
+		Pack.setActive(target, type, vec);
+	}
+	virtual void execute() override { Pack.update(); }
+	virtual void unExecute() override { Pack.revert(); }
+};
 class EXACTOSIM_API ExCommander
 {
 	TArray<ExBasicCommand*> DoneCommands;
@@ -98,8 +129,10 @@ public:
 		ActiveConstraint = constraint;	
 	}
 	void updateConstraint( EConstraintParamNames type, FVector vec);
-
-	void updateConstraint(EConstraintParamNames type, FString str);
+	void updateConstraint( EConstraintParamNames type, FString str);
+	void updateConstraint( EConstraintParamNames type, float val);
+	void updateConstraint( EConstraintParamNames type, int val);
+	void updateConstraint( EConstraintParamNames type, ExSimPhyzHelpers::Constraint val);
 
 	void undo()
 	{
@@ -113,6 +146,10 @@ public:
 			delete Command;
 		}
 	}
+private:
+	void executeCommand();
 	
 	
 };
+
+

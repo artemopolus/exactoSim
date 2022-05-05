@@ -80,18 +80,18 @@ void AExSimStorage::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//createTest("HelloWorld");
 	FString path = "Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'";
 	const FString magnet_name = "Magnet";
 	const FVector magnet_pos(0,0,200);
 	const FVector magnet_relpivot0(0,0,20);
 	const FVector magnet_relpivot1(20,0,20);
-	createSceneObj(magnet_name, path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
+	createComponent(magnet_name, path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
 	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";	
-	createSceneObj("HelloWorld", path, 1.0f, FVector(0,0,50), FRotator(0,0,0), false);
+	createComponent("Hello", path, 1.0f, FVector(0,-50,50), FRotator(0,0,0), false);
+	createComponent("Cubic", path, 1.0f, FVector(0,50,50), FRotator(0,0,0), false);
 	path = "Class'/Game/Blueprint/Scene/BP_ESB_Spring.BP_ESB_Spring_C'";
 	const FString spring_name = "Spring";
-	createSceneObj(spring_name, path, 1.0f, FVector(0,50,250), FRotator(0,0,0), false);
+	createComponent(spring_name, path, 1.0f, FVector(0,50,250), FRotator(0,0,0), false);
 
 	ExSimComponent * target = nullptr;
 
@@ -101,29 +101,23 @@ void AExSimStorage::BeginPlay()
 		{
 			if (component->getName() == magnet_name)
 			{
-				ExSimConstraintPair * p = new ExSimConstraintPair();
-				// p->constraint = CurrentScene->fixP2PBody(component->Body, magnet_relpivot0);
-				p->setConstraint(CurrentScene->fixP2PBody(component->getBody(), magnet_relpivot0));
-				p->setType(ExSimPhyzHelpers::Constraint::P2P);
-				p->setName(magnet_name);
+				
 				FExConstraintParams *pp = new FExConstraintParams();
-				pp->pivot_t = magnet_relpivot0;
-				pp->pivot_p = component->getTarget()->GetActorLocation();
+				pp->pivot_p = magnet_relpivot0;
+				pp->axis_p = component->getTarget()->GetActorLocation();
 				pp->name_p = component->getName();
 				pp->constr_type = ExSimPhyzHelpers::Constraint::P2P;
-				p->setParams(pp);
+				pp->name_constraint = magnet_name + TEXT("_1");
+				pp->impulse_clamp = 30.f;
+				pp->tau = 0.001f;
+				ExSimConstraintPair * p = CurrentScene->fixP2P(component, pp);
 				component->getConstraints()->Add(p);
 
-				ExSimConstraintPair * p1 = new ExSimConstraintPair();
-				p->setConstraint( CurrentScene->fixP2PBody(component->getBody(), magnet_relpivot1));
-				p->setType(ExSimPhyzHelpers::Constraint::P2P);
-				p->setName( magnet_name + TEXT("_P2P1"));
-				FExConstraintParams *pp1 = new FExConstraintParams();
-				pp1->pivot_t = magnet_relpivot1;
-				pp1->pivot_p = component->getTarget()->GetActorLocation();
-				pp1->name_p = component->getName();
-				pp1->constr_type = ExSimPhyzHelpers::Constraint::P2P;
-				p1->setParams(pp1);
+
+
+				pp->name_constraint = magnet_name + TEXT("_2");
+				pp->pivot_p = magnet_relpivot1;				
+				ExSimConstraintPair *p1 = CurrentScene->fixP2P(component,pp);
 				component->getConstraints()->Add(p1);
 				
 				target = component;
@@ -141,9 +135,6 @@ void AExSimStorage::BeginPlay()
 	params->low_lim_ang = FVector::ZeroVector;
 	params->upp_lim_ang = FVector::ZeroVector;
 
-	params->en_spring[0] = 1;
-	params->en_spring[1] = 1;
-	params->en_spring[2] = 1;
 
 	float stiff = Stiffness;
 	float dump = Dumping;
@@ -157,44 +148,37 @@ void AExSimStorage::BeginPlay()
 		for (auto & component : *ExSimComplexList[0]->getComponents())
 		{
 			if (component->getName() == spring_name)
-			{
 				spring = component;
-
-			}
 		}
 
 		if (spring)
 		{
-				ExSimConstraintPair * p = new ExSimConstraintPair();
-				p->setConstraint( CurrentScene->fixP2PBody(spring->getBody(), FVector(0,0,20)));
-				p->setType(ExSimPhyzHelpers::Constraint::P2P);
-				p->setName( magnet_name);
-				FExConstraintParams * fix_params = new FExConstraintParams();
-				fix_params->pivot_t = FVector(0,0,20);
-				fix_params->pivot_p = spring->getTarget()->GetActorLocation();
-				fix_params->name_p = spring->getName();
-				fix_params->constr_type = ExSimPhyzHelpers::Constraint::P2P;
-				p->setParams( fix_params);
-				spring->getConstraints()->Add(p);
+			FExConstraintParams* fix_params = new FExConstraintParams();
+			fix_params->pivot_p = FVector(0, 0, 20);
+			fix_params->axis_p = spring->getTarget()->GetActorLocation();
+			fix_params->name_p = spring->getName();
+			fix_params->constr_type = ExSimPhyzHelpers::Constraint::P2P;
+			fix_params->name_constraint = TEXT("P2P magnet");
+			fix_params->impulse_clamp = 30.f;
+			fix_params->tau = 0.001f;
+			
 
-				ExSimConstraintPair * gen = new ExSimConstraintPair();
-				gen->setConstraint( CurrentScene->fixGen6dofSpring(target->getBody(), spring->getBody(), *params));
-				p->setType(ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING);
-				gen->setName( "Spring Imitator");
-				gen->setParent(target);	
-				gen->getConstraint()->setUserConstraintPtr(gen);
-				params->name_p = target->getName();
-				params->name_t = spring->getName();
+			ExSimConstraintPair* p = CurrentScene->fixP2P(spring, fix_params);
+			spring->getConstraints()->Add(p);
 
-				gen->setParams( params);
 
-				spring->getConstraints()->Add(gen);
+			params->enables_spring = 7;
+			params->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
+			params->name_constraint = TEXT("g6dof spring");
+			ExSimConstraintPair* gen = CurrentScene->fixGen6dofSpring(target, spring, params);
+			
 
-				spring->getBasis()->getComponents()->Remove(spring);
-				spring->setBasis( target->getBasis());
-				target->getBasis()->getComponents()->Add(spring);			
+			spring->getConstraints()->Add(gen);
+
+			spring->getBasis()->getComponents()->Remove(spring);
+			spring->setBasis(target->getBasis());
+			target->getBasis()->getComponents()->Add(spring);
 		}
-		
 	}
 }
 
@@ -251,21 +235,21 @@ void AExSimStorage::createTest(FString name, float mass, FVector loc, FRotator r
 {
 	const FString path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";
 	
-	createSceneObj(name, path, mass, loc, rot, false);	
+	createComponent(name, path, mass, loc, rot, false);	
 }
 
-void AExSimStorage::createSceneObj()
+void AExSimStorage::createComponent()
 {
 	//SceneObjCreated++;
 	if (ExWorld && ExWorld->ExFileManager)
 	{
 		FString path = ExWorld->ExFileManager->getPathToBlueprint(TargetType);
 		FString name = TargetName + TEXT("_") + TargetType + TEXT("_") + FString::FromInt(SceneObjCreated);
-		createSceneObj(name, path, 1.0f, FVector(0,0,0), FRotator(0,0,0), true);
+		createComponent(name, path, 1.0f, FVector(0,0,0), FRotator(0,0,0), true);
 	}
 }
 
-void AExSimStorage::createSceneObj(FString name, FString path, float mass, FVector loc, FRotator rot, bool use_genloc)
+void AExSimStorage::createComponent(FString name, FString path, float mass, FVector loc, FRotator rot, bool use_genloc)
 {
 	SceneObjCreated++;
 	if (CurrentScene)
@@ -313,13 +297,36 @@ void AExSimStorage::createConstraint(AActor* target, FExConstraintParams * param
 		createComplex(component, component->getName() + TEXT("_Complex"));
 
 	ExSimConstraintPair * p = new ExSimConstraintPair();
-    p->setConstraint( CurrentScene->fixP2PBody(component->getBody(), params));
+    p->setConstraint( CurrentScene->fixP2P(component->getBody(), params));
 	p->setType(ExSimPhyzHelpers::Constraint::P2P);
     p->setName( params->name_p);
 	p->setParams( params);
     component->getConstraints()->Add(p);
 }
 
+void AExSimStorage::createConstraint(ExSimComponent * parent_component, ExSimComponent * target_component)
+{
+	if (CurrentScene->checkConstraint(CurrentConstraintPtr))
+		return;
+	//Add to parent complex or create new one
+	if (parent_component->getBasis() == ExSimComplexList[0])
+	{
+		parent_component->setBasis( new ExSimComplex());
+		parent_component->getBasis()->setName( parent_component->getName());
+		ExSimComplexList.Add(parent_component->getBasis());
+		ExSimComplexList[0]->getComponents()->Remove(parent_component);
+	}
+	//create constraint 	
+	ExSimConstraintPair * p = CurrentScene->createConstraint(parent_component, target_component, CurrentConstraintPtr->getParams());
+	delete CurrentConstraintPtr;
+	CurrentConstraintPtr = p;
+
+	//rebase component
+	target_component->getBasis()->getComponents()->Remove(target_component);
+	target_component->setBasis( parent_component->getBasis());
+	parent_component->getBasis()->getComponents()->Add(target_component);
+	
+}
 
 
 bool AExSimStorage::getConstraint(const AActor* target, TArray<ExSimConstraintPair *> * constr )
@@ -548,48 +555,27 @@ void AExSimStorage::loadExSimComplex()
 
 void AExSimStorage::resetOptVPP()
 {
-	const FString vector_str = ExConvert::getStrFromVec(FVector::ZeroVector);
-	const FString value_str = ExConvert::getStrFromFloat(0.f);
-	const FString name_str("default");
 
-	OptionValuePairsPtr.Empty();
-	
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_pivot], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_pivot], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::low_lim_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::upp_lim_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::low_lim_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::upp_lim_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::stiff_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::stiff_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_lin], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_ang], vector_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::en_spring], "0; 0; 0; 0; 0; 0");
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_name], name_str);
-    OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_name], name_str);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameOfConstraint(ExSimPhyzHelpers::Constraint::NONE));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name],name_str);
+	ExSimConstraintPair * params = new ExSimConstraintPair();
+
+	setOptVPP(params);
+}
+
+void AExSimStorage::updateOptVPP()
+{
+	setOptVPP(CurrentConstraintPtr);
 }
 
 void AExSimStorage::setOptVPP(ExSimConstraintPair* params)
 {
 	CurrentConstraintPtr = params;//???
 	ConstraintCommander.setActiveConstraint(params->getParams());
-	OptionValuePairsPtr.Empty();
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_pivot], ExConvert::getStrFromVec(params->getParams()->pivot_p));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_pivot], ExConvert::getStrFromVec(params->getParams()->pivot_t));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::low_lim_lin], ExConvert::getStrFromVec(params->getParams()->low_lim_lin));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::upp_lim_lin], ExConvert::getStrFromVec(params->getParams()->upp_lim_lin));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::low_lim_ang], ExConvert::getStrFromVec(params->getParams()->low_lim_ang));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::upp_lim_ang], ExConvert::getStrFromVec(params->getParams()->upp_lim_ang));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::stiff_lin], ExConvert::getStrFromVec(params->getParams()->stiff_lin));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::stiff_ang], ExConvert::getStrFromVec(params->getParams()->stiff_ang));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_lin], ExConvert::getStrFromVec(params->getParams()->dump_lin));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::dump_ang], ExConvert::getStrFromVec(params->getParams()->dump_ang));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::parent_name], params->getParams()->name_p);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::target_name], params->getParams()->name_t);
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_t], ExSimPhyzHelpers::getNameOfConstraint(params->getParams()->constr_type));
-	OptionValuePairsPtr.Add(OptionNamesPtr[EConstraintParamNames::constraint_name], (params->getParams()->name_constraint));
+
+	ExConstraintDict::updateNames(&OptionNamesPtr, params->getParams()->constr_type);
+	ExConstraintDict::updateValues(&OptionValuesPtr,params->getParams());
+	ExConstraintDict::getNameValuePairs(&OptionNamesPtr,&OptionValuesPtr, &OptionValuePairsPtr);
+
+	
 }
 
 void AExSimStorage::updateConstraint()
@@ -615,10 +601,16 @@ void AExSimStorage::undoConstraintCommand()
 {
 	ConstraintCommander.undo();
 	//update constraint
+	updateConstraint();
 	if (EssEvOnConstraintChanged.IsBound())
 	{
 		EssEvOnConstraintChanged.Broadcast(-1, TEXT("None"));
 	}
+}
+
+ExSimConstraintPair* AExSimStorage::getNewConstraintPair()
+{
+	return new ExSimConstraintPair();
 }
 
 

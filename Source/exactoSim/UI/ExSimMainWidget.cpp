@@ -421,6 +421,7 @@ FString UExSimMainWidget::getParTrgInfo()
 	return info;
 }
 
+
 void UExSimMainWidget::setCurrentToParent()
 {
 	ParentActor = CurrentActor;
@@ -496,33 +497,13 @@ bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, EConstraint
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
 
-	FExConstraintParams * params = new FExConstraintParams();
+	
 
-	for (auto & option : EditableList)
-	{
-		checkVectorOption(option, EConstraintParamNames::parent_pivot, params->pivot_p);	
-		checkVectorOption(option, EConstraintParamNames::target_pivot, params->pivot_t);
-		checkVectorOption(option, EConstraintParamNames::parent_axis, params->axis_p);
-		checkVectorOption(option, EConstraintParamNames::target_axis, params->axis_t);
-		
-		checkVectorOption(option, EConstraintParamNames::low_lim_lin, params->low_lim_lin);	
-		checkVectorOption(option, EConstraintParamNames::upp_lim_lin, params->upp_lim_lin);	
-		checkVectorOption(option, EConstraintParamNames::low_lim_ang, params->low_lim_ang);	
-		checkVectorOption(option, EConstraintParamNames::upp_lim_ang, params->upp_lim_ang);	
-		checkVectorOption(option, EConstraintParamNames::stiff_lin, params->stiff_lin);	
-		checkVectorOption(option, EConstraintParamNames::stiff_ang, params->stiff_ang);	
-		checkVectorOption(option, EConstraintParamNames::dump_lin, params->dump_lin);
-		checkVectorOption(option, EConstraintParamNames::dump_ang, params->dump_ang);
-		checkStringOption(option, EConstraintParamNames::parent_name, params->name_p);
-		checkStringOption(option, EConstraintParamNames::target_name, params->name_t);
-	}
-
-	//delete
+	//delete table of constraint option 
 	deleteConstraintOptions();
 
-	params->constr_type = SelectedConstraintType;
+	DataStorage->createConstraint(ParentActor, TargetActor);
 
-	DataStorage->createConstraint(ParentActor->getTarget(), params);
 }
 
 
@@ -534,13 +515,13 @@ void UExSimMainWidget::deleteConstraintOptions()
 	OptionsButton_Esc->RemoveFromParent();
 	
 	StorageWrapBox->ClearChildren();
-	for (auto & option : EditableList)
-		option->RemoveFromParent(); // don't delete widget directly
-	EditableList.Empty();
+	clearOptionFromTable();
 	for (auto & select : SelectorList)
 		select->RemoveFromRoot();
 	SelectorList.Empty();	
 }
+
+
 
 
 void UExSimMainWidget::onConstraintEscClicked()
@@ -563,14 +544,12 @@ void UExSimMainWidget::getInputTableOptions()
     
 	SelectedConstraintType = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
 }
-
-void UExSimMainWidget::addInputTable()
+void UExSimMainWidget::addOptionToTable()
 {
-	UExComboWidget * bt = CreateWidget<UExComboWidget>(this, ComboClass);
-    StorageWrapBox->AddChild(bt);
-	for (int i = 0; i < static_cast<int>(ExSimPhyzHelpers::NONE); i++)
-		bt->ValueComboBox->AddOption(ExSimPhyzHelpers::getNameOfConstraint(static_cast<ExSimPhyzHelpers::Constraint>(i)));
-	
+	if (EditableList.Num())
+	{
+		clearOptionFromTable();	
+	}
 	for (TTuple<EConstraintParamNames, FString>  option : DataStorage->OptionNamesPtr)
 	{
 		FString name = option.Value;
@@ -579,10 +558,31 @@ void UExSimMainWidget::addInputTable()
 		if (value)
 			addEditableToStorageWB(name, *value,0,type);
 	}
+}
+
+void UExSimMainWidget::clearOptionFromTable()
+{
+	for (auto & option : EditableList)
+		option->RemoveFromParent(); // don't delete widget directly
+	EditableList.Empty();
+}
+
+void UExSimMainWidget::addInputTable()
+{
+	UExSelector * sl = CreateWidget<UExSelector>(this, SelectorClass);
+	sl->init(TEXT("Constraint: "), 0);
+	for (int i = 0; i < static_cast<int>(ExSimPhyzHelpers::NONE); i++)
+		sl->addSelectorValue(ExSimPhyzHelpers::getNameFromConstraint(static_cast<ExSimPhyzHelpers::Constraint>(i)));
+	sl->EventOnSelectorValueChanged.AddDynamic(this, &UExSimMainWidget::onSelectorWidgetChanged);
+	SelectorList.Add(sl);
+	StorageWrapBox->AddChild(sl);
+	
+
+	addOptionToTable();
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
 
-	FString out = TEXT("Add table") + ExSimPhyzHelpers::getNameOfConstraint(SelectedConstraintType);
+	FString out = TEXT("Add table") + ExSimPhyzHelpers::getNameFromConstraint(SelectedConstraintType);
 	
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
 }
@@ -623,11 +623,24 @@ void UExSimMainWidget::onEditableWidgetChanged(FString ini, FString gen, int id,
 void UExSimMainWidget::onDataStorageConstraintChanged(int type, FString value)
 {
 	sendDebug(TEXT("Try update new value: ") + value);
+	if (EConstraintParamNames::constraint_t == static_cast<EConstraintParamNames>(type))
+	{
+		DataStorage->updateOptVPP();
+		addOptionToTable();
+		return;	
+	}
 	updateEditableAll();
 }
+
+void UExSimMainWidget::onSelectorWidgetChanged(FString value, ESelectInfo::Type type, int id)
+{
+	sendDebug("SELECTOR is CHANGED");
+	DataStorage->updateConstraintCommand(EConstraintParamNames::constraint_t, value);
+}
+
 void UExSimMainWidget::updateEditableAll()
 {
-	DataStorage->setOptVPP(CurrentConstraint);
+	DataStorage->updateOptVPP();
 	getInputTableOptions();
 	for (auto & ed : EditableList)
 	{

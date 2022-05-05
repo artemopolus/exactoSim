@@ -1,5 +1,11 @@
 #pragma once
 
+#define ES_PHYZ_HELP_DEF_GENERIC6DOF_SPRING TEXT("Generic 6DOF Spring")
+#define ES_PHYZ_HELP_DEF_POINT_TO_POINT TEXT("Point to Point")
+#define ES_PHYZ_HELP_DEF_HINGE TEXT("Hinge")
+#define ES_PHYZ_HELP_DEF_HINGE2 TEXT("Hinge 2v")
+#define ES_PHYZ_HELP_DEF_NONE TEXT("Unknown")
+
 class EXACTOSIM_API ExSimPhyzHelpers
 {
 public:
@@ -12,16 +18,28 @@ public:
 		NONE
 	};
 
-	static FString getNameOfConstraint(Constraint Type)
+	static FString getNameFromConstraint(Constraint Type)
 	{
 		if (Type == Constraint::GEN6DOF_SPRING)
-			return TEXT("Generic 6DOF Spring");
+			return ES_PHYZ_HELP_DEF_GENERIC6DOF_SPRING;
 		if (Type == Constraint::P2P)
-			return TEXT("Point to Point");
+			return ES_PHYZ_HELP_DEF_POINT_TO_POINT;
 		if (Type == Constraint::HINGE)
-			return TEXT("Hinge");
+			return ES_PHYZ_HELP_DEF_HINGE;
 		if (Type == Constraint::HINGE2)
-			return TEXT("Hinge 2v");
-		return TEXT("Unknown");
+			return ES_PHYZ_HELP_DEF_HINGE2;
+		return ES_PHYZ_HELP_DEF_NONE;
+	}
+	static Constraint getConstraintFromName(FString name)
+	{
+		if (name == ES_PHYZ_HELP_DEF_GENERIC6DOF_SPRING)
+			return GEN6DOF_SPRING;
+		if (name == ES_PHYZ_HELP_DEF_POINT_TO_POINT)
+			return P2P;
+		if (name == ES_PHYZ_HELP_DEF_HINGE)
+			return HINGE;
+		if (name == ES_PHYZ_HELP_DEF_HINGE2)
+			return HINGE2;
+		return NONE;
 	}
 };
