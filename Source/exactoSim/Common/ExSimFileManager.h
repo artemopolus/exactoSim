@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ExMeshLoader.h"
+#include "exactoSim/DataTypes/ExSimComponent.h"
 #include "GameFramework/Actor.h"
 #include "ExSimFileManager.generated.h"
 
@@ -66,6 +67,8 @@ public:
 	void openModel(FString name);
 	
 	void loadMeshInComponent(UProceduralMeshComponent* target);
+
+	void save(ExSimComplex * src);
 
 	void saveEsComplexParams(const es_complex_params * src);
 

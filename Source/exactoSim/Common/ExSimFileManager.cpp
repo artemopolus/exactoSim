@@ -116,6 +116,38 @@ void AExSimFileManager::loadMeshInComponent(UProceduralMeshComponent* target)
 		MeshLoader->loadMeshInComponent(target);
 }
 
+void AExSimFileManager::save(ExSimComplex* target)
+{
+	es_complex_params * cmplx = new es_complex_params();
+	cmplx->string_list.Add("Name",target->getName());
+	cmplx->string_list.Add("BasisName",target->getBasis()->getName());
+
+	TMap<EConstraintParamNames, FString> names_dict;
+	TMap<EConstraintParamNames, FString> values_dict;
+
+	ExConstraintDict::getDefaultNames(&names_dict);
+	
+	
+	for (const auto component : *target->getComponents())
+	{
+		es_component_params * cmpnt = new es_component_params();
+		cmpnt->string_list.Add("Name",component->getName());
+		cmpnt->string_list.Add("Path",component->getPath());
+		for (const auto constr : *component->getConstraints())
+		{
+			es_constraint_params * p = new es_constraint_params();
+
+
+			ExConstraintDict::updateValues(&values_dict, constr->getParams());
+			ExConstraintDict::getNameValuePairs(&names_dict,&values_dict, &p->string_list);
+
+			cmpnt->constraints.Add(p);
+		}
+		cmplx->components.Add(cmpnt);
+	}
+	saveEsComplexParams(cmplx);
+}
+
 void AExSimFileManager::saveEsComplexParams(const es_complex_params* src)
 {
 	FString name = src->string_list.FindRef("Name");
@@ -132,26 +164,11 @@ void AExSimFileManager::saveEsComplexParams(const es_complex_params* src)
 			writer->WriteValue(str.Key, str.Value);
 		for (auto & constraint : component->constraints)
 		{
-			writer->WriteObjectStart(constraint->string_list.FindRef("Name"));
-			for (const auto & s : component->string_list)
+			const auto constraint_name = constraint->string_list.FindRef("Constraint Name");
+			writer->WriteObjectStart(constraint_name);
+			for (const auto & s : constraint->string_list)
 				writer->WriteValue(s.Key, s.Value);
-			for (const auto & f : constraint->float_list)
-				writer->WriteValue(f.Key, f.Value);
-			for (const auto & v : constraint->vector_list)
-			{
-				writer->WriteArrayStart(v.Key);
-				writer->WriteValue(v.Value.X);
-				writer->WriteValue(v.Value.Y);
-				writer->WriteValue(v.Value.Z);
-				writer->WriteArrayEnd();
-			}
-			for (const auto & b : constraint->boolarray_list)
-			{
-				writer->WriteArrayStart(b.Key);
-				for (auto & value : b.Value)
-					writer->WriteValue(value);
-				writer->WriteArrayEnd();
-			}
+			
 			writer->WriteObjectEnd();
 		}
 		writer->WriteObjectEnd();

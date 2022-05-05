@@ -86,7 +86,8 @@ private:
 	FRotator TargetRotation;
 	
 	ExCommander ConstraintCommander;
-	ExSimConstraintPair * CurrentConstraintPtr;
+	ExSimConstraintPair * CurrentConstraintPtr = nullptr;
+	ExSimComplex * CurrentComplex = nullptr;
 
 
 	
@@ -139,11 +140,15 @@ public:
 	void letActor();
 	bool getActorInfo(FVector & pos);
 
-	void saveExSimComplex(ExSimComplex * target);
+	void selectComplex(ExSimComponent * trg);
+	
+	void saveComplex();
+	
+	void saveComplex(int index);
+	void saveComplex(ExSimComplex * target);
 	
 	void convertExSimComplex(ExSimComplex * target, const AExSimFileManager::es_complex_params * src);
 
-	void saveExSimComplex(int index);
 
 	void loadExSimComplex();
 

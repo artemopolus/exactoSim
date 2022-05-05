@@ -663,37 +663,11 @@ void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 
 void UExSimMainWidget::onConstrP2PButtonClicked()
 {
-	/*if (!ParentActor)
-		return;
-	if (!OptionNames.Num())
-		OptionNames = DataStorage->OptionNamesPtr;
-	if (!OptionValuePairs.Num())
-		OptionValuePairs = DataStorage->OptionValuePairsPtr;
-	SelectedConstraintType = BulletHelpers::Constr::P2P;
-
-	FString name = OptionNames[AExactoPhysics::es_options_list::parent_pivot];
-	FString * value = OptionValuePairs.Find(name);
-	if (value)
-		addOptionToStorage(name, *value);
-	name =  OptionNames[AExactoPhysics::es_options_list::parent_name];
-	value = OptionValuePairs.Find(name);
-	*value += TEXT("_") + ParentActor->getName() + TEXT("_P2P");
-	if (value)
-		addOptionToStorage(name, *value);
-
-	name =  OptionNames[AExactoPhysics::es_options_list::target_pivot];
-	value = OptionValuePairs.Find(name);
-	if (value)
-		addOptionToStorage(name, *value);
-	
-	name =  OptionNames[AExactoPhysics::es_options_list::dump_lin];
-	value = OptionValuePairs.Find(name);
-	*value = "30.0; 0.001; 0.0";
-	if (value)
-		addOptionToStorage(name, *value);
-
-	addConstraintButtonOk();
-	addConstraintButtonEsc();*/
+	if(ParentActor)
+	{
+		DataStorage->selectComplex(ParentActor);
+		DataStorage->saveComplex();
+	}
 }
 
 

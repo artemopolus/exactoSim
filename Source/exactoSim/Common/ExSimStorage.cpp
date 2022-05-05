@@ -465,43 +465,20 @@ bool AExSimStorage::getActorInfo(FVector& pos)
 	return false;
 }
 
-void AExSimStorage::saveExSimComplex(ExSimComplex* target)
+void AExSimStorage::selectComplex(ExSimComponent* trg)
 {
-	AExSimFileManager::es_complex_params * cmplx = new AExSimFileManager::es_complex_params();
-	cmplx->string_list.Add("Name",target->getName());
-	cmplx->string_list.Add("BasisName",target->getBasis()->getName());
-	for (const auto component : *target->getComponents())
-	{
-		AExSimFileManager::es_component_params * cmpnt = new AExSimFileManager::es_component_params();
-		cmpnt->string_list.Add("Name",component->getName());
-		cmpnt->string_list.Add("Path",component->getPath());
-		for (const auto constr : *component->getConstraints())
-		{
-			AExSimFileManager::es_constraint_params * p = new AExSimFileManager::es_constraint_params();
-			p->string_list.Add("Name", constr->getName());
-			p->string_list.Add("Type",FString(ConstrType[constr->getType()].c_str()));
-			p->string_list.Add("Parent", (constr->getParent()) ? constr->getParent()->getName() : "NULL");
-			p->string_list.Add("NameParent",constr->getParams()->name_p);
-			p->string_list.Add("NameTarget",constr->getParams()->name_t);
-			
-			p->vector_list.Add("AxisParent",constr->getParams()->axis_p);
-			p->vector_list.Add("AxisTarget",constr->getParams()->axis_t);
-			p->vector_list.Add("DumpAngular",constr->getParams()->dump_ang);
-			p->vector_list.Add("DumpLinear",constr->getParams()->dump_lin);
-			p->vector_list.Add("LowerLimAngular",constr->getParams()->low_lim_ang);
-			p->vector_list.Add("UpperLimAngular",constr->getParams()->upp_lim_ang);
-			p->vector_list.Add("PivotParent",constr->getParams()->pivot_p);
-			p->vector_list.Add("PivotTarget",constr->getParams()->pivot_t);
-			p->vector_list.Add("StiffnessAngular",constr->getParams()->stiff_ang);
-			p->vector_list.Add("StiffnessLinear",constr->getParams()->stiff_lin);
-			p->vector_list.Add("LowerLimLinear",constr->getParams()->low_lim_lin);
-			p->vector_list.Add("UpperLimLinear",constr->getParams()->upp_lim_lin);
-			cmpnt->constraints.Add(p);
-		}
-		cmplx->components.Add(cmpnt);
-	}
-	ExWorld->ExFileManager->saveEsComplexParams(cmplx);
+	CurrentComplex = trg->getBasis();
+}
 
+void AExSimStorage::saveComplex()
+{
+	saveComplex(CurrentComplex);
+}
+
+void AExSimStorage::saveComplex(ExSimComplex* target)
+{
+	if (target)
+		ExWorld->ExFileManager->save(target);
 }
 
 void AExSimStorage::convertExSimComplex(ExSimComplex* target, const AExSimFileManager::es_complex_params* src)
@@ -542,9 +519,9 @@ void AExSimStorage::convertExSimComplex(ExSimComplex* target, const AExSimFileMa
 	}
 }
 
-void AExSimStorage::saveExSimComplex(int index)
+void AExSimStorage::saveComplex(int index)
 {
-	saveExSimComplex(ExSimComplexList[index]);
+	saveComplex(ExSimComplexList[index]);
 }
 
 void AExSimStorage::loadExSimComplex()
