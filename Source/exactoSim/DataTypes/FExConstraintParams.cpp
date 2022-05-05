@@ -61,8 +61,37 @@ void ExConstraintDict::updateValues(TMap<EConstraintParamNames, FString>* trg, F
 	
 }
 
+void ExConstraintDict::getDefaultNames(TMap<EConstraintParamNames, FString>* trg)
+{
+	trg->FindOrAdd(EConstraintParamNames::parent_pivot) = TEXT("Parent Pivot"); 
+	trg->FindOrAdd(EConstraintParamNames::target_pivot) = TEXT("Target Pivot");  
+	trg->FindOrAdd(EConstraintParamNames::parent_axis) = TEXT("Parent Axis");  
+	trg->FindOrAdd(EConstraintParamNames::target_axis) = TEXT("Target Axis"); 
+	trg->FindOrAdd(EConstraintParamNames::dump_ang) = TEXT("Dumping Angular");  
+	trg->FindOrAdd(EConstraintParamNames::dump_lin) = TEXT("Dumping Linear");  
+	trg->FindOrAdd(EConstraintParamNames::low_lim_ang) = TEXT("Angular Lower limit");  
+	trg->FindOrAdd(EConstraintParamNames::upp_lim_ang) = TEXT("Angular Upper Limit");  
+	trg->FindOrAdd(EConstraintParamNames::low_lim_lin) = TEXT("Linear Lower Limit");  
+	trg->FindOrAdd(EConstraintParamNames::upp_lim_lin) = TEXT("Linear Upper Limit");  
+	trg->FindOrAdd(EConstraintParamNames::stiff_ang) = TEXT("Angular Stiffness");  
+	trg->FindOrAdd(EConstraintParamNames::stiff_lin) = TEXT("Linear Stiffness");  
+	
+	trg->FindOrAdd(EConstraintParamNames::constraint_name) =  TEXT("Constraint Name");  
+	trg->FindOrAdd(EConstraintParamNames::parent_name) = TEXT("Parent Name");   
+	trg->FindOrAdd(EConstraintParamNames::target_name) = TEXT("Target Name");   
+
+	trg->FindOrAdd(EConstraintParamNames::tau) = TEXT("Tau");  
+	trg->FindOrAdd(EConstraintParamNames::impulse_clamp) = TEXT("Impulse Clamp");  
+	trg->FindOrAdd(EConstraintParamNames::lower_limit) = TEXT("Lower Limit");  
+	trg->FindOrAdd(EConstraintParamNames::upper_limit) = TEXT("Upper Limit");  
+
+	trg->FindOrAdd(EConstraintParamNames::enables_spring) =  TEXT("Enabled Spring"); 
+
+	trg->FindOrAdd(EConstraintParamNames::constraint_t) =  TEXT("Constraint Type"); 
+}
+
 void ExConstraintDict::getNameValuePairs(TMap<EConstraintParamNames, FString>* names,
-	TMap<EConstraintParamNames, FString>* values, TMap<FString, FString>* trg)
+                                         TMap<EConstraintParamNames, FString>* values, TMap<FString, FString>* trg)
 {
 	for(auto & n : *names)
 	{

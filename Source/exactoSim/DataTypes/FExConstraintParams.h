@@ -98,6 +98,7 @@ class EXACTOSIM_API ExConstraintDict
 public:
 	static void updateNames(TMap<EConstraintParamNames, FString> * trg, ExSimPhyzHelpers::Constraint type);
 	static void updateValues(TMap<EConstraintParamNames, FString> * trg, FExConstraintParams * params);
+	static void getDefaultNames(TMap<EConstraintParamNames, FString> * trg);
 	static void getNameValuePairs(TMap<EConstraintParamNames, FString> * names, TMap<EConstraintParamNames, FString> * values, TMap<FString, FString> * trg);
 };
 
