@@ -1,4 +1,5 @@
 #pragma once
+#include "ExComponentParams.h"
 #include "ExSimPhyzHelpers.h"
 #include "FExConstraintParams.h"
 
@@ -38,10 +39,11 @@ class EXACTOSIM_API ExSimComponent
 {
 	FString Name;
 	FString Path;
-	AActor* Target;
-	btRigidBody* Body;
+	AActor* Target = nullptr;
+	btRigidBody* Body = nullptr;
 	TArray<ExSimConstraintPair*> Constraints;
-	ExSimComplex* Basis;
+	ExSimComplex* Basis = nullptr;
+	FExComponentParams * Params = nullptr;
 public:
 	bool getConstraintNames(TArray<FString>* names);
 	bool addConstraint(FString name);
@@ -53,12 +55,14 @@ public:
 	btRigidBody * getBody(){return Body;}
 	TArray<ExSimConstraintPair*> * getConstraints(){return &Constraints;}
 	ExSimComplex * getBasis(){return Basis;}
+	FExComponentParams * getParams(){return Params;}
 	
 	void setName(FString name){Name = name;}
 	void setPath(FString path){Path = path;}
 	void setTarget(AActor * target){Target = target;}
 	void setBody(btRigidBody * body){Body = body;}
 	void setBasis(ExSimComplex * basis){Basis = basis;}
+	void setParams(FExComponentParams * params){Params = params;}
 };
 
 class ExSimComplex

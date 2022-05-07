@@ -233,6 +233,8 @@ bool AExScene::addObjByPath(ExSimComponent** component, const FString path, cons
 			(*component)->setTarget( target );
 			(*component)->setName( name );
 			(*component)->setPath( path );
+			FExComponentParams * p = new FExComponentParams(name, path, mass, location, rotation);
+			(*component)->setParams(p);
 			result = true;
 		}
 	}

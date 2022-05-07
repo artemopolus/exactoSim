@@ -5,6 +5,11 @@ FString ExConvert::getStrFromVec(FVector vec)
 	return FString::SanitizeFloat(vec.X) + TEXT(" ;") + FString::SanitizeFloat(vec.Y) + TEXT(" ;") + FString::SanitizeFloat(vec.Z);
 }
 
+FString ExConvert::getStrFromRot(FRotator rot)
+{
+	return FString::SanitizeFloat(rot.Pitch) + TEXT(" ;") + FString::SanitizeFloat(rot.Roll) + TEXT(" ;") + FString::SanitizeFloat(rot.Yaw);
+}
+
 FString ExConvert::getStrFromFloat(float val)
 {
 	return FString::SanitizeFloat(val);

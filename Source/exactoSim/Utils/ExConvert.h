@@ -5,6 +5,7 @@ class ExConvert
 {
 public:
 	static FString getStrFromVec(FVector vec);
+	static FString getStrFromRot(FRotator rot);
 	static FString getStrFromFloat(float val);
 	static FString getBoolStrFromInt(uint8_t val, int last = 10);
 

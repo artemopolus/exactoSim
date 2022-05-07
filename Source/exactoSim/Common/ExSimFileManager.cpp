@@ -122,24 +122,30 @@ void AExSimFileManager::save(ExSimComplex* target)
 	cmplx->string_list.Add("Name",target->getName());
 	cmplx->string_list.Add("BasisName",target->getBasis()->getName());
 
-	TMap<EConstraintParamNames, FString> names_dict;
-	TMap<EConstraintParamNames, FString> values_dict;
+	TMap<EConstraintParamNames, FString> constraint_names_dict;
+	TMap<EConstraintParamNames, FString> constraint_values_dict;
 
-	ExConstraintDict::getDefaultNames(&names_dict);
+	TMap<EnExComponentParamNames, FString> component_names_dict;
+	TMap<EnExComponentParamNames, FString> component_values_dict;
+
+	ExConstraintDict::getDefaultNames(&constraint_names_dict);
+	ExComponentDict::getDefaultNames(&component_names_dict);
 	
 	
 	for (const auto component : *target->getComponents())
 	{
 		es_component_params * cmpnt = new es_component_params();
-		cmpnt->string_list.Add("Name",component->getName());
-		cmpnt->string_list.Add("Path",component->getPath());
+		ExComponentDict::updateValues(&component_values_dict, component->getParams());
+		ExComponentDict::getNameValuePairs(&component_names_dict, &component_values_dict, &cmpnt->string_list);
+		// cmpnt->string_list.Add("Name",component->getName());
+		// cmpnt->string_list.Add("Path",component->getPath());
 		for (const auto constr : *component->getConstraints())
 		{
 			es_constraint_params * p = new es_constraint_params();
 
 
-			ExConstraintDict::updateValues(&values_dict, constr->getParams());
-			ExConstraintDict::getNameValuePairs(&names_dict,&values_dict, &p->string_list);
+			ExConstraintDict::updateValues(&constraint_values_dict, constr->getParams());
+			ExConstraintDict::getNameValuePairs(&constraint_names_dict,&constraint_values_dict, &p->string_list);
 
 			cmpnt->constraints.Add(p);
 		}
@@ -159,7 +165,7 @@ void AExSimFileManager::saveEsComplexParams(const es_complex_params* src)
 		writer->WriteValue(str.Key, str.Value);
 	for (auto & component : src->components)
 	{
-		writer->WriteObjectStart(component->string_list.FindRef("Name"));
+		writer->WriteObjectStart(component->string_list.FindRef("Component Name"));
 		for (auto & str : component->string_list)
 			writer->WriteValue(str.Key, str.Value);
 		for (auto & constraint : component->constraints)
