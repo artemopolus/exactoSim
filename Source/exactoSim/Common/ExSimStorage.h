@@ -163,5 +163,6 @@ public:
 
 private:
 	void createComplex(ExSimComponent * component, FString new_complex_name);
+	void createTestObjects();
 	
 };

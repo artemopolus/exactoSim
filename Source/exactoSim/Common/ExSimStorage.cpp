@@ -72,7 +72,109 @@ AExSimStorage::AExSimStorage()
 	
 }
 
-
+ void AExSimStorage::createTestObjects()
+{
+		FString path = "Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'";
+    	const FString magnet_name = "Magnet";
+    	const FVector magnet_pos(0,0,200);
+    	const FVector magnet_relpivot0(0,0,20);
+    	const FVector magnet_relpivot1(20,0,20);
+    	createComponent(magnet_name, path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
+    	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";	
+    	createComponent("Hello", path, 1.0f, FVector(0,-50,50), FRotator(0,0,0), false);
+    	createComponent("Cubic", path, 1.0f, FVector(0,50,50), FRotator(0,0,0), false);
+    	path = "Class'/Game/Blueprint/Scene/BP_ESB_Spring.BP_ESB_Spring_C'";
+    	const FString spring_name = "Spring";
+    	createComponent(spring_name, path, 1.0f, FVector(0,50,250), FRotator(0,0,0), false);
+    
+    	ExSimComponent * target = nullptr;
+    
+    	for (auto & system : ExSimComplexList)
+    	{
+    		for (auto & component : *system->getComponents())
+    		{
+    			if (component->getName() == magnet_name)
+    			{
+    				
+    				FExConstraintParams *pp = new FExConstraintParams();
+    				pp->pivot_p = magnet_relpivot0;
+    				pp->axis_p = component->getTarget()->GetActorLocation();
+    				pp->name_p = component->getName();
+    				pp->constr_type = ExSimPhyzHelpers::Constraint::P2P;
+    				pp->name_constraint = magnet_name + TEXT("_1");
+    				pp->impulse_clamp = 30.f;
+    				pp->tau = 0.001f;
+    				ExSimConstraintPair * p = CurrentScene->fixP2P(component, pp);
+    				component->getConstraints()->Add(p);
+    
+    
+    
+    				pp->name_constraint = magnet_name + TEXT("_2");
+    				pp->pivot_p = magnet_relpivot1;				
+    				ExSimConstraintPair *p1 = CurrentScene->fixP2P(component,pp);
+    				component->getConstraints()->Add(p1);
+    				
+    				target = component;
+    				break;
+    			}
+    		}
+    	}
+    	FExConstraintParams *params = new FExConstraintParams();
+    	params->pivot_p = PivotP;
+    	params->pivot_t = PivotT;
+    
+    	params->low_lim_lin = LowLimLin;
+    	params->upp_lim_lin = UppLimLin;
+    
+    	params->low_lim_ang = FVector::ZeroVector;
+    	params->upp_lim_ang = FVector::ZeroVector;
+    
+    
+    	float stiff = Stiffness;
+    	float dump = Dumping;
+    	params->stiff_lin = FVector(stiff, stiff, stiff);
+    	params->dump_lin = FVector(dump, dump, dump);
+    	
+    	if (target)
+    	{
+    		createComplex(target, magnet_name);
+    		ExSimComponent * spring = nullptr;
+    		for (auto & component : *ExSimComplexList[0]->getComponents())
+    		{
+    			if (component->getName() == spring_name)
+    				spring = component;
+    		}
+    
+    		if (spring)
+    		{
+    			FExConstraintParams* fix_params = new FExConstraintParams();
+    			fix_params->pivot_p = FVector(0, 0, 20);
+    			fix_params->axis_p = spring->getTarget()->GetActorLocation();
+    			fix_params->name_p = spring->getName();
+    			fix_params->constr_type = ExSimPhyzHelpers::Constraint::P2P;
+    			fix_params->name_constraint = TEXT("P2P magnet");
+    			fix_params->impulse_clamp = 30.f;
+    			fix_params->tau = 0.001f;
+    			
+    
+    			ExSimConstraintPair* p = CurrentScene->fixP2P(spring, fix_params);
+    			spring->getConstraints()->Add(p);
+    
+    
+    			params->enables_spring = 7;
+    			params->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
+    			params->name_constraint = TEXT("g6dof spring");
+    			ExSimConstraintPair* gen = CurrentScene->fixGen6dofSpring(target, spring, params);
+    			
+    
+    			spring->getConstraints()->Add(gen);
+    
+    			spring->getBasis()->getComponents()->Remove(spring);
+    			spring->setBasis(target->getBasis());
+    			target->getBasis()->getComponents()->Add(spring);
+    		}
+    	}
+}
 
 
 // Called when the game starts or when spawned
@@ -80,106 +182,9 @@ void AExSimStorage::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FString path = "Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'";
-	const FString magnet_name = "Magnet";
-	const FVector magnet_pos(0,0,200);
-	const FVector magnet_relpivot0(0,0,20);
-	const FVector magnet_relpivot1(20,0,20);
-	createComponent(magnet_name, path, 100.0f, magnet_pos, FRotator(0,0,0), false);	
-	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";	
-	createComponent("Hello", path, 1.0f, FVector(0,-50,50), FRotator(0,0,0), false);
-	createComponent("Cubic", path, 1.0f, FVector(0,50,50), FRotator(0,0,0), false);
-	path = "Class'/Game/Blueprint/Scene/BP_ESB_Spring.BP_ESB_Spring_C'";
-	const FString spring_name = "Spring";
-	createComponent(spring_name, path, 1.0f, FVector(0,50,250), FRotator(0,0,0), false);
+	// createTestObjects();
+	// AExSimFileManager::es_complex_params * p = new AExSimFileManager::es_complex_params();
 
-	ExSimComponent * target = nullptr;
-
-	for (auto & system : ExSimComplexList)
-	{
-		for (auto & component : *system->getComponents())
-		{
-			if (component->getName() == magnet_name)
-			{
-				
-				FExConstraintParams *pp = new FExConstraintParams();
-				pp->pivot_p = magnet_relpivot0;
-				pp->axis_p = component->getTarget()->GetActorLocation();
-				pp->name_p = component->getName();
-				pp->constr_type = ExSimPhyzHelpers::Constraint::P2P;
-				pp->name_constraint = magnet_name + TEXT("_1");
-				pp->impulse_clamp = 30.f;
-				pp->tau = 0.001f;
-				ExSimConstraintPair * p = CurrentScene->fixP2P(component, pp);
-				component->getConstraints()->Add(p);
-
-
-
-				pp->name_constraint = magnet_name + TEXT("_2");
-				pp->pivot_p = magnet_relpivot1;				
-				ExSimConstraintPair *p1 = CurrentScene->fixP2P(component,pp);
-				component->getConstraints()->Add(p1);
-				
-				target = component;
-				break;
-			}
-		}
-	}
-	FExConstraintParams *params = new FExConstraintParams();
-	params->pivot_p = PivotP;
-	params->pivot_t = PivotT;
-
-	params->low_lim_lin = LowLimLin;
-	params->upp_lim_lin = UppLimLin;
-
-	params->low_lim_ang = FVector::ZeroVector;
-	params->upp_lim_ang = FVector::ZeroVector;
-
-
-	float stiff = Stiffness;
-	float dump = Dumping;
-	params->stiff_lin = FVector(stiff, stiff, stiff);
-	params->dump_lin = FVector(dump, dump, dump);
-	
-	if (target)
-	{
-		createComplex(target, magnet_name);
-		ExSimComponent * spring = nullptr;
-		for (auto & component : *ExSimComplexList[0]->getComponents())
-		{
-			if (component->getName() == spring_name)
-				spring = component;
-		}
-
-		if (spring)
-		{
-			FExConstraintParams* fix_params = new FExConstraintParams();
-			fix_params->pivot_p = FVector(0, 0, 20);
-			fix_params->axis_p = spring->getTarget()->GetActorLocation();
-			fix_params->name_p = spring->getName();
-			fix_params->constr_type = ExSimPhyzHelpers::Constraint::P2P;
-			fix_params->name_constraint = TEXT("P2P magnet");
-			fix_params->impulse_clamp = 30.f;
-			fix_params->tau = 0.001f;
-			
-
-			ExSimConstraintPair* p = CurrentScene->fixP2P(spring, fix_params);
-			spring->getConstraints()->Add(p);
-
-
-			params->enables_spring = 7;
-			params->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
-			params->name_constraint = TEXT("g6dof spring");
-			ExSimConstraintPair* gen = CurrentScene->fixGen6dofSpring(target, spring, params);
-			
-
-			spring->getConstraints()->Add(gen);
-
-			spring->getBasis()->getComponents()->Remove(spring);
-			spring->setBasis(target->getBasis());
-			target->getBasis()->getComponents()->Add(spring);
-		}
-	}
 }
 
 // Called every frame
@@ -472,7 +477,11 @@ void AExSimStorage::selectComplex(ExSimComponent* trg)
 
 void AExSimStorage::saveComplex()
 {
-	saveComplex(CurrentComplex);
+	ExSimComplex * p = new ExSimComplex();
+	ExWorld->ExFileManager->loadEsComplexParams(TEXT("Magnet"), p);
+
+	__nop();
+	// saveComplex(CurrentComplex);
 }
 
 void AExSimStorage::saveComplex(ExSimComplex* target)

@@ -652,13 +652,14 @@ void UExSimMainWidget::updateEditableAll()
 
 void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
 {
-	if (!OptionNames)
-		OptionNames = &DataStorage->OptionNamesPtr;
-	if (!OptionValuePairs)
-		OptionValuePairs = &DataStorage->OptionValuePairsPtr;
-
-	SelectedConstraintType = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
-	addInputTable();
+	// if (!OptionNames)
+	// 	OptionNames = &DataStorage->OptionNamesPtr;
+	// if (!OptionValuePairs)
+	// 	OptionValuePairs = &DataStorage->OptionValuePairsPtr;
+	//
+	// SelectedConstraintType = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
+	// addInputTable();
+		DataStorage->saveComplex();
 }
 
 void UExSimMainWidget::onConstrP2PButtonClicked()
