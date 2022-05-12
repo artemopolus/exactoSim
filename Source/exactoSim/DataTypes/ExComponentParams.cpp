@@ -4,20 +4,20 @@
 
 void ExComponentDict::updateValues(TMap<EnExComponentParamNames, FString>* trg, FExComponentParams* params)
 {
-	trg->FindOrAdd(EnExComponentParamNames::POSITION) = ExConvert::getStrFromVec(params->Position); 
-	trg->FindOrAdd(EnExComponentParamNames::NAME) = params->Name; 
-	trg->FindOrAdd(EnExComponentParamNames::PATH) = params->Path; 
-	trg->FindOrAdd(EnExComponentParamNames::MASS) = ExConvert::getStrFromFloat(params->Mass); 
-	trg->FindOrAdd(EnExComponentParamNames::ROTATION) = ExConvert::getStrFromRot(params->Rotation); 
+	trg->FindOrAdd(EnExComponentParamNames::A_POSITION) = ExConvert::getStrFromVec(params->Position); 
+	trg->FindOrAdd(EnExComponentParamNames::C_NAME) = params->Name; 
+	trg->FindOrAdd(EnExComponentParamNames::C_PATH) = params->Path; 
+	trg->FindOrAdd(EnExComponentParamNames::D_MASS) = ExConvert::getStrFromFloat(params->Mass); 
+	trg->FindOrAdd(EnExComponentParamNames::B_ROTATION) = ExConvert::getStrFromRot(params->Rotation); 
 }
 
 void ExComponentDict::getDefaultNames(TMap<EnExComponentParamNames, FString>* trg)
 {
-	trg->FindOrAdd(EnExComponentParamNames::MASS) = TEXT("Mass"); 
-	trg->FindOrAdd(EnExComponentParamNames::NAME) = TEXT("Component Name"); 
-	trg->FindOrAdd(EnExComponentParamNames::PATH) = TEXT("Path to Blueprint"); 
-	trg->FindOrAdd(EnExComponentParamNames::POSITION) = TEXT("Init Local Position"); 
-	trg->FindOrAdd(EnExComponentParamNames::ROTATION) = TEXT("Init Local Rotation"); 
+	trg->FindOrAdd(EnExComponentParamNames::D_MASS) = TEXT("Mass"); 
+	trg->FindOrAdd(EnExComponentParamNames::C_NAME) = TEXT("Component Name"); 
+	trg->FindOrAdd(EnExComponentParamNames::C_PATH) = TEXT("Path to Blueprint"); 
+	trg->FindOrAdd(EnExComponentParamNames::A_POSITION) = TEXT("Init Local Position"); 
+	trg->FindOrAdd(EnExComponentParamNames::B_ROTATION) = TEXT("Init Local Rotation"); 
 }
 
 void ExComponentDict::getNameValuePairs(TMap<EnExComponentParamNames, FString>* names,
@@ -31,3 +31,15 @@ void ExComponentDict::getNameValuePairs(TMap<EnExComponentParamNames, FString>* 
 		trg->FindOrAdd(name) = *value;
 	}
 }
+
+void ExComponentDict::fromNameValuePairsToParams(TMap<FString, FString>* src, FExComponentParams* trg)
+{
+	TMap<EnExComponentParamNames, FString> names;
+	getDefaultNames(&names);
+	for (auto name : names)
+	{
+		const auto str = src->FindRef(name.Value);
+		ExConvert::updateParams(trg, name.Key, str);
+	}
+}
+

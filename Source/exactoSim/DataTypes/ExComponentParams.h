@@ -31,11 +31,16 @@ struct EXACTOSIM_API FExComponentParams
 };
 enum class EnExComponentParamNames : int
 {
-	NAME = 0,
-	PATH,
-	MASS,
-	POSITION,
-	ROTATION
+	AA_VECTOR_START = 0,
+	A_POSITION,
+	BA_ROTATOR_START,
+	B_ROTATION,
+	CA_STRING_START,
+	C_NAME ,
+	C_PATH,
+	DA_FLOAT_START,
+	D_MASS,
+	ZZ_OPT_END
 };
 class EXACTOSIM_API ExComponentDict
 {
@@ -44,4 +49,5 @@ public:
 	static void getDefaultNames(TMap<EnExComponentParamNames, FString>* trg);
 	static void getNameValuePairs(TMap<EnExComponentParamNames, FString>* names,
 	                              TMap<EnExComponentParamNames, FString>* values, TMap<FString, FString>* trg);
+	static void fromNameValuePairsToParams(TMap<FString, FString> * src, FExComponentParams * trg);
 };
