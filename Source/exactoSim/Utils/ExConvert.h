@@ -1,4 +1,5 @@
 #pragma once
+#include "exactoSim/DataTypes/ExComponentParams.h"
 #include "exactoSim/DataTypes/FExConstraintParams.h"
 
 class ExConvert
@@ -15,6 +16,7 @@ public:
 	static FVector getVecFromStr(FString str);
 	static bool checkVecStr(const FString str);
 	static float getFloatFromStr(FString str);
+	static FRotator getRotFromStr(FString str);
 
 	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, FString val);
 	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, FVector val);
@@ -22,11 +24,17 @@ public:
 	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, float val);
 	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, int val);
 
+
 	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, FString * trg);
 	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, FVector * trg);
 	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, ExSimPhyzHelpers::Constraint * trg);
 	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, float * trg);
 	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, int * trg);
 	
-	
+	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, FString val);
+	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, FVector val);	
+	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, FRotator val);	
+	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, float val);
 };
+
+

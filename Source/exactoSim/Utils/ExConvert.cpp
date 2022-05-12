@@ -9,7 +9,19 @@ FString ExConvert::getStrFromRot(FRotator rot)
 {
 	return FString::SanitizeFloat(rot.Pitch) + TEXT(" ;") + FString::SanitizeFloat(rot.Roll) + TEXT(" ;") + FString::SanitizeFloat(rot.Yaw);
 }
-
+FRotator ExConvert::getRotFromStr(FString str)
+{
+		TArray<FString> values;
+    	FRotator out(0,0,0);
+    	str.ParseIntoArray(values, TEXT(";"), true);
+    	if (values.Num() == 3)
+    	{
+    		out.Pitch = FCString::Atof(*values[0]);	
+    		out.Roll = FCString::Atof(*values[1]);	
+    		out.Yaw = FCString::Atof(*values[2]);
+    	}
+    	return out;
+}
 FString ExConvert::getStrFromFloat(float val)
 {
 	return FString::SanitizeFloat(val);
@@ -113,6 +125,8 @@ float ExConvert::getFloatFromStr(FString str)
 	return FCString::Atof(*str);
 }
 
+
+
 bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames type, FString val)
 {
 	if (type == EConstraintParamNames::constraint_name)
@@ -121,7 +135,20 @@ bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames typ
 		trg->name_p = val;
 	else if (type == EConstraintParamNames::target_name)
 		trg->name_t = val;
-	else return false;
+	else
+	{
+		if (EConstraintParamNames::vector_start < type && type < EConstraintParamNames::string_start)
+			updateParams(trg, type, getVecFromStr(val));
+		else if (EConstraintParamNames::float_start < type && type < EConstraintParamNames::int_start)
+			updateParams(trg, type, getFloatFromStr(val));
+		else if (EConstraintParamNames::int_start < type && type < EConstraintParamNames::opt_end)
+		{
+			uint8_t v;
+			getIntFromBoolStr(val, &v);
+			updateParams(trg, type, v);
+			
+		}
+	}
 	return true;
 }
 
@@ -251,5 +278,47 @@ bool ExConvert::getParams(FExConstraintParams* src, EConstraintParamNames type, 
 		*trg = src->enables_spring;
 	else
 		return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExComponentParams* trg, EnExComponentParamNames type, FString val)
+{
+	if (EnExComponentParamNames::CA_STRING_START < type && type < EnExComponentParamNames::DA_FLOAT_START)
+	{
+		if (type == EnExComponentParamNames::C_NAME)
+			trg->Name = val;
+		else if(type == EnExComponentParamNames::C_PATH)
+			trg->Path = val;
+	}
+	else if (EnExComponentParamNames::AA_VECTOR_START < type && type < EnExComponentParamNames::BA_ROTATOR_START)
+		return updateParams(trg, type, getVecFromStr(val));
+	else if (EnExComponentParamNames::BA_ROTATOR_START < type && type < EnExComponentParamNames::CA_STRING_START)
+		return updateParams(trg, type, getRotFromStr(val));
+	else if (EnExComponentParamNames::DA_FLOAT_START < type && type < EnExComponentParamNames::ZZ_OPT_END)
+		return updateParams(trg, type, getFloatFromStr(val));
+	else return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExComponentParams* trg, EnExComponentParamNames type, FVector val)
+{
+	if (type == EnExComponentParamNames::A_POSITION)
+		trg->Position = val;
+	else return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExComponentParams* trg, EnExComponentParamNames type, FRotator val)
+{
+	if (type == EnExComponentParamNames::B_ROTATION)
+		trg->Rotation = val;
+	else return false;
+	return true;
+}
+bool ExConvert::updateParams(FExComponentParams* trg, EnExComponentParamNames type, float val)
+{
+	if (type == EnExComponentParamNames::D_MASS)
+		trg->Mass = val;
+	else return false;
 	return true;
 }
