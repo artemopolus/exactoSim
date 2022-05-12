@@ -63,19 +63,25 @@ public:
 	void setBody(btRigidBody * body){Body = body;}
 	void setBasis(ExSimComplex * basis){Basis = basis;}
 	void setParams(FExComponentParams * params){Params = params;}
+
+	void addConstraint(ExSimConstraintPair * c){Constraints.Add(c);}
 };
 
 class ExSimComplex
 {
 	FString Name;
+	FString BasisName;
 	ExSimComponent* Basis = nullptr;
 	TArray<ExSimComponent*> Components;
 public:
 	~ExSimComplex();
 	void setName(FString name){Name = name;}
+	void setBasisName(FString name){BasisName = name;}
 	void setBasis(ExSimComponent * basis){Basis = basis;}
 
 	FString getName(){return Name;}
 	ExSimComponent * getBasis(){return Basis;}
 	TArray<ExSimComponent*> * getComponents(){return &Components;}
+
+	void addComponent(ExSimComponent * c){Components.Add(c);}
 };

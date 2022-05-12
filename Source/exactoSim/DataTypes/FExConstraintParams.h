@@ -100,5 +100,6 @@ public:
 	static void updateValues(TMap<EConstraintParamNames, FString> * trg, FExConstraintParams * params);
 	static void getDefaultNames(TMap<EConstraintParamNames, FString> * trg);
 	static void getNameValuePairs(TMap<EConstraintParamNames, FString> * names, TMap<EConstraintParamNames, FString> * values, TMap<FString, FString> * trg);
+	static void fromNameValuePairsToParams(TMap<FString, FString> * src, FExConstraintParams * trg);
 };
 

@@ -3,6 +3,8 @@
 
 #include "ExSimFileManager.h"
 
+#include "exactoSim/Utils/ExConvert.h"
+
 
 // Sets default values
 AExSimFileManager::AExSimFileManager()
@@ -265,5 +267,102 @@ void AExSimFileManager::loadEsComplexParams(TArray<es_complex_params *> complexe
 		complexes_list.Add(cmplx);
 	}
 	return;
+}
+
+void AExSimFileManager::loadEsComplexParams(const FString name, es_complex_params* trg)
+{
+	if (!trg)
+		return;
+	FString path = this->PathToComplexFolder + name + TEXT(".json");
+	FString str;
+	FFileHelper::LoadFileToString(str, *path);
+	TSharedRef<TJsonReader<TCHAR>> reader = TJsonReaderFactory<TCHAR>::Create(str);
+	TSharedPtr<FJsonObject> json_object = MakeShareable(new FJsonObject);
+	FJsonSerializer::Deserialize(reader, json_object);
+	auto fields = json_object->Values;
+
+	// es_complex_params* cmplx = new es_complex_params();
+	for (const auto& field : fields)
+	{
+		const TSharedPtr<FJsonObject>* obj;
+		FString str0;
+		if (field.Value->TryGetObject(obj))
+		{
+			//load component
+			es_component_params* cmpnt = new es_component_params(); // don't want recursive function
+			const TSharedPtr<FJsonObject>* cnstr_obj;
+			FString str1;
+			auto fs = obj->Get()->Values;
+			for (const auto& f : fs)
+			{
+				if (f.Value->TryGetObject(cnstr_obj))
+				{
+					es_constraint_params* cnstr = new es_constraint_params();
+					FString str2;
+					auto ps = cnstr_obj->Get()->Values;
+					for (const auto& p : ps)
+					{
+						//load constraint value
+						if (p.Value->TryGetString(str2))
+							cnstr->string_list.Add(p.Key, str2);
+					}
+					cmpnt->constraints.Add(cnstr);
+				}
+				else if (f.Value->TryGetString(str1))
+					//load component value
+					cmpnt->string_list.Add(f.Key, str1);
+			}
+			trg->components.Add(cmpnt);
+		}
+		else if (field.Value->TryGetString(str0))
+			//load complex params
+			trg->string_list.Add(field.Key, str0);
+	}
+}
+
+void AExSimFileManager::loadEsComplexParams(const FString name, ExSimComplex* trg)
+{
+	es_complex_params * complex_params = new es_complex_params();
+	loadEsComplexParams(name, complex_params);
+	auto key = complex_params->string_list.FindRef("Name");
+	trg->setName(key);
+	key = complex_params->string_list.FindRef("BasisName");
+	trg->setBasisName(key);
+	for (const auto & component : complex_params->components)
+	{
+		ExSimComponent * trg_component = new ExSimComponent();
+		FExComponentParams * component_params = new FExComponentParams();
+		ExComponentDict::fromNameValuePairsToParams(&component->string_list, component_params);
+		trg_component->setParams(component_params);
+		for (auto & constraint : component->constraints)
+		{
+			FExConstraintParams * params = new FExConstraintParams();
+			ExConstraintDict::fromNameValuePairsToParams(& constraint->string_list, params);
+			ExSimConstraintPair * constraint_pair = new ExSimConstraintPair();
+			constraint_pair->setParams(params);
+			trg_component->addConstraint(constraint_pair);
+		}
+		trg->addComponent(trg_component);
+	}
+	deleteExSimComplexParams(complex_params);
+}
+
+void AExSimFileManager::deleteExSimComplexParams(es_complex_params* cmplx)
+{
+	for(int32 i = 0; i < cmplx->components.Num(); i++)
+	{
+		es_component_params * component = cmplx->components[i];
+		for(int32 j = 0; j < component->constraints.Num(); j++)
+		{
+			es_constraint_params * constraint = component->constraints[j];
+			constraint->string_list.Empty();
+			delete constraint;
+		}
+		component->constraints.Empty();
+		component->string_list.Empty();
+		delete component;
+	}
+	cmplx->components.Empty();
+	delete cmplx;
 }
 

@@ -102,3 +102,14 @@ void ExConstraintDict::getNameValuePairs(TMap<EConstraintParamNames, FString>* n
 	}
 }
 
+void ExConstraintDict::fromNameValuePairsToParams(TMap<FString, FString>* src, FExConstraintParams* trg)
+{
+	TMap<EConstraintParamNames, FString> names;
+	getDefaultNames(&names);
+	for (auto name : names)
+	{
+		const auto str = src->FindRef(name.Value);
+		ExConvert::updateParams(trg, name.Key, str);
+	}
+}
+

@@ -73,6 +73,8 @@ public:
 	void saveEsComplexParams(const es_complex_params * src);
 
 	void loadEsComplexParams(TArray<es_complex_params *> trg);
+	void loadEsComplexParams(const FString name, es_complex_params * trg);
+	void loadEsComplexParams(const FString name, ExSimComplex * trg);
 
 	void deleteExSimComplexParams(es_complex_params * cmplx);
 	
