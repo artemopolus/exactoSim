@@ -134,7 +134,7 @@ void AExSimFileManager::save(ExSimComplex* target)
 	ExComponentDict::getDefaultNames(&component_names_dict);
 	
 	
-	for (const auto component : *target->getComponents())
+	for (const auto component : *target->getComponentsList())
 	{
 		es_component_params * cmpnt = new es_component_params();
 		ExComponentDict::updateValues(&component_values_dict, component->getParams());

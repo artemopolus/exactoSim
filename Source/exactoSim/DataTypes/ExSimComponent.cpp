@@ -34,3 +34,13 @@ ExSimComplex::~ExSimComplex()
 	for (int i = 0; i < Components.Num(); i++)
 		delete Components[i];
 }
+
+ExSimComponent* ExSimComplex::getComponent(FString name)
+{
+	for (auto component : Components)
+	{
+		if (component->getName() == name)
+			return component;
+	}
+	return nullptr;
+}

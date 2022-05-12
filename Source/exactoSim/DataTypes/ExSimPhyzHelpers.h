@@ -15,6 +15,10 @@ public:
 		HINGE2,
 		GEN6DOF_SPRING,
 		P2P,
+		GEAR,
+		CONE_TWIST,
+		UNI,
+		SLIDER,
 		NONE
 	};
 

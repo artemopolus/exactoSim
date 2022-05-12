@@ -80,8 +80,11 @@ public:
 	void setBasis(ExSimComponent * basis){Basis = basis;}
 
 	FString getName(){return Name;}
+	FString getBasisName(){return BasisName;}
 	ExSimComponent * getBasis(){return Basis;}
-	TArray<ExSimComponent*> * getComponents(){return &Components;}
+	TArray<ExSimComponent*> * getComponentsList(){return &Components;}
 
 	void addComponent(ExSimComponent * c){Components.Add(c);}
+
+	ExSimComponent * getComponent(FString name);
 };

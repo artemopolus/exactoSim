@@ -70,10 +70,12 @@ public:
 	bool addObjByPath( const FString path, const FString name, btRigidBody ** body, float mass = 1.0f,
 		FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0), bool use_genloc = true,
 		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
-	
+
+	bool addObjByPath(ExSimComponent * component);
 	bool addObjByPath(ExSimComponent ** component, const FString path, const FString name, float mass = 1.0f,
 		FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0), bool use_genloc = true,
 		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
+	
 	
 	void deleteSceneObjByPrefix(std::string prefix);
 
@@ -98,7 +100,17 @@ public:
 	ExSimConstraintPair * fixSlider(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
 	ExSimConstraintPair * fixGear(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
 
+	void fixP2P(ExSimConstraintPair * in, ExSimComponent * component);
+	void fixGen6dofSpring(ExSimConstraintPair * in, ExSimComponent* par, ExSimComponent* trg);
+	void fixHinge2Constraint(ExSimConstraintPair * in, ExSimComponent* par, ExSimComponent* trg);	
+	void fixHinge1Constraint(ExSimConstraintPair * in, ExSimComponent* par, ExSimComponent* trg);
+	void fixUniConstraint(ExSimConstraintPair * in, ExSimComponent* par, ExSimComponent* trg);
+	void fixConeTwist(ExSimConstraintPair * in, ExSimComponent* par, ExSimComponent* trg);
+	void fixSlider(ExSimConstraintPair * in, ExSimComponent* par, ExSimComponent* trg);
+	void fixGear(ExSimConstraintPair * in, ExSimComponent* par, ExSimComponent* trg);
+
 	ExSimConstraintPair * createConstraint(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
+	void createConstraint(ExSimConstraintPair * in, ExSimComponent * par, ExSimComponent * trg);
 	bool checkConstraint(ExSimConstraintPair * trg);
 	
 	btTypedConstraint * fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params);
