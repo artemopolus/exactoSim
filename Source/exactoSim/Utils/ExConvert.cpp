@@ -146,7 +146,10 @@ bool ExConvert::updateParams(FExConstraintParams* trg, EConstraintParamNames typ
 			uint8_t v;
 			getIntFromBoolStr(val, &v);
 			updateParams(trg, type, v);
-			
+		}
+		else if (EConstraintParamNames::constraint_t == type)
+		{
+			updateParams(trg, type, ExSimPhyzHelpers::getConstraintFromName(val));
 		}
 	}
 	return true;

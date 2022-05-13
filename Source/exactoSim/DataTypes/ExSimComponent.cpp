@@ -25,6 +25,13 @@ bool ExSimComponent::removeConstraint(FString name)
 	return false;
 }
 
+FString ExSimComponent::getComplexName()
+{
+	FString out = "";
+	if(Basis)
+		out = Basis->getName();
+	return out;
+}
 
 
 ExSimComplex::~ExSimComplex()

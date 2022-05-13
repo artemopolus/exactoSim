@@ -141,9 +141,10 @@ public:
 	bool getActorInfo(FVector & pos);
 
 	void selectComplex(ExSimComponent * trg);
+
+	void loadComplex();
 	
 	void saveComplex();
-	
 	void saveComplex(int index);
 	void saveComplex(ExSimComplex * target);
 	

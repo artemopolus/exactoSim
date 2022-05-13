@@ -84,13 +84,15 @@ public:
 
 	void selectActor(AActor * actor, FVector mouse_loc, FVector hit_loc);
 
-	void touchActor(AActor * actor, FVector mouse_loc, FVector hit_loc);
+	bool touchActor(AActor * actor, FVector mouse_loc, FVector hit_loc);
 	void moveActor(FVector mouse_loc, FVector mouse_dir);
 	void releaseActor();
 
 
 	void editActor(AActor * actor, FVector2D mouse_on_screen, FVector mouse_loc, FVector hit_loc);
 	void setConstraintOptions();
+
+	void clickOnClearSpace();
 
 private:
 	void moveAction(FVector loc, FRotator rot);

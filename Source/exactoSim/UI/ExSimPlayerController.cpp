@@ -43,35 +43,34 @@ void AExSimPlayerController::mouseLClick()
 {
 	if (!PlayerPtr&&!PlayerPtr->DataStorage)
 		return;
-	FString output = "Loc: ";
 	const FVector2D mouse_pos2d = HUDPtr->getMousePosition();
-	output += mouse_pos2d.ToString();
 	FVector loc, dir;
 	HUDPtr->getMouseProjection(loc, dir);
-	output += loc.ToString() + TEXT("\n dir:") + dir.ToString();
 	FHitResult hit;
 	GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, hit);
+
+	FString output = "Loc: ";
+	output += mouse_pos2d.ToString();
+	output += loc.ToString() + TEXT("\n dir:") + dir.ToString();
 
 	if (hit.bBlockingHit)
 	{
 		output += TEXT("\nActor: ") + hit.Actor->GetName() + TEXT(" ");
 		
-
-		//FVector loc, dir;
 		if (DeprojectMousePositionToWorld(loc, dir))
 		{
-			output += TEXT("\nhit position:") + hit.Location.ToString();
-			
-			output += TEXT("\nmouse position: ") + loc.ToString();
-
 			dir = hit.Location - loc;
+			
+			output += TEXT("\nhit position:") + hit.Location.ToString();
+			output += TEXT("\nmouse position: ") + loc.ToString();
 			output += TEXT("\ndirection: ") + dir.ToString();
+			
 			AActor* actor = hit.Actor.Get();
 			int mode = PlayerPtr->DataStorage->getMode();
 			if (mode == AExSimStorage::es_modes::MOVE)
 			{
-				PlayerPtr->touchActor(actor, loc, hit.Location);
-				MouseLDragOn = true;
+				if (PlayerPtr->touchActor(actor, loc, hit.Location))
+					MouseLDragOn = true;
 			}
 			else if (mode == AExSimStorage::es_modes::EDIT)
 			{
@@ -94,26 +93,28 @@ void AExSimPlayerController::mouseLRelease()
 		MouseLDragOn = false;
 		PlayerPtr->releaseActor();
 	}
+	else
+	{
+		PlayerPtr->clickOnClearSpace();
+	}
 }
 
 void AExSimPlayerController::mouseRClick()
 {
-	if (!PlayerPtr&&!PlayerPtr->DataStorage)
+	if (!PlayerPtr && !PlayerPtr->DataStorage)
 		return;
 	FVector loc, dir;
 	FHitResult hit;
 	const FVector2D mouse_pos2d = HUDPtr->getMousePosition();
-	
+
 	HUDPtr->getMouseProjection(loc, dir);
 	GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, hit);
-	
-	if (hit.bBlockingHit)
+
+	if (hit.bBlockingHit && DeprojectMousePositionToWorld(loc, dir))
 	{
-		if (DeprojectMousePositionToWorld(loc, dir))
-		{
-			dir = hit.Location - loc;
-			AActor* actor = hit.Actor.Get();
-		}
+		dir = hit.Location - loc;
+		AActor* actor = hit.Actor.Get();
+		PlayerPtr->editActor(actor, mouse_pos2d, loc, hit.Location);
 	}
 }
 

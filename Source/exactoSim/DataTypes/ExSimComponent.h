@@ -56,6 +56,7 @@ public:
 	TArray<ExSimConstraintPair*> * getConstraints(){return &Constraints;}
 	ExSimComplex * getBasis(){return Basis;}
 	FExComponentParams * getParams(){return Params;}
+	FString getComplexName();
 	
 	void setName(FString name){Name = name;}
 	void setPath(FString path){Path = path;}

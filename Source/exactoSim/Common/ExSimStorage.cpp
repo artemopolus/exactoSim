@@ -79,10 +79,10 @@ AExSimStorage::AExSimStorage()
 void AExSimStorage::BeginPlay()
 {
 	Super::BeginPlay();
+	
 
-	createTestObjects2();
-	createTestObjects();
-	// AExSimFileManager::es_complex_params * p = new AExSimFileManager::es_complex_params();
+	// createTestObjects2();
+	// createTestObjects();
 
 }
 
@@ -358,12 +358,17 @@ void AExSimStorage::selectComplex(ExSimComponent* trg)
 	CurrentComplex = trg->getBasis();
 }
 
-void AExSimStorage::saveComplex()
+void AExSimStorage::loadComplex()
 {
 	ExSimComplex * p = new ExSimComplex();
 	ExWorld->ExFileManager->loadEsComplexParams(TEXT("Magnet"), p);
+	if (p)
+		createComplex(p);
+}
 
-	// saveComplex(CurrentComplex);
+void AExSimStorage::saveComplex()
+{
+	saveComplex(CurrentComplex);
 }
 
 void AExSimStorage::saveComplex(ExSimComplex* target)
@@ -559,12 +564,12 @@ void AExSimStorage::createTestObjects()
 	float dump = Dumping;
 
 	ExSimComplex * basic = new ExSimComplex();
-	basic->setName("Init Magnet");
+	basic->setName("Magnet");
 	basic->setBasisName(magnet_name);
 	{
 		ExSimComponent * component = new ExSimComponent();
 		FExComponentParams * params = new FExComponentParams();
-		params->Mass = mass;
+		params->Mass = 100.f;
 		params->Name = magnet_name;
 		params->Path = TEXT("Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'");
 		params->Position = magnet_pos;
@@ -633,7 +638,7 @@ void AExSimStorage::createTestObjects()
 	{
 		ExSimComponent* component = new ExSimComponent();
 		FExComponentParams* params = new FExComponentParams();
-		params->Mass = mass;
+		params->Mass = 1.f;
 		params->Name = spring_name;
 		params->Path = TEXT("Class'/Game/Blueprint/Scene/BP_ESB_Spring.BP_ESB_Spring_C'");
 		params->Position = spring_pos;
@@ -673,17 +678,19 @@ void AExSimStorage::createTestObjects2()
 	const float stiff = Stiffness;
 	const float dump = Dumping;
 
+
+
 	FString path = "Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'";
 	createComponent(magnet_name, path, 100.0f, magnet_pos, FRotator(0, 0, 0), false);
 	
 	path = "Class'/Game/Blueprint/Scene/BP_ESB_Spring.BP_ESB_Spring_C'";
 	createComponent(spring_name, path, 1.0f, spring_pos, FRotator(0, 0, 0), false);
-
-	path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";
-	createComponent("Hello", path, 1.0f, FVector(0, -50, 50), FRotator(0, 0, 0), false);
-	createComponent("Cubic", path, 1.0f, FVector(0, 50, 50), FRotator(0, 0, 0), false);
 	
-
+	// path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";
+	// createComponent("Hello", path, 1.0f, FVector(0, -50, 50), FRotator(0, 0, 0), false);
+	// createComponent("Cubic", path, 1.0f, FVector(0, 50, 50), FRotator(0, 0, 0), false);
+	
+	
 	
 	ExSimComponent* magnet_target = nullptr;
 	
@@ -705,7 +712,7 @@ void AExSimStorage::createTestObjects2()
 					ExSimConstraintPair* p = CurrentScene->fixP2P(component, pp);
 					component->getConstraints()->Add(p);
 				}
-	
+				
 				{
 					FExConstraintParams* pp = new FExConstraintParams();
 					pp->pivot_p = magnet_relpivot1;
@@ -725,8 +732,8 @@ void AExSimStorage::createTestObjects2()
 			}
 		}
 	}
-
-
+	
+	
 	
 	if (magnet_target)
 	{
@@ -750,7 +757,7 @@ void AExSimStorage::createTestObjects2()
 			fix_params->tau = 0.001f;
 			ExSimConstraintPair* p = CurrentScene->fixP2P(spring, fix_params);
 			spring->getConstraints()->Add(p);
-
+	
 			FExConstraintParams* params = new FExConstraintParams();
 			params->pivot_p = PivotP;
 			params->pivot_t = PivotT;
@@ -766,7 +773,7 @@ void AExSimStorage::createTestObjects2()
 			ExSimConstraintPair* gen = CurrentScene->fixGen6dofSpring(magnet_target, spring, params);
 			// spring->getConstraints()->Add(gen);
 			magnet_target->getConstraints()->Add(gen);
-
+	
 			
 			spring->getBasis()->getComponentsList()->Remove(spring);
 			spring->setBasis(magnet_target->getBasis());

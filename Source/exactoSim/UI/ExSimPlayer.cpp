@@ -91,8 +91,8 @@ void AExSimPlayer::moveAction(FVector loc, FRotator rot)
 
 void AExSimPlayer::toDebugWindow(FString text)
 {
-	if (TargetWidget && TargetWidget->DebugText)
-		TargetWidget->DebugText->SetText(FText::FromString(text));
+	// if (TargetWidget && TargetWidget->DebugText)
+	// 	TargetWidget->DebugText->SetText(FText::FromString(text));
 }
 
 void AExSimPlayer::moveForward(float value)
@@ -154,20 +154,19 @@ void AExSimPlayer::rotateLeft(float value)
 }
 
 
-void AExSimPlayer::touchActor(AActor* actor, FVector mouse_loc, FVector hit_loc)
+bool AExSimPlayer::touchActor(AActor* actor, FVector mouse_loc, FVector hit_loc)
 {
 	FString output = "";
-	if (DataStorage)
+	if (DataStorage && DataStorage->touchActor(actor, output))
 	{
-		if (DataStorage->touchActor(actor, output))
-		{
-			ActorDragInitDist = hit_loc - mouse_loc;
-			ActorDragDistance = ActorDragInitDist.Size();
-			DataStorage->pickActor(actor, hit_loc);
-			//TargetWidget->DebugText->SetText(FText::FromString(output));
-			toDebugWindow(output);
-		}
+		ActorDragInitDist = hit_loc - mouse_loc;
+		ActorDragDistance = ActorDragInitDist.Size();
+		DataStorage->pickActor(actor, hit_loc);
+		//TargetWidget->DebugText->SetText(FText::FromString(output));
+		toDebugWindow(output);
+		return true;
 	}
+	return false;
 }
 
 void AExSimPlayer::moveActor(FVector mouse_loc, FVector mouse_dir)
@@ -204,6 +203,12 @@ void AExSimPlayer::setConstraintOptions()
 		toDebugWindow("Parent or Target is don't exist");
 	}
 	toDebugWindow("Setup constraint");
+}
+
+void AExSimPlayer::clickOnClearSpace()
+{
+	if(TargetWidget)
+		TargetWidget->updateExSmWidget();
 }
 
 
