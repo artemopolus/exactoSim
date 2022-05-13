@@ -113,21 +113,7 @@ void UExSimMainWidget::updateDebugText(FString str)
 	DebugText->SetText(FText::FromString(str));
 }
 
-void UExSimMainWidget::updateSwitchObjText(const std::string str)
-{
-	if (SwitchObjText)
-	{
-		SwitchObjText->SetText(FText::FromString(str.c_str()));
-	}
-}
 
-void UExSimMainWidget::updateSwitchObjText(const FString str)
-{
-	if (SwitchObjText)
-	{
-		SwitchObjText->SetText(FText::FromString(str));
-	}
-}
 
 void UExSimMainWidget::setVisibilityOptionsPanel(bool onoff)
 {
@@ -145,44 +131,7 @@ void UExSimMainWidget::setVisibilityOptionsPanel(bool onoff)
 }
 
 
-void UExSimMainWidget::onSwitchObjButtonClicked()
-{
-	std::string start = "Gen. Object: ";
-	std::string * str = nullptr;
-	while(str == nullptr)
-	{
-		str = DataStorage->GenObjType.Find(++GenObjKey);
-		if (GenObjKey >= AExSimStorage::exsim_genobj_type::EXGT_END)
-			GenObjKey = -1;
-	}
-	if (str != nullptr)
-	{
-		start += *str;
-		updateSwitchObjText(start);
-		if (DataStorage)
-			DataStorage->setSceneObjName("Test", FString(str->c_str()));
-			//DataStorage->registerExtendedCmd(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, GenObjKey);
-		//DataStorage->registerCmdToSelected(AExSimStorage::exsim_cmd_type::EXCT_SWITCH, static_cast<float>(GenObjKey - 1));
-	}
-}
 
-void UExSimMainWidget::onApplyConstrButtonClicked()
-{
-	std::string start = "Constrain: ";
-	std::string * str = nullptr;
-	while(str == nullptr)
-	{
-		str = DataStorage->ConstrType.Find(++ConstrKey);
-		if (ConstrKey >= ExSimPhyzHelpers::Constraint::NONE)
-			ConstrKey = -1;
-	}	
-	if (str != nullptr)
-	{
-		start += *str;
-		if(ApplyConstrText)
-			ApplyConstrText->SetText(FText::FromString(start.c_str()));
-	}	
-}
 
 
 
@@ -537,7 +486,7 @@ void UExSimMainWidget::onConstraintEscClicked()
 
 
 
-void UExSimMainWidget::onConstrHingeButtonClicked()
+void UExSimMainWidget::onCreateComponentClicked()
 {
 	addEditableToStorageWB("Pivot Parent","0.0; 0.0; 0.0;",0,0);
 }
@@ -682,23 +631,12 @@ bool UExSimMainWidget::Initialize()
 		std::string str = "Debug Info";
 		DebugText->SetText(FText::FromString(str.c_str()));
 	}*/
-	if (SwitchObjButton)
-		SwitchObjButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onSwitchObjButtonClicked);
 
-	if(ApplyConstrButton)
-	{
-		//ApplyConstrButton->SetVisibility(ESlateVisibility::Hidden);
-		ApplyConstrButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onApplyConstrButtonClicked);
-	}
 	
-	//this->GetOwningPlayer()->Player->GetPlayerController(this->GetWorld())->bShowMouseCursor = true;
-	if (InputOptions)
-		InputOptions->SetText(FText::FromString("Hello"));
 
 	if (DataStorage)
 	{
 		std::string * str = DataStorage->GenObjType.Find(GenObjKey++);
-		updateSwitchObjText(*str);
 		DataStorage->setTargetWidget(this);
 		DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
 
@@ -720,11 +658,11 @@ bool UExSimMainWidget::Initialize()
 		ChangeModeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onChangeModeButtonClicked);
 	}
 
-	if (SaveButton&&LoadButton&&ConstrHingeButton)
+	if (SaveButton&&LoadButton&&CreateComponentButton)
 	{
 		SaveButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onSaveClicked);
 		LoadButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onLoadClicked);
-		ConstrHingeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstrHingeButtonClicked);
+		CreateComponentButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onCreateComponentClicked);
 	}
 	
 	return Super::Initialize();

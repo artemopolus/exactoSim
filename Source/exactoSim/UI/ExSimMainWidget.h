@@ -36,10 +36,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category=Common)
 		void updateExSmWidget();
 	
-	UFUNCTION()
-		void onSwitchObjButtonClicked();
-	UFUNCTION()
-		void onApplyConstrButtonClicked();
 
 
 	UFUNCTION()
@@ -64,7 +60,7 @@ public:
 		void onConstraintResetClicked();
 	
 	UFUNCTION()
-		void onConstrHingeButtonClicked();
+		void onCreateComponentClicked();
 	UFUNCTION()
 		void onLoadClicked();
 	UFUNCTION()
@@ -114,8 +110,6 @@ private:
 	void drawPtOnCanvas(int32 x, int32 y, uint8 red, uint8 green, uint8 blue, uint8 alpha);
 	void updateDebugText(const std::string str);
 	void updateDebugText(FString str);
-	void updateSwitchObjText(const std::string str);
-	void updateSwitchObjText(const FString str);
 	void setVisibilityOptionsPanel(bool onoff);
 
 	bool getVectorFromString(FString list, FString splitter, FVector & out);
@@ -141,22 +135,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UTexture2D * RawDataOutput;
 	
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton * SwitchObjButton;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * SwitchObjText;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton * ApplyConstrButton;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * ApplyConstrText;
 
 
 
 
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UEditableTextBox * InputOptions;
+
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UCanvasPanel * OptionsPanel;
@@ -172,9 +156,9 @@ public:
 		class UTextBlock * ChangeModeText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton * ConstrHingeButton;
+		class UButton * CreateComponentButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * ConstrHingeText;
+		class UTextBlock * CreateComponentText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton * LoadButton;
