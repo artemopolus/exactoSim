@@ -107,6 +107,12 @@ void UExSimMainWidget::updateDebugText(const std::string str)
 	}
 }
 
+void UExSimMainWidget::updateDebugText(FString str)
+{
+	
+	DebugText->SetText(FText::FromString(str));
+}
+
 void UExSimMainWidget::updateSwitchObjText(const std::string str)
 {
 	if (SwitchObjText)
@@ -207,7 +213,7 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 			FString pair_info = "Pair info:";
 			pair_info += getParTrgInfo();
 			pair_info += info;
-			DebugText->SetText(FText::FromString(pair_info));
+			// DebugText->SetText(FText::FromString(pair_info));
 
 
 
@@ -352,7 +358,7 @@ void UExSimMainWidget::onTempListButtonClicked()
 			}
 		}
 	}
-	clearButtonTempList();
+	updateExSmWidget();
 }
 void UExSimMainWidget::addButtonToTempList(const FString name, const int tag)
 {
@@ -650,21 +656,14 @@ void UExSimMainWidget::updateEditableAll()
 	}
 }
 
-void UExSimMainWidget::onConstrGen6dofSpringButtonClicked()
+void UExSimMainWidget::onLoadClicked()
 {
-	// if (!OptionNames)
-	// 	OptionNames = &DataStorage->OptionNamesPtr;
-	// if (!OptionValuePairs)
-	// 	OptionValuePairs = &DataStorage->OptionValuePairsPtr;
-	//
-	// SelectedConstraintType = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
-	// addInputTable();
-		DataStorage->saveComplex();
+	DataStorage->loadComplex();
 }
 
-void UExSimMainWidget::onConstrP2PButtonClicked()
+void UExSimMainWidget::onSaveClicked()
 {
-	if(ParentActor)
+	if (ParentActor)
 	{
 		DataStorage->selectComplex(ParentActor);
 		DataStorage->saveComplex();
@@ -721,20 +720,38 @@ bool UExSimMainWidget::Initialize()
 		ChangeModeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onChangeModeButtonClicked);
 	}
 
-	if (ConstrP2PButton&&ConstrGen6dofSpringButton&&ConstrHingeButton)
+	if (SaveButton&&LoadButton&&ConstrHingeButton)
 	{
-		ConstrP2PButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstrP2PButtonClicked);
-		ConstrGen6dofSpringButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstrGen6dofSpringButtonClicked);
+		SaveButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onSaveClicked);
+		LoadButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onLoadClicked);
 		ConstrHingeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onConstrHingeButtonClicked);
 	}
 	
 	return Super::Initialize();
 }
+
 void UExSimMainWidget::initSimMainWidget()
 {
 	if (DataStorage)
 	{
-			DataStorage->setTargetWidget(this);
-    		DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);	
+		DataStorage->setTargetWidget(this);
+		
+		DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
+
+		onChangeModeButtonClicked();
 	}
+}
+
+void UExSimMainWidget::updateExSmWidget()
+{
+	FString out = TEXT("Selected:\n");
+	if(ParentActor)
+		out += TEXT("Parent: ") + ParentActor->getName() + TEXT("\nComplex: ") + ParentActor->getComplexName() + TEXT("\n");
+	if (TargetActor)
+		out += TEXT("Target: ") + TargetActor->getName() + TEXT("\n");
+
+	updateDebugText(out);
+
+	clearButtonTempList();
+	
 }

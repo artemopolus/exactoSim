@@ -33,6 +33,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category= Common)
 		void initSimMainWidget();
+	UFUNCTION(BlueprintCallable, Category=Common)
+		void updateExSmWidget();
 	
 	UFUNCTION()
 		void onSwitchObjButtonClicked();
@@ -64,9 +66,9 @@ public:
 	UFUNCTION()
 		void onConstrHingeButtonClicked();
 	UFUNCTION()
-		void onConstrGen6dofSpringButtonClicked();
+		void onLoadClicked();
 	UFUNCTION()
-		void onConstrP2PButtonClicked();
+		void onSaveClicked();
 
 	UFUNCTION()
 		void onEditableWidgetChanged(FString ini, FString gen, int id, int type);
@@ -111,6 +113,7 @@ private:
 	void setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha);
 	void drawPtOnCanvas(int32 x, int32 y, uint8 red, uint8 green, uint8 blue, uint8 alpha);
 	void updateDebugText(const std::string str);
+	void updateDebugText(FString str);
 	void updateSwitchObjText(const std::string str);
 	void updateSwitchObjText(const FString str);
 	void setVisibilityOptionsPanel(bool onoff);
@@ -174,14 +177,14 @@ public:
 		class UTextBlock * ConstrHingeText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton * ConstrGen6dofSpringButton;
+		class UButton * LoadButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * ConstrGen6dofSpringText;
+		class UTextBlock * LoadText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton * ConstrP2PButton;
+		class UButton * SaveButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock * ConstrP2PText;
+		class UTextBlock * SaveText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UWrapBox * StorageWrapBox;
