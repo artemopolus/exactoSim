@@ -105,30 +105,7 @@ void AExSimStorage::registerCmdToSelected(int type, float value)
 	}
 }
 
-void AExSimStorage::registerExtendedCmd(int type, int value)
-{
-	if (CurrentScene)
-	{
-		AExScene::actor_cmd cmd;
-		cmd.value_int = type;
-		cmd.value_float = 0;
-		std::string * str = nullptr;
-		switch (type)
-		{
-		case EXCT_SWITCH:
-			str = GenObjType.Find(value);
-			if (str != nullptr)
-			{
-				UE_LOG(LogTemp, Warning,TEXT("Find[%d]:%s"), value, *FString(str->c_str()));
-				cmd.value_str = *str;
-				CurrentScene->sendExtendedCmdToSelected(cmd);
-			}
-			break;
-		default:
-			break;
-		}
-	}
-}
+
 
 void AExSimStorage::setTargetWidget(UUserWidget* widget)
 {
@@ -140,17 +117,6 @@ void AExSimStorage::createTest(FString name, float mass, FVector loc, FRotator r
 	const FString path = "Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'";
 	
 	createComponent(name, path, mass, loc, rot, false);	
-}
-
-void AExSimStorage::createComponent()
-{
-	//SceneObjCreated++;
-	if (ExWorld && ExWorld->ExFileManager)
-	{
-		FString path = ExWorld->ExFileManager->getPathToBlueprint(TargetType);
-		FString name = TargetName + TEXT("_") + TargetType + TEXT("_") + FString::FromInt(SceneObjCreated);
-		createComponent(name, path, 1.0f, FVector(0,0,0), FRotator(0,0,0), true);
-	}
 }
 
 
@@ -184,12 +150,12 @@ void AExSimStorage::createConstraint(AActor* target, FExConstraintParams * param
 	if (component->getBasis() == ExSimComplexList[0])
 		createComplex(component, component->getName() + TEXT("_Complex"));
 
-	ExSimConstraintPair * p = new ExSimConstraintPair();
-    p->setConstraint( CurrentScene->fixP2P(component->getBody(), params));
-	p->setType(ExSimPhyzHelpers::Constraint::P2P);
-    p->setName( params->name_p);
-	p->setParams( params);
-    component->getConstraints()->Add(p);
+	ExSimConstraintPair * pair = new ExSimConstraintPair();
+    pair->setConstraint( CurrentScene->fixP2P(component->getBody(), params));
+	pair->setType(ExSimPhyzHelpers::Constraint::P2P);
+    pair->setName( params->name_p);
+	pair->setParams( params);
+    component->getConstraints()->Add(pair);
 }
 
 void AExSimStorage::createConstraint(ExSimComponent * parent_component, ExSimComponent * target_component)
@@ -217,24 +183,7 @@ void AExSimStorage::createConstraint(ExSimComponent * parent_component, ExSimCom
 }
 
 
-bool AExSimStorage::getConstraint(const AActor* target, TArray<ExSimConstraintPair *> * constr )
-{
-	if (constr->Num()>0)
-		constr->Empty();
-	for (ExSimComplex * complex : ExSimComplexList)
-	{
-		for (ExSimComponent * component : *complex->getComponentsList())
-		{
-			if (target == component->getTarget())
-			{
-				for(ExSimConstraintPair * cp : *component->getConstraints())
-					constr->Add(cp);
-				return true;
-			}
-		}
-	}
-	return false;
-}
+
 
 void AExSimStorage::setSceneObjName(FString name, FString type_name)
 {
@@ -360,10 +309,10 @@ void AExSimStorage::selectComplex(ExSimComponent* trg)
 
 void AExSimStorage::loadComplex()
 {
-	ExSimComplex * p = new ExSimComplex();
-	ExWorld->ExFileManager->loadEsComplexParams(TEXT("Magnet"), p);
-	if (p)
-		createComplex(p);
+	ExSimComplex * complex = new ExSimComplex();
+	ExWorld->ExFileManager->loadEsComplexParams(TEXT("Magnet"), complex);
+	if (complex)
+		createComplex(complex);
 }
 
 void AExSimStorage::saveComplex()
@@ -375,44 +324,6 @@ void AExSimStorage::saveComplex(ExSimComplex* target)
 {
 	if (target)
 		ExWorld->ExFileManager->save(target);
-}
-
-void AExSimStorage::convertExSimComplex(ExSimComplex* target, const AExSimFileManager::es_complex_params* src)
-{
-	target->setName( src->string_list.FindRef("Name"));
-	const FString basis_name = src->string_list.FindRef("BasicName");
-	for (const auto & component : src->components)
-	{
-		ExSimComponent * c = new ExSimComponent();
-		c->setName( component->string_list.FindRef("Name"));
-		if (c->getName() == basis_name)
-			target->setBasis( c);
-		c->setPath( component->string_list.FindRef("Path"));
-		c->setBasis( target);
-		for (const auto & constraint : component->constraints)
-		{
-			ExSimConstraintPair * p = new ExSimConstraintPair();
-			p->setName( constraint->string_list.FindRef("Name"));
-			p->setType(  static_cast<ExSimPhyzHelpers::Constraint>(*ConstrType.FindKey(TCHAR_TO_UTF8(*constraint->string_list.FindRef("Type")))));
-			p->getParams()->name_p = constraint->string_list.FindRef("NameParent");
-			
-			p->getParams()->axis_p = constraint->vector_list.FindRef("AxisParent");
-			p->getParams()->axis_t = constraint->vector_list.FindRef("AxisTarget");
-			p->getParams()->dump_ang = constraint->vector_list.FindRef("DumpAngular");
-			p->getParams()->dump_lin = constraint->vector_list.FindRef("DumpLinear");
-			p->getParams()->low_lim_ang = constraint->vector_list.FindRef("LowerLimAngular");
-			p->getParams()->upp_lim_ang = constraint->vector_list.FindRef("UpperLimAngular");
-			p->getParams()->pivot_p = constraint->vector_list.FindRef("PivotParent");
-			p->getParams()->pivot_t = constraint->vector_list.FindRef("PivotTarget");
-			p->getParams()->stiff_lin = constraint->vector_list.FindRef("StiffnessLinear");
-			p->getParams()->stiff_ang = constraint->vector_list.FindRef("StiffnessAngular");
-			p->getParams()->low_lim_lin = constraint->vector_list.FindRef("LowerLimLinear");
-			p->getParams()->upp_lim_lin = constraint->vector_list.FindRef("UpperLimLinear");
-			c->getConstraints()->Add(p);
-			
-		}
-		target->getComponentsList()->Add(c);
-	}
 }
 
 void AExSimStorage::saveComplex(int index)
@@ -481,10 +392,6 @@ void AExSimStorage::undoConstraintCommand()
 	}
 }
 
-ExSimConstraintPair* AExSimStorage::getNewConstraintPair()
-{
-	return new ExSimConstraintPair();
-}
 
 
 void AExSimStorage::createComplex(ExSimComponent* component, FString new_complex_name)

@@ -105,21 +105,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void registerCmdToSelected(int type, float value);
 
-	void registerExtendedCmd(int type, int value);
 
 	void setTargetWidget( UUserWidget * widget);
 
 	UFUNCTION(BlueprintCallable)
 		void createTest(FString name, float mass = 1.0f, FVector loc = FVector(0,0,50), FRotator rot = FRotator(0,0,0));
 
-	void createComponent(void);
 	void createComponent(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
 	void createConstraint(AActor * target, AActor * parent, FExConstraintParams params);
 	void createConstraint(AActor * target, FExConstraintParams * params);
 	void createConstraint(ExSimComponent * target, ExSimComponent * parent);
 	void updateConstraint();
 	
-	bool getConstraint(const AActor * target, TArray<ExSimConstraintPair *> * constr);
 
 	void setSceneObjName(FString name, FString type_name);
 
@@ -148,7 +145,6 @@ public:
 	void saveComplex(int index);
 	void saveComplex(ExSimComplex * target);
 	
-	void convertExSimComplex(ExSimComplex * target, const AExSimFileManager::es_complex_params * src);
 
 
 	void loadExSimComplex();
@@ -160,7 +156,6 @@ public:
 	void updateConstraintCommand(EConstraintParamNames type, FString str);
 	void undoConstraintCommand();
 
-	ExSimConstraintPair * getNewConstraintPair();
 
 private:
 	void createComplex(ExSimComponent * component, FString new_complex_name);
