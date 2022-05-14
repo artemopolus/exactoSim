@@ -124,8 +124,8 @@ void AExSimFileManager::save(ExSimComplex* target)
 	cmplx->string_list.Add("Name",target->getName());
 	cmplx->string_list.Add("BasisName",target->getBasis()->getName());
 
-	TMap<EConstraintParamNames, FString> constraint_names_dict;
-	TMap<EConstraintParamNames, FString> constraint_values_dict;
+	TMap<EnExConstraintParamNames, FString> constraint_names_dict;
+	TMap<EnExConstraintParamNames, FString> constraint_values_dict;
 
 	TMap<EnExComponentParamNames, FString> component_names_dict;
 	TMap<EnExComponentParamNames, FString> component_values_dict;

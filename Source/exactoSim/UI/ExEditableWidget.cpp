@@ -29,8 +29,8 @@ void UExEditableWidget::onTextCommitedRegistered(
 		(type == ETextCommit::Type::OnEnter)
 		))
 	{
-		EConstraintParamNames p = static_cast<EConstraintParamNames>(PtType);
-		if (p > EConstraintParamNames::vector_start && p < EConstraintParamNames::string_start &&!ExConvert::checkVecStr(text.ToString()))
+		EnExConstraintParamNames p = static_cast<EnExConstraintParamNames>(PtType);
+		if (p > EnExConstraintParamNames::vector_start && p < EnExConstraintParamNames::string_start &&!ExConvert::checkVecStr(text.ToString()))
 		{
 			ValueText->SetText(FText::FromString(InitValue));
 			return;

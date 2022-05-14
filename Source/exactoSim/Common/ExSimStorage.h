@@ -67,8 +67,8 @@ public:
 		MOVE,
 		END
 	};
-	TMap<EConstraintParamNames, FString> OptionNamesPtr;
-	TMap<EConstraintParamNames, FString> OptionValuesPtr;
+	TMap<EnExConstraintParamNames, FString> OptionNamesPtr;
+	TMap<EnExConstraintParamNames, FString> OptionValuesPtr;
 	TMap<FString, FString> OptionValuePairsPtr;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FConstraintChanged, int, type, FString, value);
@@ -153,7 +153,7 @@ public:
 	void updateOptVPP();
 	void setOptVPP(ExSimConstraintPair * params);
 
-	void updateConstraintCommand(EConstraintParamNames type, FString str);
+	void updateConstraintCommand(EnExConstraintParamNames type, FString str);
 	void undoConstraintCommand();
 
 

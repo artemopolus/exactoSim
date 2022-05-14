@@ -84,8 +84,8 @@ public:
 	void setComboClass(UClass * tmpl);
 
 	void addEditableToStorageWB(FString name, FString value, int id, int type);
-	void updateEditable(EConstraintParamNames type, FString value);
-	void updateEditable(EConstraintParamNames type, FVector value);
+	void updateEditable(EnExConstraintParamNames type, FString value);
+	void updateEditable(EnExConstraintParamNames type, FVector value);
 	void updateEditableAll();
 	void addButtonToStorage(FString name);
 	void addSelectToStorage(FString name, TArray<FString> option_list);
@@ -122,9 +122,9 @@ private:
 	
 	void addButtonToTempList(const FString name, const int tag);
 	void clearButtonTempList();
-	bool checkVectorOption(UExEditableWidget * option, EConstraintParamNames checker, FVector & vect);
-	bool checkBoolArrayOption(UExEditableWidget * option, EConstraintParamNames checker, TArray<bool> & vect);
-	bool checkStringOption(UExEditableWidget * option, EConstraintParamNames checker, FString & name);
+	bool checkVectorOption(UExEditableWidget * option, EnExConstraintParamNames checker, FVector & vect);
+	bool checkBoolArrayOption(UExEditableWidget * option, EnExConstraintParamNames checker, TArray<bool> & vect);
+	bool checkStringOption(UExEditableWidget * option, EnExConstraintParamNames checker, FString & name);
 	
 protected:
 	bool Initialize() override;
@@ -182,7 +182,7 @@ public:
 
 
 
-	TMap<EConstraintParamNames, FString> * OptionNames;
+	TMap<EnExConstraintParamNames, FString> * OptionNames;
 	TMap<FString, FString> * OptionValuePairs;
 	
 

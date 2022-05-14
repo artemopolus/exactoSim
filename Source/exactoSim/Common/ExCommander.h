@@ -5,40 +5,59 @@
 #include "exactoSim/Utils/ExConvert.h"
 
 
-template<typename T>
-class EXACTOSIM_API TExPack 
+template < typename Tparams, typename Ttype, typename Tval>
+class EXACTOSIM_API TExPack
 {
-	FExConstraintParams * Target = nullptr;
-	EConstraintParamNames Type = EConstraintParamNames::vector_start;
-	T Cur;
-	T Old;
+	Tparams* Target = nullptr;
+	Ttype Type;
+	Tval Cur;
+	Tval Old;
 public:
-	void setActive(FExConstraintParams * target, EConstraintParamNames type, T vec) ;
-	bool update() ;
-	bool revert() ;
+	void setActive(Tparams* target, Ttype type, Tval value);
+	bool update();
+	bool revert();
 };
 
-template <typename T>
-void TExPack<T>::setActive(FExConstraintParams* target, EConstraintParamNames type, T vec)
+template <typename Tparams, typename Ttype, typename Tval>
+void TExPack<Tparams, Ttype, Tval>::setActive(Tparams* target, Ttype type, Tval value)
 {
-	Target = target;
-	Type = type;
-	Cur = vec;
+	Target = target; Type = type; Cur = value;
 }
 
-template <typename T>
-bool TExPack<T>::update()
+template <typename Tparams, typename Ttype, typename Tval>
+bool TExPack<Tparams, Ttype, Tval>::update()
 {
 	ExConvert::getParams(Target, Type, &Old);
 	return ExConvert::updateParams(Target, Type, Cur);
 }
 
-template <typename T>
-bool TExPack<T>::revert()
+template <typename Tparams, typename Ttype, typename Tval>
+bool TExPack<Tparams, Ttype, Tval>::revert()
 {
 	return ExConvert::updateParams(Target, Type, Old);
 }
 
+
+// template <typename Tval>
+// void TExPack<Tval>::setActive(FExConstraintParams* target, EConstraintParamNames type, Tval vec)
+// {
+// 	Target = target;
+// 	Type = type;
+// 	Cur = vec;
+// }
+//
+// template <typename T>
+// bool TExPack<T>::update()
+// {
+// 	ExConvert::getParams(Target, Type, &Old);
+// 	return ExConvert::updateParams(Target, Type, Cur);
+// }
+//
+// template <typename T>
+// bool TExPack<T>::revert()
+// {
+// 	return ExConvert::updateParams(Target, Type, Old);
+// }
 
 
 class EXACTOSIM_API ExBasicCommand
@@ -52,9 +71,9 @@ public:
 };
 class EXACTOSIM_API ExUpdateConstraintString : public ExBasicCommand
 {
-	TExPack<FString> Pack;
+	TExPack<FExConstraintParams, EnExConstraintParamNames, FString> Pack;
 public:
-	ExUpdateConstraintString(FExConstraintParams* target, EConstraintParamNames type, FString str)
+	ExUpdateConstraintString(FExConstraintParams* target, EnExConstraintParamNames type, FString str)
 	{
 		Pack.setActive(target, type, str);
 	}
@@ -65,9 +84,9 @@ public:
 
 class EXACTOSIM_API ExUpdateConstraintVector : public ExBasicCommand
 {
-	TExPack<FVector> Pack;
+	TExPack<FExConstraintParams, EnExConstraintParamNames, FVector> Pack;
 public:
-	ExUpdateConstraintVector(FExConstraintParams* target, EConstraintParamNames type, FVector vec)
+	ExUpdateConstraintVector(FExConstraintParams* target, EnExConstraintParamNames type, FVector vec)
 	{
 		Pack.setActive(target, type, vec);
 	}
@@ -76,9 +95,9 @@ public:
 };
 class EXACTOSIM_API ExUpdateConstraintFloat : public ExBasicCommand
 {
-	TExPack<float> Pack;
+	TExPack<FExConstraintParams, EnExConstraintParamNames, float> Pack;
 public:
-	ExUpdateConstraintFloat(FExConstraintParams* target, EConstraintParamNames type, float vec)
+	ExUpdateConstraintFloat(FExConstraintParams* target, EnExConstraintParamNames type, float vec)
 	{
 		Pack.setActive(target, type, vec);
 	}
@@ -87,9 +106,9 @@ public:
 };
 class EXACTOSIM_API ExUpdateConstraintInt : public ExBasicCommand
 {
-	TExPack<int> Pack;
+	TExPack<FExConstraintParams, EnExConstraintParamNames, int> Pack;
 public:
-	ExUpdateConstraintInt(FExConstraintParams* target, EConstraintParamNames type, int vec)
+	ExUpdateConstraintInt(FExConstraintParams* target, EnExConstraintParamNames type, int vec)
 	{
 		Pack.setActive(target, type, vec);
 	}
@@ -98,9 +117,9 @@ public:
 };
 class EXACTOSIM_API ExUpdateConstraintType : public ExBasicCommand
 {
-	TExPack<ExSimPhyzHelpers::Constraint> Pack;
+	TExPack<FExConstraintParams, EnExConstraintParamNames, ExSimPhyzHelpers::Constraint> Pack;
 public:
-	ExUpdateConstraintType(FExConstraintParams* target, EConstraintParamNames type, ExSimPhyzHelpers::Constraint vec)
+	ExUpdateConstraintType(FExConstraintParams* target, EnExConstraintParamNames type, ExSimPhyzHelpers::Constraint vec)
 	{
 		Pack.setActive(target, type, vec);
 	}
@@ -128,11 +147,11 @@ public:
 	{
 		ActiveConstraint = constraint;	
 	}
-	void updateConstraint( EConstraintParamNames type, FVector vec);
-	void updateConstraint( EConstraintParamNames type, FString str);
-	void updateConstraint( EConstraintParamNames type, float val);
-	void updateConstraint( EConstraintParamNames type, int val);
-	void updateConstraint( EConstraintParamNames type, ExSimPhyzHelpers::Constraint val);
+	void updateConstraint( EnExConstraintParamNames type, FVector vec);
+	void updateConstraint( EnExConstraintParamNames type, FString str);
+	void updateConstraint( EnExConstraintParamNames type, float val);
+	void updateConstraint( EnExConstraintParamNames type, int val);
+	void updateConstraint( EnExConstraintParamNames type, ExSimPhyzHelpers::Constraint val);
 
 	void undo()
 	{

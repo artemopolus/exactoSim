@@ -48,21 +48,21 @@ AExSimStorage::AExSimStorage()
 	const FString value_str("0.0");
 	const FString name_str("default");
 	
-	OptionNamesPtr.Add(EConstraintParamNames::parent_pivot, "Parent Pivot");
-    OptionNamesPtr.Add(EConstraintParamNames::target_pivot, "Target Pivot");
-    OptionNamesPtr.Add(EConstraintParamNames::low_lim_lin, "Low Lim Lin");
-    OptionNamesPtr.Add(EConstraintParamNames::upp_lim_lin, "Upp Lim Lin");
-    OptionNamesPtr.Add(EConstraintParamNames::low_lim_ang, "Low Lim Ang");
-    OptionNamesPtr.Add(EConstraintParamNames::upp_lim_ang, "Upp Lim Ang");
-    OptionNamesPtr.Add(EConstraintParamNames::en_spring, "Enable Spring");
-    OptionNamesPtr.Add(EConstraintParamNames::stiff_lin, "Stiff Lin");
-    OptionNamesPtr.Add(EConstraintParamNames::stiff_ang, "Stiff Ang");
-    OptionNamesPtr.Add(EConstraintParamNames::dump_lin, "Dump Lin");
-    OptionNamesPtr.Add(EConstraintParamNames::dump_ang, "Dump Ang");
-    OptionNamesPtr.Add(EConstraintParamNames::parent_name, "Parent name");
-    OptionNamesPtr.Add(EConstraintParamNames::target_name, "Target name");
-	OptionNamesPtr.Add(EConstraintParamNames::constraint_t, "Constraint type");
-	OptionNamesPtr.Add(EConstraintParamNames::constraint_name, "Constraint Name");
+	OptionNamesPtr.Add(EnExConstraintParamNames::parent_pivot, "Parent Pivot");
+    OptionNamesPtr.Add(EnExConstraintParamNames::target_pivot, "Target Pivot");
+    OptionNamesPtr.Add(EnExConstraintParamNames::low_lim_lin, "Low Lim Lin");
+    OptionNamesPtr.Add(EnExConstraintParamNames::upp_lim_lin, "Upp Lim Lin");
+    OptionNamesPtr.Add(EnExConstraintParamNames::low_lim_ang, "Low Lim Ang");
+    OptionNamesPtr.Add(EnExConstraintParamNames::upp_lim_ang, "Upp Lim Ang");
+    OptionNamesPtr.Add(EnExConstraintParamNames::en_spring, "Enable Spring");
+    OptionNamesPtr.Add(EnExConstraintParamNames::stiff_lin, "Stiff Lin");
+    OptionNamesPtr.Add(EnExConstraintParamNames::stiff_ang, "Stiff Ang");
+    OptionNamesPtr.Add(EnExConstraintParamNames::dump_lin, "Dump Lin");
+    OptionNamesPtr.Add(EnExConstraintParamNames::dump_ang, "Dump Ang");
+    OptionNamesPtr.Add(EnExConstraintParamNames::parent_name, "Parent name");
+    OptionNamesPtr.Add(EnExConstraintParamNames::target_name, "Target name");
+	OptionNamesPtr.Add(EnExConstraintParamNames::constraint_t, "Constraint type");
+	OptionNamesPtr.Add(EnExConstraintParamNames::constraint_name, "Constraint Name");
 
 
 
@@ -370,7 +370,7 @@ void AExSimStorage::updateConstraint()
 	}
 }
 
-void AExSimStorage::updateConstraintCommand(EConstraintParamNames type, FString str)
+void AExSimStorage::updateConstraintCommand(EnExConstraintParamNames type, FString str)
 {
 	ConstraintCommander.updateConstraint(type, str);
 	//update constraint

@@ -18,18 +18,18 @@ public:
 	static float getFloatFromStr(FString str);
 	static FRotator getRotFromStr(FString str);
 
-	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, FString val);
-	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, FVector val);
-	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, ExSimPhyzHelpers::Constraint val);
-	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, float val);
-	static bool updateParams(FExConstraintParams * trg, EConstraintParamNames type, int val);
+	static bool updateParams(FExConstraintParams * trg, EnExConstraintParamNames type, FString val);
+	static bool updateParams(FExConstraintParams * trg, EnExConstraintParamNames type, FVector val);
+	static bool updateParams(FExConstraintParams * trg, EnExConstraintParamNames type, ExSimPhyzHelpers::Constraint val);
+	static bool updateParams(FExConstraintParams * trg, EnExConstraintParamNames type, float val);
+	static bool updateParams(FExConstraintParams * trg, EnExConstraintParamNames type, int val);
 
 
-	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, FString * trg);
-	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, FVector * trg);
-	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, ExSimPhyzHelpers::Constraint * trg);
-	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, float * trg);
-	static bool getParams(FExConstraintParams * src, EConstraintParamNames type, int * trg);
+	static bool getParams(FExConstraintParams * src, EnExConstraintParamNames type, FString * trg);
+	static bool getParams(FExConstraintParams * src, EnExConstraintParamNames type, FVector * trg);
+	static bool getParams(FExConstraintParams * src, EnExConstraintParamNames type, ExSimPhyzHelpers::Constraint * trg);
+	static bool getParams(FExConstraintParams * src, EnExConstraintParamNames type, float * trg);
+	static bool getParams(FExConstraintParams * src, EnExConstraintParamNames type, int * trg);
 	
 	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, FString val);
 	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, FVector val);	

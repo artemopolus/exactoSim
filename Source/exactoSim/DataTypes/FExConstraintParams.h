@@ -56,7 +56,7 @@ struct FExConstraintParams
 	}
 };
 
-enum class EConstraintParamNames : int
+enum class EnExConstraintParamNames : int
 {
 	//fvectors
 	vector_start = 0,
@@ -96,10 +96,10 @@ enum class EConstraintParamNames : int
 class EXACTOSIM_API ExConstraintDict
 {
 public:
-	static void updateNames(TMap<EConstraintParamNames, FString> * trg, ExSimPhyzHelpers::Constraint type);
-	static void updateValues(TMap<EConstraintParamNames, FString> * trg, FExConstraintParams * params);
-	static void getDefaultNames(TMap<EConstraintParamNames, FString> * trg);
-	static void getNameValuePairs(TMap<EConstraintParamNames, FString> * names, TMap<EConstraintParamNames, FString> * values, TMap<FString, FString> * trg);
+	static void updateNames(TMap<EnExConstraintParamNames, FString> * trg, ExSimPhyzHelpers::Constraint type);
+	static void updateValues(TMap<EnExConstraintParamNames, FString> * trg, FExConstraintParams * params);
+	static void getDefaultNames(TMap<EnExConstraintParamNames, FString> * trg);
+	static void getNameValuePairs(TMap<EnExConstraintParamNames, FString> * names, TMap<EnExConstraintParamNames, FString> * values, TMap<FString, FString> * trg);
 	static void fromNameValuePairsToParams(TMap<FString, FString> * src, FExConstraintParams * trg);
 };
 

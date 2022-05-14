@@ -409,7 +409,7 @@ bool UExSimMainWidget::getVectorFromString(FString list, FString splitter, FVect
 
 
 
-bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, EConstraintParamNames checker, TArray<bool> & vect)
+bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, EnExConstraintParamNames checker, TArray<bool> & vect)
 {
 	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr[ checker ])
 	{
@@ -428,7 +428,7 @@ bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, EConstra
 	return false;
 }
 
-bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, EConstraintParamNames checker,
+bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, EnExConstraintParamNames checker,
 	FString& name)
 {
 	if (option->getName() == DataStorage->OptionNamesPtr.FindRef( checker ))
@@ -439,7 +439,7 @@ bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, EConstraintP
 	return false;	
 }
 
-bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, EConstraintParamNames checker, FVector & vect)
+bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, EnExConstraintParamNames checker, FVector & vect)
 {
 	if (option->getName() == DataStorage->OptionNamesPtr[ checker ])
 	{
@@ -505,7 +505,7 @@ void UExSimMainWidget::addOptionToTable()
 	{
 		clearOptionFromTable();	
 	}
-	for (TTuple<EConstraintParamNames, FString>  option : DataStorage->OptionNamesPtr)
+	for (TTuple<EnExConstraintParamNames, FString>  option : DataStorage->OptionNamesPtr)
 	{
 		FString name = option.Value;
 		int type = static_cast<int>(option.Key);
@@ -550,7 +550,7 @@ void UExSimMainWidget::addEditableToStorageWB(FString name, FString value, int i
 	StorageWrapBox->AddChild(Menu);
 }
 
-void UExSimMainWidget::updateEditable(EConstraintParamNames type, FString value)
+void UExSimMainWidget::updateEditable(EnExConstraintParamNames type, FString value)
 {
 	for(const auto & op : EditableList)
 	{
@@ -561,7 +561,7 @@ void UExSimMainWidget::updateEditable(EConstraintParamNames type, FString value)
 	}
 }
 
-void UExSimMainWidget::updateEditable(EConstraintParamNames type, FVector value)
+void UExSimMainWidget::updateEditable(EnExConstraintParamNames type, FVector value)
 {
 	FString v = ExConvert::getStrFromVec(value);
 	updateEditable(type, v);
@@ -572,13 +572,13 @@ void UExSimMainWidget::updateEditable(EConstraintParamNames type, FVector value)
 void UExSimMainWidget::onEditableWidgetChanged(FString ini, FString gen, int id, int type)
 {
 	sendDebug(TEXT("Change is accepted: ") + ini + TEXT(" => ") + gen);
-	DataStorage->updateConstraintCommand(static_cast<EConstraintParamNames>(type), gen);
+	DataStorage->updateConstraintCommand(static_cast<EnExConstraintParamNames>(type), gen);
 }
 
 void UExSimMainWidget::onDataStorageConstraintChanged(int type, FString value)
 {
 	sendDebug(TEXT("Try update new value: ") + value);
-	if (EConstraintParamNames::constraint_t == static_cast<EConstraintParamNames>(type))
+	if (EnExConstraintParamNames::constraint_t == static_cast<EnExConstraintParamNames>(type))
 	{
 		DataStorage->updateOptVPP();
 		addOptionToTable();
@@ -590,7 +590,7 @@ void UExSimMainWidget::onDataStorageConstraintChanged(int type, FString value)
 void UExSimMainWidget::onSelectorWidgetChanged(FString value, ESelectInfo::Type type, int id)
 {
 	sendDebug("SELECTOR is CHANGED");
-	DataStorage->updateConstraintCommand(EConstraintParamNames::constraint_t, value);
+	DataStorage->updateConstraintCommand(EnExConstraintParamNames::constraint_t, value);
 }
 
 void UExSimMainWidget::updateEditableAll()
