@@ -1,12 +1,13 @@
 #pragma once
 #include <BulletDynamics/ConstraintSolver/btTypedConstraint.h>
 
+#include "ExCommonParams.h"
 #include "ExSimPhyzHelpers.h"
 #include "exactoSim/BulletSpec/BulletHelpers.h"
 #include "FExConstraintParams.generated.h"
 
 USTRUCT()
-struct FExConstraintParams
+struct FExConstraintParams : public FExCommonParams
 {
 	GENERATED_BODY()
 	
@@ -53,6 +54,7 @@ struct FExConstraintParams
 		stiff_ang = stiff_lin = dump_ang = dump_lin = FVector::ZeroVector;
 		tau = impulse_clamp = lower_limit = upper_limit = 0.f;
 		enables_spring = 0;
+		setType(EnExParamTypes::CONSTRAINT);
 	}
 };
 

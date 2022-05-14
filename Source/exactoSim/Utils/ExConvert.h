@@ -1,4 +1,5 @@
 #pragma once
+#include "exactoSim/DataTypes/ExComplexParams.h"
 #include "exactoSim/DataTypes/ExComponentParams.h"
 #include "exactoSim/DataTypes/FExConstraintParams.h"
 
@@ -35,6 +36,15 @@ public:
 	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, FVector val);	
 	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, FRotator val);	
 	static bool updateParams(FExComponentParams * trg, EnExComponentParamNames type, float val);
+
+	static bool getParams(FExComponentParams * src, EnExComponentParamNames type, FString * trg);
+	static bool getParams(FExComponentParams * src, EnExComponentParamNames type, FVector * trg);
+	static bool getParams(FExComponentParams * src, EnExComponentParamNames type, FRotator * trg);
+	static bool getParams(FExComponentParams * src, EnExComponentParamNames type, float * trg);
+
+	static bool updateParams(FExComplexParams * trg, EnExComplexParamNames type, FString val);
+
+	static bool getParams(FExComplexParams * src, EnExComplexParamNames type, FString * trg);
 };
 
 

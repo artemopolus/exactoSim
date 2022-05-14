@@ -1,10 +1,11 @@
 #pragma once
+#include "ExCommonParams.h"
 #include "FExConstraintParams.h"
 
 #include "ExComponentParams.generated.h"
 
 USTRUCT()
-struct EXACTOSIM_API FExComponentParams
+struct EXACTOSIM_API FExComponentParams : public FExCommonParams
 {
 	GENERATED_BODY()
 	
@@ -19,6 +20,7 @@ struct EXACTOSIM_API FExComponentParams
 		Mass = 0.f;
 		Position = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;
+		setType(EnExParamTypes::COMPONENT);
 	}
 	FExComponentParams(FString name, FString path, float mass, FVector pos, FRotator rot)
 	{
@@ -27,6 +29,7 @@ struct EXACTOSIM_API FExComponentParams
 		Mass = mass;
 		Position = pos;
 		Rotation = rot;
+		setType(EnExParamTypes::COMPONENT);
 	}
 };
 enum class EnExComponentParamNames : int

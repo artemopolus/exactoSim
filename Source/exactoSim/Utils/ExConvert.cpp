@@ -325,3 +325,57 @@ bool ExConvert::updateParams(FExComponentParams* trg, EnExComponentParamNames ty
 	else return false;
 	return true;
 }
+
+bool ExConvert::getParams(FExComponentParams* src, EnExComponentParamNames type, FString* trg)
+{
+	if (type == EnExComponentParamNames::C_NAME)
+		*trg = src->Name;
+	else if (type == EnExComponentParamNames::C_PATH)
+		*trg = src->Path;
+	else return false;
+	return true;	
+}
+
+bool ExConvert::getParams(FExComponentParams* src, EnExComponentParamNames type, FVector* trg)
+{
+	if (type == EnExComponentParamNames::A_POSITION)
+		*trg = src->Position;
+	else return false;
+	return true;
+}
+
+bool ExConvert::getParams(FExComponentParams* src, EnExComponentParamNames type, FRotator* trg)
+{
+	if (type == EnExComponentParamNames::B_ROTATION)
+		*trg = src->Rotation;
+	else return false;
+	return true;
+}
+
+bool ExConvert::getParams(FExComponentParams* src, EnExComponentParamNames type, float* trg)
+{
+	if (type == EnExComponentParamNames::D_MASS)
+		*trg = src->Mass;
+	else return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExComplexParams* trg, EnExComplexParamNames type, FString val)
+{
+	if (type == EnExComplexParamNames::C_NAME)
+		trg->Name = val;
+	else if (type == EnExComplexParamNames::C_BASIS_NAME)
+		trg->BasisName = val;
+	else return false;
+	return true;
+}
+
+bool ExConvert::getParams(FExComplexParams* src, EnExComplexParamNames type, FString* trg)
+{
+	if (type == EnExComplexParamNames::C_NAME)
+		*trg = src->Name;
+	else if (type == EnExComplexParamNames::C_BASIS_NAME)
+		*trg = src->BasisName;
+	else return false;
+	return true;
+}

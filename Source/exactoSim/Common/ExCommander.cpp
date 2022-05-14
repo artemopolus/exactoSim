@@ -92,3 +92,51 @@ void ExCommander::updateConstraint(EnExConstraintParamNames type, ExSimPhyzHelpe
 	executeCommand();
 }
 
+void ExCommander::updateComponent(FExComponentParams* component, EnExComponentParamNames type, FString val)
+{
+	if (EnExComponentParamNames::AA_VECTOR_START < type && type < EnExComponentParamNames::BA_ROTATOR_START )
+	{
+		updateComponent(component, type, ExConvert::getVecFromStr(val));
+	}
+	else if (EnExComponentParamNames::BA_ROTATOR_START < type && type < EnExComponentParamNames::CA_STRING_START )
+	{
+		updateComponent(component, type, ExConvert::getRotFromStr(val));
+	}
+	else if (EnExComponentParamNames::CA_STRING_START < type && type < EnExComponentParamNames::DA_FLOAT_START )
+	{
+		Command =new ExUpdComponentString(component, type, val);
+		executeCommand();
+	}
+	else if (EnExComponentParamNames::DA_FLOAT_START < type && type < EnExComponentParamNames::ZZ_OPT_END )
+	{
+		updateComponent(component, type, ExConvert::getFloatFromStr(val));
+	}
+}
+
+void ExCommander::updateComponent(FExComponentParams* component, EnExComponentParamNames type, FVector val)
+{
+	Command = new ExUpdComponentVector(component, type, val);
+	executeCommand();
+}
+
+void ExCommander::updateComponent(FExComponentParams* component, EnExComponentParamNames type, FRotator val)
+{
+	Command = new ExUpdComponentRotator(component, type, val);
+	executeCommand();
+}
+
+void ExCommander::updateComponent(FExComponentParams* component, EnExComponentParamNames type, float val)
+{
+	Command = new ExUpdComponentFloat(component, type, val);
+	executeCommand();
+}
+
+void ExCommander::updateComplex(FExComplexParams* complex, EnExComplexParamNames type, FString val)
+{
+	if (EnExComplexParamNames::CA_STRING_START < type && type < EnExComplexParamNames::DA_FLOAT_START)
+	{
+		Command = new ExUpdComplexString(complex, type, val);
+		executeCommand();
+	}
+}
+
