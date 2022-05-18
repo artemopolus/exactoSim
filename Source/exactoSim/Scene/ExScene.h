@@ -82,6 +82,9 @@ public:
 	void generateCar();
 	void removeCar();
 
+	void createComponent(ExSimComponent * component);
+	void updateComponent(ExSimComponent * component);
+
 	void createConstraint(btRigidBody * target, btRigidBody * parent, FExConstraintParams params);
 	void removeConstrain();
 

@@ -478,6 +478,16 @@ void AExScene::removeCar()
 	SystemsList.Empty();
 }
 
+void AExScene::createComponent(ExSimComponent* component)
+{
+	//todo: create component
+}
+
+void AExScene::updateComponent(ExSimComponent* component)
+{
+	//todo: update component phyz
+}
+
 void AExScene::createConstraint(btRigidBody* target, btRigidBody* parent, FExConstraintParams params)
 {
 	if (ExPhyzX)
