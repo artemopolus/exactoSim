@@ -160,6 +160,36 @@ public:
 	virtual void unExecute() override { Pack.revert(); }
 	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
 };
+// create Constraint, Component
+class EXACTOSIM_API ExCreate : public ExBasicCommand
+{
+	FExCommonParams * Params = nullptr; //for manipulating -- have to deleted outside
+	FExCommonParams * Store = nullptr; // for storing data
+public:
+	explicit ExCreate(FExConstraintParams* trg);
+	explicit ExCreate(FExComponentParams * trg);
+	explicit ExCreate(FExComplexParams * trg);
+	virtual ~ExCreate() override;
+	virtual void execute() override;
+	virtual void unExecute() override;
+	virtual void getTarget(FExCommonParams* trg) override{trg = Params;}
+	
+};
+class EXACTOSIM_API ExDelete : public ExBasicCommand
+{
+	FExCommonParams * Params = nullptr; //for manipulating -- have to deleted outside
+	FExCommonParams * Store = nullptr; // for storing data
+public:
+	explicit ExDelete(FExConstraintParams * trg);
+	explicit ExDelete(FExComponentParams * trg);
+	explicit ExDelete(FExComplexParams * trg);
+	virtual ~ExDelete() override;
+	virtual void execute() override;
+	virtual void unExecute() override;
+	virtual void getTarget(FExCommonParams* trg) override;
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FEvExCommander, FExCommonParams * );
 
 class EXACTOSIM_API ExCommander
 {
@@ -195,18 +225,13 @@ public:
 
 	void updateComplex(FExComplexParams * complex, EnExComplexParamNames, FString val);
 
-	void undo()
-	{
-		if (DoneCommands.Num() == 0)
-		{}
-		else
-		{
-			Command = DoneCommands.Pop();
-			// DoneCommands.pop_back();
-			Command->unExecute();
-			delete Command;
-		}
-	}
+
+	void createConstraint(FExConstraintParams * constraint);
+	void createComponent(FExComponentParams * component);
+	
+
+	void undo();
+
 	void undo(FExCommonParams * params)
 	{
 		if (DoneCommands.Num())
@@ -219,7 +244,8 @@ public:
 	}
 private:
 	void executeCommand();
-	
+public:
+	FEvExCommander EcEvOnCommand;
 	
 };
 

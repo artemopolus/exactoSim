@@ -1,9 +1,83 @@
 #include "ExCommander.h"
 
 
+ExCreate::ExCreate(FExConstraintParams* trg)
+{
+	Params = trg;
+	FExConstraintParams * tmp = new FExConstraintParams();
+	*tmp = *trg;
+	Store = tmp;
+}
 
+ExCreate::ExCreate(FExComponentParams* trg)
+{
+	//TODO: component creation
+}
 
+ExCreate::ExCreate(FExComplexParams* trg)
+{
+	//todo: complex creation
+}
 
+ExCreate::~ExCreate()
+{
+	if (Store) delete Store;
+}
+
+void ExCreate::execute()
+{
+	if (!Params)
+	{
+		if (Params->getType()==EnExParamTypes::CONSTRAINT)
+		{
+			FExConstraintParams * src = static_cast<FExConstraintParams*>(Store);
+			FExConstraintParams * trg = static_cast<FExConstraintParams*>(Params);
+			*trg = *src;
+		}
+		else if (Params->getType()==EnExParamTypes::COMPONENT)
+		{
+			
+		}
+		else if (Params->getType()==EnExParamTypes::COMPLEX)
+		{
+			
+		}
+	}
+	Params->markToCreate();
+}
+
+void ExCreate::unExecute()
+{
+	Params->markToDelete();
+}
+
+ExDelete::ExDelete(FExConstraintParams* trg)
+{
+}
+
+ExDelete::ExDelete(FExComponentParams* trg)
+{
+}
+
+ExDelete::ExDelete(FExComplexParams* trg)
+{
+}
+
+ExDelete::~ExDelete()
+{
+}
+
+void ExDelete::execute()
+{
+}
+
+void ExDelete::unExecute()
+{
+}
+
+void ExDelete::getTarget(FExCommonParams* trg)
+{
+}
 
 void ExCommander::updateConstraint(EnExConstraintParamNames type, FVector vec)
 {
@@ -64,6 +138,25 @@ void ExCommander::executeCommand()
 	{
 		Command = DoneCommands[0];
 		DoneCommands.Remove(Command);
+		delete Command;
+	}
+	FExCommonParams* params = nullptr;
+	Command->getTarget(params);
+	EcEvOnCommand.Broadcast(params);
+}
+
+void ExCommander::undo()
+{
+	if (DoneCommands.Num() == 0)
+	{}
+	else
+	{
+		Command = DoneCommands.Pop();
+		// DoneCommands.pop_back();
+		Command->unExecute();
+		FExCommonParams * params = nullptr;
+		Command->getTarget(params);
+		EcEvOnCommand.Broadcast(params);
 		delete Command;
 	}
 }
@@ -139,4 +232,18 @@ void ExCommander::updateComplex(FExComplexParams* complex, EnExComplexParamNames
 		executeCommand();
 	}
 }
+
+void ExCommander::createConstraint(FExConstraintParams* constraint)
+
+{
+	Command = new ExCreate(constraint);
+	executeCommand();
+}
+
+void ExCommander::createComponent(FExComponentParams* component)
+{
+	Command = new ExCreate(component);
+	executeCommand();
+}
+
 
