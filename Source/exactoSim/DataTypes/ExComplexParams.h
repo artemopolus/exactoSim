@@ -9,6 +9,7 @@ struct EXACTOSIM_API FExComplexParams : public FExCommonParams
 	GENERATED_BODY()
 	FString Name;
 	FString BasisName;
+	TArray<FString> ComponentNames;
 	FExComplexParams()
 	{
 		setType(EnExParamTypes::COMPLEX);
@@ -23,6 +24,7 @@ enum class EnExComplexParamNames : int
 	C_NAME ,
 	C_BASIS_NAME,
 	DA_FLOAT_START,
+	EA_STRING_ARRAY_START,
 	ZZ_OPT_END,
 };
 
