@@ -279,9 +279,9 @@ void UExSimMainWidget::onTempListButtonClicked()
 		if (ButtonTempList[i]->IsHovered())
 		{
 			sendDebug(ButtonTempList[i]->getButtonName());
-			if (ButtonTempList[i]->tag == -1)
+			if (ButtonTempList[i]->tag == -1) //create new constraint
 			{
-				DataStorage->resetOptVPP();
+				DataStorage->createNewConstraint();
 				deleteConstraintOptions();
 				getInputTableOptions();
 				addInputTable();

@@ -85,7 +85,7 @@ private:
 	FVector TargetLocation;
 	FRotator TargetRotation;
 	
-	ExCommander ConstraintCommander;
+	ExCommander * CoCoCoProvider;
 	ExSimConstraintPair * CurrentConstraintPtr = nullptr;
 	ExSimComplex * CurrentComplex = nullptr;
 
@@ -111,11 +111,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void createTest(FString name, float mass = 1.0f, FVector loc = FVector(0,0,50), FRotator rot = FRotator(0,0,0));
 
+		void onCommandRegistered(FExCommonParams * params);
+
 	void createComponent(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
-	void createConstraint(AActor * target, AActor * parent, FExConstraintParams params);
-	void createConstraint(AActor * target, FExConstraintParams * params);
+	void createConstraint(FString * target, FString * parent);
 	void createConstraint(ExSimComponent * target, ExSimComponent * parent);
 	void updateConstraint();
+	void update(ExSimConstraintPair * pair);
+	void update(ExSimComponent * component);
+	void update(ExSimComplex * complex);
 	
 
 	void setSceneObjName(FString name, FString type_name);
@@ -149,7 +153,7 @@ public:
 
 	void loadExSimComplex();
 
-	void resetOptVPP();
+	void createNewConstraint();
 	void updateOptVPP();
 	void setOptVPP(ExSimConstraintPair * params);
 
@@ -158,9 +162,15 @@ public:
 
 
 private:
+	
 	void createComplex(ExSimComponent * component, FString new_complex_name);
 	void createComplex(ExSimComplex * complex);
+	void createComponent(ExSimComponent * component);
+	void createConstraintPair(ExSimConstraintPair * pair);
 	void createTestObjects();
 	void createTestObjects2();
+
 	
 };
+
+
