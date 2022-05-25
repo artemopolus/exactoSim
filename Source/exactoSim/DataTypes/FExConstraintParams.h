@@ -41,6 +41,9 @@ struct FExConstraintParams : public FExCommonParams
 	float upper_limit;
 	
 	int enables_spring;
+private:
+	ExSimObject * additionalPointer;
+public:
 
 	FExConstraintParams()
 	{
@@ -56,12 +59,19 @@ struct FExConstraintParams : public FExCommonParams
 		enables_spring = 0;
 		setType(EnExParamTypes::CONSTRAINT);
 	}
+	void setAdditionalPointer( ExSimObject * data){additionalPointer = data;}
+	ExSimObject * getAdditionalPointer()
+	{
+		ExSimObject * tmp = additionalPointer;
+		additionalPointer = nullptr;
+		return tmp;
+	}
 };
 
-enum class EnExConstraintParamNames : int
+enum class EnExConstraintParamNames : int32
 {
 	//fvectors
-	vector_start = 0,
+	VECTOR_START = 0,
 	parent_pivot,
 	target_pivot,
 	upp_lim_lin,
@@ -75,22 +85,22 @@ enum class EnExConstraintParamNames : int
 	parent_axis,
 	target_axis,
 	//fstrings
-	string_start,
+	STRING_START,
 	parent_name,
 	target_name,
 	constraint_name,
 	//
-	spec_start,
+	SPEC_START,
 	en_spring,
 	constraint_t,
 	//
-	float_start,
+	FLOAT_START,
 	tau,
 	impulse_clamp,
 	lower_limit,
 	upper_limit,
 	//
-	int_start,
+	INT_START,
 	enables_spring,
 	opt_end
 };
@@ -103,5 +113,8 @@ public:
 	static void getDefaultNames(TMap<EnExConstraintParamNames, FString> * trg);
 	static void getNameValuePairs(TMap<EnExConstraintParamNames, FString> * names, TMap<EnExConstraintParamNames, FString> * values, TMap<FString, FString> * trg);
 	static void fromNameValuePairsToParams(TMap<FString, FString> * src, FExConstraintParams * trg);
+
+	static void getInitValues(TMap<EnExConstraintParamNames, TArray<FString>>* trg, FExConstraintParams* params);
+	static void getEditTypeCreate(TMap<EnExConstraintParamNames, EnExParamEdit>* trg);
 };
 
