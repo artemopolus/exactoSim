@@ -120,9 +120,6 @@ void AExSimFileManager::loadMeshInComponent(UProceduralMeshComponent* target)
 
 void AExSimFileManager::save(ExSimComplex* target)
 {
-	es_complex_params * cmplx = new es_complex_params();
-	cmplx->string_list.Add("Name",target->getName());
-	cmplx->string_list.Add("BasisName",target->getBasis()->getName());
 
 	TMap<EnExConstraintParamNames, FString> constraint_names_dict;
 	TMap<EnExConstraintParamNames, FString> constraint_values_dict;
@@ -130,8 +127,18 @@ void AExSimFileManager::save(ExSimComplex* target)
 	TMap<EnExComponentParamNames, FString> component_names_dict;
 	TMap<EnExComponentParamNames, FString> component_values_dict;
 
+	TMap<EnExComplexParamNames, FString> complex_names_dict;
+	TMap<EnExComplexParamNames, FString> complex_values_dict;
+	
+
 	ExConstraintDict::getDefaultNames(&constraint_names_dict);
 	ExComponentDict::getDefaultNames(&component_names_dict);
+	ExComplexDict::getDefaultNames(&complex_names_dict);
+
+	es_complex_params * cmplx = new es_complex_params();
+	
+	ExComplexDict::updateValues(&complex_values_dict, target->getParams());
+	ExComplexDict::getNameValuePairs(&complex_names_dict, &complex_values_dict, &cmplx->string_list);
 	
 	
 	for (const auto component : *target->getComponentsList())
@@ -320,32 +327,7 @@ void AExSimFileManager::loadEsComplexParams(const FString name, es_complex_param
 	}
 }
 
-void AExSimFileManager::loadEsComplexParams(const FString name, ExSimComplex* trg)
-{
-	es_complex_params * complex_params = new es_complex_params();
-	loadEsComplexParams(name, complex_params);
-	auto key = complex_params->string_list.FindRef("Name");
-	trg->setName(key);
-	key = complex_params->string_list.FindRef("BasisName");
-	trg->setBasisName(key);
-	for (const auto & component : complex_params->components)
-	{
-		ExSimComponent * trg_component = new ExSimComponent();
-		FExComponentParams * component_params = new FExComponentParams();
-		ExComponentDict::fromNameValuePairsToParams(&component->string_list, component_params);
-		trg_component->setParams(component_params);
-		for (auto & constraint : component->constraints)
-		{
-			FExConstraintParams * params = new FExConstraintParams();
-			ExConstraintDict::fromNameValuePairsToParams(& constraint->string_list, params);
-			ExSimConstraintPair * constraint_pair = new ExSimConstraintPair();
-			constraint_pair->setParams(params);
-			trg_component->addConstraint(constraint_pair);
-		}
-		trg->addComponent(trg_component);
-	}
-	deleteExSimComplexParams(complex_params);
-}
+
 
 void AExSimFileManager::deleteExSimComplexParams(es_complex_params* cmplx)
 {

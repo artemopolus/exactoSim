@@ -39,6 +39,7 @@ public:
 		TArray<es_component_params*> components;
 		TMap<FString, FString> string_list;
 	};
+
 	
 	
 private:
@@ -74,7 +75,6 @@ public:
 
 	void loadEsComplexParams(TArray<es_complex_params *> trg);
 	void loadEsComplexParams(const FString name, es_complex_params * trg);
-	void loadEsComplexParams(const FString name, ExSimComplex * trg);
 
 	void deleteExSimComplexParams(es_complex_params * cmplx);
 	
