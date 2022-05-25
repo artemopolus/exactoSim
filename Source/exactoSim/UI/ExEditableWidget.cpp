@@ -30,7 +30,7 @@ void UExEditableWidget::onTextCommitedRegistered(
 		))
 	{
 		EnExConstraintParamNames p = static_cast<EnExConstraintParamNames>(PtType);
-		if (p > EnExConstraintParamNames::vector_start && p < EnExConstraintParamNames::string_start &&!ExConvert::checkVecStr(text.ToString()))
+		if (p > EnExConstraintParamNames::VECTOR_START && p < EnExConstraintParamNames::STRING_START &&!ExConvert::checkVecStr(text.ToString()))
 		{
 			ValueText->SetText(FText::FromString(InitValue));
 			return;

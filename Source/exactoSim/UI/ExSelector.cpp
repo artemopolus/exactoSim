@@ -12,19 +12,29 @@ void UExSelector::addSelectorValue(FString text)
 {
 	SelectorCombo->AddOption(text);
 	if (SelectorCombo->GetOptionCount() == 1)
+	{
+		setCurrentValue(text);
 		SelectorCombo->OnSelectionChanged.AddDynamic(this,&UExSelector::onSelectorValueChanged);
+	}
 }
 
-void UExSelector::init(FString name, int id)
+void UExSelector::setCurrentValue(FString trg)
+{
+	SelectorCombo->SetSelectedOption(trg);
+	InitValue = trg;
+}
+
+void UExSelector::init(FString name, int32 id, int32 type)
 {
 	setSelectorText(name);
-	Id = id;
+	PtId = id;
+	PtType = type;
 }
 
 void UExSelector::onSelectorValueChanged(FString name, ESelectInfo::Type type)
 {
 	if(EventOnSelectorValueChanged.IsBound())
 	{
-		EventOnSelectorValueChanged.Broadcast(name, type, Id);
+		EventOnSelectorValueChanged.Broadcast(InitValue, name, PtType, PtId, static_cast<int32>(type));
 	}
 }

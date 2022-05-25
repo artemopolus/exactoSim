@@ -175,11 +175,12 @@ void UExSimMainWidget::setupConstrainOptions(FVector2D loc, AActor *actor)
 				out += FString::FromInt(i) + TEXT("\t ") + n + TEXT("\n");
 			}
 			sendDebug(out);
-			addButtonToTempList("Add new constraint", -1);
+			addButtonToTempList(TEXT("Add new constraint"), -1);
 			out = (ParentActor) ? (TEXT("Parent: ") + ParentActor->getName()) : TEXT("Parent: None");
 			addButtonToTempList(out, -2);
 			out = (TargetActor) ? (TEXT("Target: ") + TargetActor->getName()) : TEXT("Target: None");
 			addButtonToTempList(out, -3);
+			addButtonToTempList(TEXT("Edit component"), -4);
 			
 		}
 	}
@@ -234,6 +235,12 @@ void UExSimMainWidget::setComboClass(UClass* tmpl)
 {
 	ComboClass = tmpl;
 }
+
+void UExSimMainWidget::setClickerClass(UClass* tmpl)
+{
+	ClickerClass = tmpl;
+}
+
 
 
 
@@ -293,6 +300,12 @@ void UExSimMainWidget::onTempListButtonClicked()
 			else if (ButtonTempList[i]->tag == -3)
 			{
 				setCurrentToTarget();
+			}
+			else if (ButtonTempList[i]->tag == -4)
+			{
+				TArray<AExSimStorage::ParamHolder> holder;
+				DataStorage->selectCommand(CurrentActor, &holder);
+				addInputTable(holder);
 			}
 			else if (ButtonTempList[i]->tag  > -1)
 			{
@@ -451,14 +464,10 @@ bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, EnExConstra
 
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
-
-	
-
 	//delete table of constraint option 
 	deleteConstraintOptions();
-
-	DataStorage->createConstraint(ParentActor, TargetActor);
-
+	DataStorage->createCommand();
+	// DataStorage->createConstraint(ParentActor, TargetActor);
 }
 
 
@@ -484,12 +493,35 @@ void UExSimMainWidget::onConstraintEscClicked()
 	deleteConstraintOptions();
 }
 
-
+void UExSimMainWidget::addInputTable(TArray<AExSimStorage::ParamHolder> options)
+{
+	for (const auto option : options)
+	{
+		if (option.EditType == EnExParamEdit::EDITABLE)
+			addEditableToStorageWB(option.Name, option.Value[0], 0, option.ParamType);
+		else if (option.EditType == EnExParamEdit::SELECTABLE)
+			addSelectableToStorageWB(option.Name, option.Value, 0, option.ParamType);
+		else if (option.EditType == EnExParamEdit::CLICKABLE)
+		{
+			addClickerToStorageWB(option.Name, option.Value[0], 0, option.ParamType);
+		}
+	}
+	addConstraintButtonOk();
+	addConstraintButtonEsc();
+}
 
 void UExSimMainWidget::onCreateComponentClicked()
 {
-	addEditableToStorageWB("Pivot Parent","0.0; 0.0; 0.0;",0,0);
+	if (EditableList.Num())
+		clearOptionFromTable();
+	sendDebug(TEXT("Create component"));
+	TArray<AExSimStorage::ParamHolder> options;
+	DataStorage->initComponentCommand(&options);
+
+	addInputTable(options);
+
 }
+
 void UExSimMainWidget::getInputTableOptions()
 {
 	if (!OptionNames)
@@ -497,7 +529,21 @@ void UExSimMainWidget::getInputTableOptions()
 	if (!OptionValuePairs)
 		OptionValuePairs = &DataStorage->OptionValuePairsPtr;
     
-	SelectedConstraintType = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
+}
+void UExSimMainWidget::addOptionToTable( TMap<int, FString> names, TMap<FString, FString > values, int id)
+{
+	if (EditableList.Num())
+		clearOptionFromTable();
+	for (const auto& option : names)
+	{
+		FString name = option.Value;
+		const int type = option.Key;
+		const FString* value = values.Find(name);
+		if (value)
+			addEditableToStorageWB(name, *value, id, type);
+	}
+	addConstraintButtonOk();
+	addConstraintButtonEsc();
 }
 void UExSimMainWidget::addOptionToTable()
 {
@@ -525,7 +571,7 @@ void UExSimMainWidget::clearOptionFromTable()
 void UExSimMainWidget::addInputTable()
 {
 	UExSelector * sl = CreateWidget<UExSelector>(this, SelectorClass);
-	sl->init(TEXT("Constraint: "), 0);
+	sl->init(TEXT("Constraint: "), 0, 0);
 	for (int i = 0; i < static_cast<int>(ExSimPhyzHelpers::NONE); i++)
 		sl->addSelectorValue(ExSimPhyzHelpers::getNameFromConstraint(static_cast<ExSimPhyzHelpers::Constraint>(i)));
 	sl->EventOnSelectorValueChanged.AddDynamic(this, &UExSimMainWidget::onSelectorWidgetChanged);
@@ -537,9 +583,17 @@ void UExSimMainWidget::addInputTable()
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
 
-	FString out = TEXT("Add table") + ExSimPhyzHelpers::getNameFromConstraint(SelectedConstraintType);
 	
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, out);
+}
+void UExSimMainWidget::addSelectableToStorageWB(FString name, TArray<FString> value, int id, int type)
+{
+	UExSelector * sl = CreateWidget<UExSelector>(this, SelectorClass);
+	sl->init(name, id, type);
+	for(int32 i = 0; i < value.Num(); i++)
+		sl->addSelectorValue(value[i]);
+	sl->EventOnSelectorValueChanged.AddDynamic(this, &UExSimMainWidget::onSelectorWidgetChanged);
+	SelectorList.Add(sl);
+	StorageWrapBox->AddChild(sl);
 }
 void UExSimMainWidget::addEditableToStorageWB(FString name, FString value, int id, int type)
 {
@@ -549,7 +603,12 @@ void UExSimMainWidget::addEditableToStorageWB(FString name, FString value, int i
 	EditableList.Add(Menu);
 	StorageWrapBox->AddChild(Menu);
 }
-
+void UExSimMainWidget::addClickerToStorageWB(FString name, FString value, int id, int type)
+{
+	UExClickerWidget * menu = CreateWidget<UExClickerWidget>(this, ClickerClass);
+	ClickerList.Add(menu);
+	StorageWrapBox->AddChild(menu);
+}
 void UExSimMainWidget::updateEditable(EnExConstraintParamNames type, FString value)
 {
 	for(const auto & op : EditableList)
@@ -572,25 +631,43 @@ void UExSimMainWidget::updateEditable(EnExConstraintParamNames type, FVector val
 void UExSimMainWidget::onEditableWidgetChanged(FString ini, FString gen, int id, int type)
 {
 	sendDebug(TEXT("Change is accepted: ") + ini + TEXT(" => ") + gen);
-	DataStorage->updateConstraintCommand(static_cast<EnExConstraintParamNames>(type), gen);
+	DataStorage->updateCommand(type, gen);
 }
-
-void UExSimMainWidget::onDataStorageConstraintChanged(int type, FString value)
-{
-	sendDebug(TEXT("Try update new value: ") + value);
-	if (EnExConstraintParamNames::constraint_t == static_cast<EnExConstraintParamNames>(type))
-	{
-		DataStorage->updateOptVPP();
-		addOptionToTable();
-		return;	
-	}
-	updateEditableAll();
-}
-
-void UExSimMainWidget::onSelectorWidgetChanged(FString value, ESelectInfo::Type type, int id)
+void UExSimMainWidget::onSelectorWidgetChanged(FString init, FString value, int32 type, int32 id, int32 eventtype)
 {
 	sendDebug("SELECTOR is CHANGED");
-	DataStorage->updateConstraintCommand(EnExConstraintParamNames::constraint_t, value);
+	DataStorage->updateCommand(type, value);
+}
+void UExSimMainWidget::onCommanderUpdated(FExCommonParams * params)
+{
+
+	updateEditable(params);
+}
+
+
+void UExSimMainWidget::updateEditable(FExCommonParams* params)
+{
+	TArray<AExSimStorage::ParamHolder> options;
+	DataStorage->updateCommand(params,&options);
+	for (auto& opt : options)
+	{
+		if(opt.EditType == EnExParamEdit::EDITABLE)
+		{
+			for (auto& ed : EditableList)
+			{
+				if (opt.ParamType == ed->getType())
+					ed->update(opt.Value[0]);
+			}
+		}
+		else if(opt.EditType == EnExParamEdit::SELECTABLE)
+		{
+			for(auto & sel : SelectorList)
+			{
+				if(opt.ParamType == sel->getType())
+					sel->setCurrentValue(opt.Value[0]);
+			}
+		}
+	}
 }
 
 void UExSimMainWidget::updateEditableAll()
@@ -638,7 +715,7 @@ bool UExSimMainWidget::Initialize()
 	{
 		std::string * str = DataStorage->GenObjType.Find(GenObjKey++);
 		DataStorage->setTargetWidget(this);
-		DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
+		// DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
 
 		//GetOwningPlayer()->bShowMouseCursor = true;
 		
@@ -674,7 +751,9 @@ void UExSimMainWidget::initSimMainWidget()
 	{
 		DataStorage->setTargetWidget(this);
 		
-		DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
+		// DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
+
+		DataStorage->getCommander()->EcEvOnCommand.AddUObject(this, &UExSimMainWidget::onCommanderUpdated);
 
 		onChangeModeButtonClicked();
 	}

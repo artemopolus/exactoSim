@@ -6,6 +6,7 @@
 #include <string>
 #include "CoreMinimal.h"
 #include "ExButtonWidget.h"
+#include "ExClickerWidget.h"
 #include "ExEditableWidget.h"
 #include "ExSelector.h"
 #include "Blueprint/UserWidget.h"
@@ -68,10 +69,10 @@ public:
 
 	UFUNCTION()
 		void onEditableWidgetChanged(FString ini, FString gen, int id, int type);
+	//react on command complete 
+		void onCommanderUpdated(FExCommonParams * params);
 	UFUNCTION()
-		void onDataStorageConstraintChanged(int type, FString value);
-	UFUNCTION()
-		void onSelectorWidgetChanged(FString value, ESelectInfo::Type type, int id);
+		void onSelectorWidgetChanged(FString init, FString value, int32 type, int32 id, int32 eventtype);
 
 	
 	
@@ -82,10 +83,15 @@ public:
 	void setButtonClass(UClass * tmpl);
 	void setOptionClass(UClass * tmpl);
 	void setComboClass(UClass * tmpl);
+	void setClickerClass(UClass * tmpl);
 
+	void addClickerToStorageWB(FString name, FString value, int id, int type);
+	void addSelectableToStorageWB(FString name, TArray<FString> value, int id, int type);
 	void addEditableToStorageWB(FString name, FString value, int id, int type);
 	void updateEditable(EnExConstraintParamNames type, FString value);
 	void updateEditable(EnExConstraintParamNames type, FVector value);
+
+	void updateEditable(FExCommonParams * params);
 	void updateEditableAll();
 	void addButtonToStorage(FString name);
 	void addSelectToStorage(FString name, TArray<FString> option_list);
@@ -117,8 +123,10 @@ private:
 	void deleteConstraintOptions();
 
 	void addOptionToTable();
+	void addOptionToTable( TMap<int, FString> names, TMap<FString, FString > values, int id = 0);
 	void clearOptionFromTable();
 	void addInputTable();
+	void addInputTable(TArray<AExSimStorage::ParamHolder> options);
 	
 	void addButtonToTempList(const FString name, const int tag);
 	void clearButtonTempList();
@@ -207,6 +215,7 @@ private:
 	TArray<UExEditableWidget *> EditableList;
 	TArray<UExSelector *> SelectorList;
 	TArray<UExButtonWidget *> ButtonTempList;
+	TArray<UExClickerWidget *> ClickerList;
 	UExButtonWidget * OptionsButton_Ok = nullptr;
 	UExButtonWidget * OptionsButton_Esc = nullptr;
 	UExButtonWidget * OptionsButton_Reset = nullptr;
@@ -215,6 +224,7 @@ private:
 	UClass * ButtonClass;
 	UClass * OptionClass;
 	UClass * ComboClass;
+	UClass * ClickerClass;
 
 	ExSimComponent * CurrentActor;
 	ExSimConstraintPair * CurrentConstraint;
@@ -222,7 +232,6 @@ private:
 	
 	ExSimComponent * TargetActor;
 	ExSimComponent * ParentActor;
-	ExSimPhyzHelpers::Constraint SelectedConstraintType = ExSimPhyzHelpers::Constraint::NONE;
 
 	
 		
