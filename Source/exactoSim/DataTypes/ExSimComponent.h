@@ -1,6 +1,7 @@
 #pragma once
 #include "ExComplexParams.h"
 #include "ExComponentParams.h"
+#include "ExSimObject.h"
 #include "ExSimPhyzHelpers.h"
 #include "FExConstraintParams.h"
 
@@ -11,15 +12,7 @@
 class EXACTOSIM_API ExSimComplex;
 class EXACTOSIM_API ExSimComponent;
 
-class EXACTOSIM_API ExSimObject
-{
-	EnExParamTypes ObjType = EnExParamTypes::CONSTRAINT;
-public:
-	virtual ~ExSimObject() = default;
-	EnExParamTypes getObjType() const {return  ObjType;}
-	void setObjType(EnExParamTypes type){ObjType = type;}
-	virtual void update() = 0;
-};
+
 
 
 class EXACTOSIM_API ExSimConstraintPair : public ExSimObject
@@ -33,7 +26,7 @@ public:
 	ExSimConstraintPair()
 	{
 		setObjType(EnExParamTypes::CONSTRAINT);
-		Params = new FExConstraintParams();
+		Params = new FExConstraintParams(); //todo: have not to be there
 		Params->setOwner(this);
 	}
 	ExSimConstraintPair(ExSimComponent * p, FExConstraintParams * params):
@@ -72,9 +65,20 @@ public:
 		setObjType(EnExParamTypes::COMPONENT);
 		Params->setOwner(this);
 	}
+
+	ExSimComponent(FExCommonParams* params)
+	{
+		setObjType(EnExParamTypes::COMPONENT);
+		Params = static_cast<FExComponentParams*>(params);
+		Params->setOwner(this);
+	}
+
+	ExSimComponent(FExComponentParams* params) : Params(params)
+	{
+		setObjType(EnExParamTypes::COMPONENT);
+		Params->setOwner(this);
+	}
 	bool getConstraintNames(TArray<FString>* names);
-	bool addConstraint(FString name);
-	bool removeConstraint(FString name);
 	
 	FString getName(){return  Name;}
 	FString getPath(){return Path;}
@@ -95,7 +99,9 @@ public:
 	
 	void setParams(FExComponentParams * params){Params = params;}
 
-	void addConstraint(ExSimConstraintPair * c){Constraints.Add(c);}
+	void addConstraint(ExSimConstraintPair * constr);
+	void removeConstraint(ExSimConstraintPair * constr);
+	
 	virtual void update() override;
 };
 
@@ -111,11 +117,20 @@ public:
 	{
 		setObjType(EnExParamTypes::COMPLEX);
 	}
+	ExSimComplex(FExComplexParams * params) : Params(params)
+	{
+		Name = params->Name;
+		BasisName = params->BasisName;
+		setObjType(EnExParamTypes::COMPLEX);
+	}
 
 	virtual ~ExSimComplex() override;
 	void setName(FString name){Name = name;}
 	void setBasisName(FString name){BasisName = name;}
-	void setBasis(ExSimComponent * basis){Basis = basis;}
+	void setBasis(ExSimComponent * basis)
+	{
+		Basis = basis;
+	}
 	void setParams(FExComplexParams * params){Params = params;}
 
 	FString getName(){return Name;}

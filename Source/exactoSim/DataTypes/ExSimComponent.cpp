@@ -5,13 +5,15 @@ void ExSimConstraintPair::update()
 {
 	this->Name = Params->name_constraint;
 	this->Type = Params->constr_type;
+	ExSimComponent * parent = static_cast<ExSimComponent*>(Params->getDataPointer());
+	
 }
 
 bool ExSimComponent::getConstraintNames(TArray<FString>* names)
 {
-if (this->Constraints.Num() > 0)
+	if (this->Constraints.Num() > 0)
 	{
-		for(const auto ctr : this->Constraints)
+		for (const auto ctr : this->Constraints)
 		{
 			names->Add(ctr->getName());
 		}
@@ -20,15 +22,7 @@ if (this->Constraints.Num() > 0)
 	return false;
 }
 
-bool ExSimComponent::addConstraint(FString name)
-{
-	return false;
-}
 
-bool ExSimComponent::removeConstraint(FString name)
-{
-	return false;
-}
 
 FString ExSimComponent::getComplexName()
 {
@@ -53,10 +47,27 @@ void ExSimComponent::setBasis(TArray<ExSimComplex*>* list)
 	}
 }
 
+void ExSimComponent::addConstraint(ExSimConstraintPair* constr)
+{
+	Constraints.Add(constr);
+	Params->ConstraintNames.Add(constr->getName());
+}
+
+void ExSimComponent::removeConstraint(ExSimConstraintPair* constr)
+{
+	Constraints.Remove(constr);
+	Params->ConstraintNames.Remove(constr->getName());
+}
+
 void ExSimComponent::update()
 {
 	this->Name = Params->Name;
 	this->Path = Params->Path;
+	ExSimConstraintPair * pair = static_cast<ExSimConstraintPair*>(Params->getDataPointer());
+	if (pair && pair->getObjType() == EnExParamTypes::CONSTRAINT)
+	{
+		addConstraint(pair);
+	}
 }
 
 ExSimComplex::~ExSimComplex()
@@ -72,12 +83,16 @@ void ExSimComplex::addComponent(ExSimComponent* component)
 	ExSimComplex * prev = component->getBasis();
 	prev->removeComponent(component);
 	component->setBasis(this);
+	if (!Components.Num())
+		setBasis(component);
 	Components.Add(component);
+	Params->ComponentNames.Add(component->getName());
 }
 
 void ExSimComplex::removeComponent(ExSimComponent* component)
 {
 	Components.Remove(component);
+	Params->ComponentNames.Remove(component->getName());
 }
 
 void ExSimComplex::addComponents(TArray<ExSimComponent*> * targets)
@@ -95,7 +110,7 @@ void ExSimComplex::moveComponents(ExSimComplex* trg)
 	{
 		trg->addComponent(Components[i]);
 	}
-	static_assert(Components.Num() == 0);
+	check(Components.Num() == 0);
 }
 
 ExSimComponent* ExSimComplex::getComponent(FString name)
@@ -109,10 +124,23 @@ ExSimComponent* ExSimComplex::getComponent(FString name)
 }
 void ExSimComplex::update()
 {
-	const auto component = getComponent(Params->BasisName);
-	if (component)
+	if (BasisName != Params->BasisName)
 	{
-		setBasis(component);
+		const auto component = getComponent(Params->BasisName);
+		if (component)
+		{
+			BasisName = component->getName();
+			setBasis(component);
+		}
 	}
-	this->Name = Params->Name;
+	ExSimComponent * comp = static_cast<ExSimComponent*>(Params->getDataPointer());
+	if (comp && comp->getObjType() == EnExParamTypes::COMPONENT)
+	{
+		addComponent(comp);
+	}
+	
+	if (Name != Params->Name)
+		this->Name = Params->Name;
 }
+
+	
