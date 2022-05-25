@@ -17,6 +17,8 @@ AExSimPlayer::AExSimPlayer()
 	ConstructorHelpers::FClassFinder<UUserWidget> SelectorClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExSelector'"));
 	//WidgetBlueprint'/Game/Blueprint/UI/BP_ExSelector.BP_ExSelector'
 	SelectorClass = SelectorClassFinder.Succeeded() ? SelectorClassFinder.Class : nullptr;
+	ConstructorHelpers::FClassFinder<UUserWidget> ClickerClassFinder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExClicker'"));
+	ClickerClass = ClickerClassFinder.Succeeded() ? ClickerClassFinder.Class : nullptr;
 
 	ConstructorHelpers::FClassFinder<UUserWidget> combo_class_finder(TEXT("WidgetBlueprint'/Game/Blueprint/UI/BP_ExCombo'"));
 	ComboClass = combo_class_finder.Succeeded() ? combo_class_finder.Class : nullptr;
@@ -58,7 +60,7 @@ void AExSimPlayer::undoFunction()
 {
 	if (DataStorage)
 	{
-		DataStorage->undoConstraintCommand();
+		DataStorage->undoCommand();
 	}
 }
 
@@ -231,6 +233,7 @@ void AExSimPlayer::BeginPlay()
 		TargetWidget->setButtonClass(ButtonClass);
 		TargetWidget->setSelectorClass(SelectorClass);
 		TargetWidget->setComboClass(ComboClass);
+		TargetWidget->setClickerClass(ClickerClass);
 		
 		/*TArray<FString> options;
 		options.Add("some");

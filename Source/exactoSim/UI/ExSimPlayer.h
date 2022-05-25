@@ -45,6 +45,7 @@ private:
 	UClass * ButtonClass;
 	UClass * SelectorClass;
 	UClass * ComboClass;
+	UClass * ClickerClass;
 
 	FVector ActorDragInitDist;
 	float ActorDragDistance;
