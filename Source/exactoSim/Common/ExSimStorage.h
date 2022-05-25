@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ExCommander.h"
 #include "exactoSim/exactoWorld.h"
+#include "exactoSim/DataTypes/ExFactoryOperator.h"
 #include "exactoSim/DataTypes/ExSimComponent.h"
 #include "exactoSim/Scene/ExScene.h"
 #include "GameFramework/Actor.h"
@@ -57,6 +58,23 @@ public:
 		EXCT_DELETE,
 		EXCT_SWITCH
 	};
+
+	struct ParamHolder
+	{
+		FString Name;
+		int ParamType;
+		TArray<FString> Value;
+		EnExParamEdit EditType;
+		ParamHolder(FString name, EnExConstraintParamNames paramtype, TArray<FString> value, EnExParamEdit edittype):
+			Name(name), ParamType(static_cast<int32>(paramtype)), Value(value), EditType(edittype)
+		{}
+		ParamHolder(FString name, EnExComponentParamNames paramtype, TArray<FString> value, EnExParamEdit edittype):
+			Name(name), ParamType(static_cast<int32>(paramtype)), Value(value), EditType(edittype)
+		{}
+		ParamHolder(FString name, EnExComplexParamNames paramtype, TArray<FString> value, EnExParamEdit edittype):
+			Name(name), ParamType(static_cast<int32>(paramtype)), Value(value), EditType(edittype)
+		{}
+	};
 	
 	TArray<ExSimComplex*> ExSimComplexList;
 	TMap<int, std::string> GenObjType;
@@ -71,8 +89,8 @@ public:
 	TMap<EnExConstraintParamNames, FString> OptionValuesPtr;
 	TMap<FString, FString> OptionValuePairsPtr;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FConstraintChanged, int, type, FString, value);
-	FConstraintChanged EssEvOnConstraintChanged;
+	// DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FConstraintChanged, int, type, FExCommonParams*, value);
+	// FConstraintChanged EssEvOnConstraintChanged;
 private:
 	int CurrentMode = es_modes::EDIT;
 	TMap<int, FString> ModeList;
@@ -86,8 +104,10 @@ private:
 	FRotator TargetRotation;
 	
 	ExCommander * CoCoCoProvider;
-	ExSimConstraintPair * CurrentConstraintPtr = nullptr;
+	ExSimObject * CurrentConstraintPtr = nullptr;
 	ExSimComplex * CurrentComplex = nullptr;
+
+	ExFactoryOperator * ParamsOperator = nullptr;
 
 
 	
@@ -114,8 +134,17 @@ public:
 		void onCommandRegistered(FExCommonParams * params);
 
 	void createComponent(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
-	void createConstraint(FString * target, FString * parent);
 	void createConstraint(ExSimComponent * target, ExSimComponent * parent);
+	
+	void createConstraint( FExConstraintParams * params);
+	void deleteConstraint( FExConstraintParams * params);
+
+	void createComponent(FExComponentParams * component);
+	void createComplex(FExComplexParams * complex);
+
+	void deleteComponent(FExComponentParams * params);
+	void deleteComplex(FExComplexParams * params);
+	
 	void updateConstraint();
 	void update(ExSimConstraintPair * pair);
 	void update(ExSimComponent * component);
@@ -157,8 +186,31 @@ public:
 	void updateOptVPP();
 	void setOptVPP(ExSimConstraintPair * params);
 
-	void updateConstraintCommand(EnExConstraintParamNames type, FString str);
-	void undoConstraintCommand();
+	template<typename Tparams, typename Tnames, typename Tdict>
+	void updateHolderByTemplate(Tparams * params, TArray<ParamHolder> * holder);
+	
+	
+	void initComplexCommand(TArray<ParamHolder> * holder);
+	void initComponentCommand(TArray<ParamHolder> * holder);
+	void initConstraintCommand(TArray<ParamHolder> * holder);
+
+	void selectCommand(ExSimComponent* trg, TArray<ParamHolder> * holder);
+
+	void createCommand();
+	
+	void deleteCommand();
+	
+	void updateCommand(int type, FString str);
+	void updateCommand(EnExComplexParamNames type, FString str);
+	void updateCommand(EnExComponentParamNames type, FString str);
+	void updateCommand(EnExConstraintParamNames type, FString str);
+	void updateCommand(FExCommonParams * params, TArray<ParamHolder> * holder);
+	void updateCommand(FExComponentParams * params, TArray<ParamHolder> * holder);
+	void updateCommand(FExComplexParams * params, TArray<ParamHolder> * holder);
+	void updateCommand(FExConstraintParams * params, TArray<ParamHolder> * holder);
+	void undoCommand();
+
+	ExCommander * getCommander() const {return  CoCoCoProvider;}
 
 
 private:
@@ -172,5 +224,21 @@ private:
 
 	
 };
+
+template <typename Tparams, typename Tnames, typename Tdict>
+void AExSimStorage::updateHolderByTemplate(Tparams* params, TArray<ParamHolder>* holder)
+{
+	TMap<Tnames, FString> tmp_names;
+	TMap<Tnames, TArray<FString>> tmp_values;
+	TMap<Tnames, EnExParamEdit> tmp_edit;
+	Tdict::getInitValues(&tmp_values, params);
+	Tdict::getDefaultNames(&tmp_names);
+	Tdict::getEditTypeCreate(&tmp_edit);
+	for (const auto& name : tmp_names)
+	{
+		const auto key = name.Key;
+		holder->Add(ParamHolder(name.Value, key, *tmp_values.Find(key), *tmp_edit.Find(key)));
+	}
+}
 
 

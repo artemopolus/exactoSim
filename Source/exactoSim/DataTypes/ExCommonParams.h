@@ -1,12 +1,14 @@
 #pragma once
+#include "ExSimObject.h"
+#include "ExSimPhyzHelpers.h"
 
 #include "ExCommonParams.generated.h"
 
-enum class  EnExParamTypes : int
+enum class  EnExParamEdit : int
 {
-	CONSTRAINT = 0,
-	COMPONENT,
-	COMPLEX
+	EDITABLE = 0,
+	SELECTABLE,
+	CLICKABLE	
 };
 
 USTRUCT()
@@ -17,7 +19,8 @@ private:
 	EnExParamTypes ParamType = EnExParamTypes::CONSTRAINT;
 	bool NeedToCreate = false;
 	bool NeedToDelete = false;
-	void * Owner = nullptr;
+	ExSimObject * Owner = nullptr;
+	ExSimObject * DataPointer = nullptr;
 public:
 	void setType(const EnExParamTypes type){ParamType = type;}
 	EnExParamTypes getType() const {return ParamType;}
@@ -41,8 +44,24 @@ public:
 	}
 	bool isMarkedToDelete()const{return  NeedToDelete;}
 
-	void setOwner(void * trg){Owner = trg;}
-	void * getOwner()const{return Owner;}
+	void setOwner(ExSimObject * trg){Owner = trg;}
+	ExSimObject * getOwner()const{return Owner;}
+
+	void setDataPointer(ExSimObject * data){DataPointer = data;}
+	ExSimObject * getDataPointer()
+	{
+		if(DataPointer == nullptr)
+			return nullptr;
+		ExSimObject * data = DataPointer;
+		DataPointer = nullptr;
+		return data;
+	}
+
+	bool isConstraint() const {return ParamType == EnExParamTypes::CONSTRAINT;}
+	bool isComponent() const {return ParamType == EnExParamTypes::COMPONENT;}
+	bool isComplex() const {return ParamType == EnExParamTypes::COMPLEX;}
 	
 };
+
+
 

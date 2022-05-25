@@ -1,42 +1,37 @@
 #include "ExCommander.h"
 
 
-ExCreate::ExCreate(FExConstraintParams* trg)
-{
-	Params = trg;
-	FExConstraintParams * tmp = new FExConstraintParams();
-	*tmp = *trg;
-	Store = tmp;
-}
-
-ExCreate::ExCreate(FExComponentParams* trg)
-{
-	//TODO: component creation
-}
-
-ExCreate::ExCreate(FExComplexParams* trg)
-{
-	//todo: complex creation
-}
-
-ExCreate::~ExCreate()
+ExConstructor::~ExConstructor()
 {
 	if (Store) delete Store;
 }
 
-void ExCreate::execute()
+ExConstructor::ExConstructor(FExConstraintParams* trg, ExFactoryOperator* factory)
+{
+}
+
+ExConstructor::ExConstructor(FExComponentParams* trg, ExFactoryOperator* factory)
+{
+	Params = trg;
+	Store = factory->createComponentParams(trg);
+}
+
+ExConstructor::ExConstructor(FExComplexParams* trg, ExFactoryOperator* factory)
+{
+}
+
+void ExConstructor::construct()
 {
 	if (!Params)
 	{
 		if (Params->getType()==EnExParamTypes::CONSTRAINT)
 		{
-			FExConstraintParams * src = static_cast<FExConstraintParams*>(Store);
-			FExConstraintParams * trg = static_cast<FExConstraintParams*>(Params);
-			*trg = *src;
 		}
 		else if (Params->getType()==EnExParamTypes::COMPONENT)
 		{
-			
+			FExComponentParams * trg = static_cast<FExComponentParams*>(Params);
+			FExComponentParams * src = static_cast<FExComponentParams*>(Store);
+			*trg = *src;
 		}
 		else if (Params->getType()==EnExParamTypes::COMPLEX)
 		{
@@ -46,44 +41,19 @@ void ExCreate::execute()
 	Params->markToCreate();
 }
 
-void ExCreate::unExecute()
+void ExConstructor::deconstruct()
 {
 	Params->markToDelete();
 }
 
-ExDelete::ExDelete(FExConstraintParams* trg)
-{
-}
 
-ExDelete::ExDelete(FExComponentParams* trg)
-{
-}
 
-ExDelete::ExDelete(FExComplexParams* trg)
-{
-}
-
-ExDelete::~ExDelete()
-{
-}
-
-void ExDelete::execute()
-{
-}
-
-void ExDelete::unExecute()
-{
-}
-
-void ExDelete::getTarget(FExCommonParams* trg)
-{
-}
 
 void ExCommander::updateConstraint(EnExConstraintParamNames type, FVector vec)
 {
-	if (!ActiveConstraint)
+	if (!isConstraint())
 		return;
-	Command = new ExUpdateConstraintVector(ActiveConstraint, type, vec);
+	Command = new ExUpdateConstraintVector(getConstraint(), type, vec);
 	Command->execute();
 	DoneCommands.Add(Command);
 	if (DoneCommands.Num() >= DoneCommandMax)
@@ -94,27 +64,33 @@ void ExCommander::updateConstraint(EnExConstraintParamNames type, FVector vec)
 	}
 }
 
+void ExCommander::updateConstraint(FExConstraintParams* params, EnExConstraintParamNames type, FString str)
+{
+	ActiveParam = params;
+	updateConstraint(type, str);
+}
+
 void ExCommander::updateConstraint(EnExConstraintParamNames type, FString str)
 {
-	if (( EnExConstraintParamNames::vector_start < type)&&(type <EnExConstraintParamNames::string_start))
+	if (( EnExConstraintParamNames::VECTOR_START < type)&&(type <EnExConstraintParamNames::STRING_START))
 	{
 		const FVector vec = ExConvert::getVecFromStr(str);
 		updateConstraint(type, vec);
 	}
-	else if (( EnExConstraintParamNames::string_start < type)&&(type <EnExConstraintParamNames::spec_start))
+	else if (( EnExConstraintParamNames::STRING_START < type)&&(type <EnExConstraintParamNames::SPEC_START))
 	{
-		if(!ActiveConstraint)
+		if(!isConstraint())
 			return;
-		Command = new ExUpdateConstraintString(ActiveConstraint, type, str);
+		Command = new ExUpdateConstraintString(getConstraint(), type, str);
 		Command->execute();
 		DoneCommands.Add(Command);
 	}
-	else if (EnExConstraintParamNames::float_start < type && type < EnExConstraintParamNames::int_start)
+	else if (EnExConstraintParamNames::FLOAT_START < type && type < EnExConstraintParamNames::INT_START)
 	{
 		const float val = ExConvert::getFloatFromStr(str);
 		updateConstraint(type, val);
 	}
-	else if (EnExConstraintParamNames::int_start < type && type < EnExConstraintParamNames::opt_end)
+	else if (EnExConstraintParamNames::INT_START < type && type < EnExConstraintParamNames::opt_end)
 	{
 		if (type == EnExConstraintParamNames::enables_spring)
 		{
@@ -141,9 +117,53 @@ void ExCommander::executeCommand()
 		delete Command;
 	}
 	FExCommonParams* params = nullptr;
-	Command->getTarget(params);
+	Command->getTarget(&params);
 	EcEvOnCommand.Broadcast(params);
 }
+
+bool ExCommander::isConstraint()
+{
+	if (!ActiveParam)
+		return false;
+	if (ActiveParam->getType() == EnExParamTypes::CONSTRAINT)
+		return true;
+	return false;
+}
+
+FExConstraintParams* ExCommander::getConstraint()
+{
+	return static_cast<FExConstraintParams*>(ActiveParam);
+}
+
+bool ExCommander::isComponent()
+{
+	if (!ActiveParam)
+		return false;
+	if (ActiveParam->getType() == EnExParamTypes::COMPONENT)
+		return true;
+	return false;
+}
+
+FExComponentParams* ExCommander::getComponent()
+{
+	return static_cast<FExComponentParams*>(ActiveParam);
+}
+
+bool ExCommander::isComplex()
+{
+	if (!ActiveParam)
+		return false;
+	if (ActiveParam->getType() == EnExParamTypes::COMPLEX)
+		return true;
+	return false;
+}
+
+FExComplexParams* ExCommander::getComplex()
+{
+	return static_cast<FExComplexParams*>(ActiveParam);
+}
+
+
 
 void ExCommander::undo()
 {
@@ -155,7 +175,7 @@ void ExCommander::undo()
 		// DoneCommands.pop_back();
 		Command->unExecute();
 		FExCommonParams * params = nullptr;
-		Command->getTarget(params);
+		Command->getTarget(&params);
 		EcEvOnCommand.Broadcast(params);
 		delete Command;
 	}
@@ -163,26 +183,32 @@ void ExCommander::undo()
 
 void ExCommander::updateConstraint(EnExConstraintParamNames type, float val)
 {
-	if (!ActiveConstraint)
+	if (!isConstraint())
 		return;
-	Command = new ExUpdateConstraintFloat(ActiveConstraint, type, val);
+	Command = new ExUpdateConstraintFloat(getConstraint(), type, val);
 	executeCommand();
 }
 
-void ExCommander::updateConstraint(EnExConstraintParamNames type, int val)
+void ExCommander::updateConstraint(EnExConstraintParamNames type, int32 val)
 {
-	if (!ActiveConstraint)
+	if (!isConstraint())
 		return;
-	Command = new ExUpdateConstraintInt(ActiveConstraint, type, val);
+	Command = new ExUpdateConstraintInt(getConstraint(), type, val);
 	executeCommand();
 }
 
 void ExCommander::updateConstraint(EnExConstraintParamNames type, ExSimPhyzHelpers::Constraint val)
 {
-	if (!ActiveConstraint)
+	if (!isConstraint())
 		return;
-	Command = new ExUpdateConstraintType(ActiveConstraint, type, val);
+	Command = new ExUpdateConstraintType(getConstraint(), type, val);
 	executeCommand();
+}
+
+void ExCommander::updateComponent(EnExComponentParamNames type, FString val)
+{
+	if (isComponent())
+		updateComponent(getComponent(),type, val);
 }
 
 void ExCommander::updateComponent(FExComponentParams* component, EnExComponentParamNames type, FString val)
@@ -200,9 +226,13 @@ void ExCommander::updateComponent(FExComponentParams* component, EnExComponentPa
 		Command =new ExUpdComponentString(component, type, val);
 		executeCommand();
 	}
-	else if (EnExComponentParamNames::DA_FLOAT_START < type && type < EnExComponentParamNames::ZZ_OPT_END )
+	else if (EnExComponentParamNames::DA_FLOAT_START < type && type < EnExComponentParamNames::EA_INT_START )
 	{
 		updateComponent(component, type, ExConvert::getFloatFromStr(val));
+	}
+	else if (EnExComponentParamNames::EA_INT_START < type && type < EnExComponentParamNames::ZZ_OPT_END )
+	{
+		updateComponent(component,type, ExConvert::getIntFromStr(val));
 	}
 }
 
@@ -224,6 +254,12 @@ void ExCommander::updateComponent(FExComponentParams* component, EnExComponentPa
 	executeCommand();
 }
 
+void ExCommander::updateComponent(FExComponentParams* component, EnExComponentParamNames type, int32 val)
+{
+	Command = new ExUpdComponentInt(component, type, val);
+	executeCommand();
+}
+
 void ExCommander::updateComplex(FExComplexParams* complex, EnExComplexParamNames type, FString val)
 {
 	if (EnExComplexParamNames::CA_STRING_START < type && type < EnExComplexParamNames::DA_FLOAT_START)
@@ -233,17 +269,36 @@ void ExCommander::updateComplex(FExComplexParams* complex, EnExComplexParamNames
 	}
 }
 
-void ExCommander::createConstraint(FExConstraintParams* constraint)
-
+void ExCommander::update(int type, FString val)
 {
-	Command = new ExCreate(constraint);
+	if (isConstraint())
+		updateConstraint(static_cast<EnExConstraintParamNames>(type), val);
+	else if(isComponent())
+		updateComponent(getComponent(),static_cast<EnExComponentParamNames>(type), val);
+	else if(isComplex())
+		updateComplex(getComplex(),static_cast<EnExComplexParamNames>(type), val);
+}
+
+void ExCommander::create()
+{
+	if (isConstraint())
+		Command = new ExCreate(getConstraint(), Factory);
+	else if(isComponent())
+		Command = new ExCreate(getComponent(), Factory);
+	else if(isComplex())
+		Command = new ExCreate(getComplex(), Factory);
 	executeCommand();
 }
 
-void ExCommander::createComponent(FExComponentParams* component)
+void ExCommander::remove()
 {
-	Command = new ExCreate(component);
+	if(isConstraint())
+		Command = new ExDelete(getConstraint(), Factory);
+	else if (isComponent())
+		Command = new ExDelete(getComponent(), Factory);
+	else if(isComplex())
+		Command = new ExDelete(getComplex(), Factory);
+	else return;
 	executeCommand();
 }
-
 

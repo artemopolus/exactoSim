@@ -1,5 +1,28 @@
 #include "ExConvert.h"
 
+TArray<FString> ExConvert::getArrayBool(int32 value)
+{
+	TArray<FString> tmp;
+	if (value > 0)
+	{
+		tmp.Add(EC_DEF_TRUE);
+		tmp.Add(EC_DEF_FALSE);
+	}
+	else
+	{
+		tmp.Add(EC_DEF_FALSE);
+		tmp.Add(EC_DEF_TRUE);
+	}
+	return tmp;
+}
+
+TArray<FString> ExConvert::getArrayString(FString value)
+{
+	TArray<FString> tmp;
+	tmp.Add(value);
+	return tmp;
+}
+
 FString ExConvert::getStrFromVec(FVector vec)
 {
 	return FString::SanitizeFloat(vec.X) + TEXT(" ;") + FString::SanitizeFloat(vec.Y) + TEXT(" ;") + FString::SanitizeFloat(vec.Z);
@@ -125,6 +148,14 @@ float ExConvert::getFloatFromStr(FString str)
 	return FCString::Atof(*str);
 }
 
+int32 ExConvert::getIntFromStr(FString str)
+{
+	if (str == EC_DEF_FALSE)
+		return 0;
+	if (str == EC_DEF_TRUE)
+		return 1;
+	return FCString::Atoi(*str);
+}
 
 
 bool ExConvert::updateParams(FExConstraintParams* trg, EnExConstraintParamNames type, FString val)
@@ -137,11 +168,11 @@ bool ExConvert::updateParams(FExConstraintParams* trg, EnExConstraintParamNames 
 		trg->name_t = val;
 	else
 	{
-		if (EnExConstraintParamNames::vector_start < type && type < EnExConstraintParamNames::string_start)
+		if (EnExConstraintParamNames::VECTOR_START < type && type < EnExConstraintParamNames::STRING_START)
 			updateParams(trg, type, getVecFromStr(val));
-		else if (EnExConstraintParamNames::float_start < type && type < EnExConstraintParamNames::int_start)
+		else if (EnExConstraintParamNames::FLOAT_START < type && type < EnExConstraintParamNames::INT_START)
 			updateParams(trg, type, getFloatFromStr(val));
-		else if (EnExConstraintParamNames::int_start < type && type < EnExConstraintParamNames::opt_end)
+		else if (EnExConstraintParamNames::INT_START < type && type < EnExConstraintParamNames::opt_end)
 		{
 			uint8_t v;
 			getIntFromBoolStr(val, &v);
@@ -297,8 +328,10 @@ bool ExConvert::updateParams(FExComponentParams* trg, EnExComponentParamNames ty
 		return updateParams(trg, type, getVecFromStr(val));
 	else if (EnExComponentParamNames::BA_ROTATOR_START < type && type < EnExComponentParamNames::CA_STRING_START)
 		return updateParams(trg, type, getRotFromStr(val));
-	else if (EnExComponentParamNames::DA_FLOAT_START < type && type < EnExComponentParamNames::ZZ_OPT_END)
+	else if (EnExComponentParamNames::DA_FLOAT_START < type && type < EnExComponentParamNames::EA_INT_START)
 		return updateParams(trg, type, getFloatFromStr(val));
+	else if (EnExComponentParamNames::EA_INT_START < type && type < EnExComponentParamNames::ZZ_OPT_END)
+		return updateParams(trg, type, getIntFromStr(val));
 	else return false;
 	return true;
 }
@@ -322,6 +355,14 @@ bool ExConvert::updateParams(FExComponentParams* trg, EnExComponentParamNames ty
 {
 	if (type == EnExComponentParamNames::D_MASS)
 		trg->Mass = val;
+	else return false;
+	return true;
+}
+
+bool ExConvert::updateParams(FExComponentParams* trg, EnExComponentParamNames type, int val)
+{
+	if(type == EnExComponentParamNames::E_IS_PHYZ)
+		trg->IsOnPhysics = val;
 	else return false;
 	return true;
 }
@@ -360,22 +401,11 @@ bool ExConvert::getParams(FExComponentParams* src, EnExComponentParamNames type,
 	return true;
 }
 
-bool ExConvert::updateParams(FExComplexParams* trg, EnExComplexParamNames type, FString val)
+bool ExConvert::getParams(FExComponentParams* src, EnExComponentParamNames type, int* trg)
 {
-	if (type == EnExComplexParamNames::C_NAME)
-		trg->Name = val;
-	else if (type == EnExComplexParamNames::C_BASIS_NAME)
-		trg->BasisName = val;
+	if(type == EnExComponentParamNames::E_IS_PHYZ)
+		*trg = src->IsOnPhysics;
 	else return false;
 	return true;
 }
 
-bool ExConvert::getParams(FExComplexParams* src, EnExComplexParamNames type, FString* trg)
-{
-	if (type == EnExComplexParamNames::C_NAME)
-		*trg = src->Name;
-	else if (type == EnExComplexParamNames::C_BASIS_NAME)
-		*trg = src->BasisName;
-	else return false;
-	return true;
-}

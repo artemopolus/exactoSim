@@ -6,6 +6,13 @@
 #define ES_PHYZ_HELP_DEF_HINGE2 TEXT("Hinge 2v")
 #define ES_PHYZ_HELP_DEF_NONE TEXT("Unknown")
 
+enum class  EnExParamTypes : int
+{
+	CONSTRAINT = 0,
+	COMPONENT,
+	COMPLEX
+};
+
 class EXACTOSIM_API ExSimPhyzHelpers
 {
 public:
@@ -45,5 +52,15 @@ public:
 		if (name == ES_PHYZ_HELP_DEF_HINGE2)
 			return HINGE2;
 		return NONE;
+	}
+	static TArray<FString> getConstraintsList(Constraint type)
+	{
+		TArray<FString> arr;
+		arr.AddUnique(getNameFromConstraint(type));
+		arr.AddUnique(ES_PHYZ_HELP_DEF_GENERIC6DOF_SPRING);
+		arr.AddUnique(ES_PHYZ_HELP_DEF_HINGE);
+		arr.AddUnique(ES_PHYZ_HELP_DEF_HINGE2);
+		arr.AddUnique(ES_PHYZ_HELP_DEF_POINT_TO_POINT);
+		return arr;
 	}
 };

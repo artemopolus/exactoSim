@@ -71,18 +71,18 @@ public:
 		FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0), bool use_genloc = true,
 		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
 
-	bool addObjByPath(ExSimComponent * component);
 	bool addObjByPath(ExSimComponent ** component, const FString path, const FString name, float mass = 1.0f,
 		FVector location = FVector(0,0,0), FRotator rotation = FRotator(0,0,0), bool use_genloc = true,
 		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
 	
+	bool createComponent(ExSimComponent * component);
+	void deleteComponent(ExSimComponent * component);
 	
 	void deleteSceneObjByPrefix(std::string prefix);
 
 	void generateCar();
 	void removeCar();
 
-	void createComponent(ExSimComponent * component);
 	void updateComponent(ExSimComponent * component);
 
 	void createConstraint(btRigidBody * target, btRigidBody * parent, FExConstraintParams params);
@@ -91,17 +91,9 @@ public:
 	void updateConstraint(btPoint2PointConstraint * c, FExConstraintParams * params);
 	void updateConstraint(ExSimConstraintPair * pair);
 
-	btTypedConstraint * fixP2P(btRigidBody * body, FVector location);
-	btTypedConstraint * fixP2P(btRigidBody * body, FExConstraintParams * params);
 	
 	ExSimConstraintPair * fixP2P(ExSimComponent * component, FExConstraintParams * params);
 	ExSimConstraintPair * fixGen6dofSpring(ExSimComponent* comp_a, ExSimComponent* comp_b, FExConstraintParams* params);
-	ExSimConstraintPair * fixHinge2Constraint(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);	
-	ExSimConstraintPair * fixHinge1Constraint(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
-	ExSimConstraintPair * fixUniConstraint(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
-	ExSimConstraintPair * fixConeTwist(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
-	ExSimConstraintPair * fixSlider(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
-	ExSimConstraintPair * fixGear(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
 
 	void fixP2P(ExSimConstraintPair * in, ExSimComponent * component);
 	void fixGen6dofSpring(ExSimConstraintPair * in, ExSimComponent* par, ExSimComponent* trg);
@@ -115,6 +107,7 @@ public:
 	ExSimConstraintPair * createConstraint(ExSimComponent * par, ExSimComponent * trg, FExConstraintParams * params);
 	void createConstraint(ExSimConstraintPair * in, ExSimComponent * par, ExSimComponent * trg);
 	bool checkConstraint(ExSimConstraintPair * trg);
+	void deleteConstraint(ExSimConstraintPair * trg);
 	
 	btTypedConstraint * fixGen6dofSpring(btRigidBody * p_body_a, btRigidBody * p_body_b, FExConstraintParams params);
 	void pickTrgBody(btRigidBody * body, FVector location);

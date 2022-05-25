@@ -2,6 +2,7 @@
 // #include <vector>
 
 #include "exactoSim/ExactoPhysics.h"
+#include "exactoSim/DataTypes/ExFactoryOperator.h"
 #include "exactoSim/Utils/ExConvert.h"
 
 
@@ -48,12 +49,10 @@ FExCommonParams* TExPack<Tparams, Ttype, Tval>::getTarget() const
 class EXACTOSIM_API ExBasicCommand
 {
 public:
-	virtual ~ExBasicCommand()
-	{
-	}
+	virtual ~ExBasicCommand(){	}
 	virtual void execute() = 0; 
 	virtual void unExecute() = 0;
-	virtual void getTarget(FExCommonParams * trg) = 0; 
+	virtual void getTarget(FExCommonParams ** trg) = 0;
 };
 class EXACTOSIM_API ExUpdateConstraintString : public ExBasicCommand
 {
@@ -62,7 +61,7 @@ public:
 	ExUpdateConstraintString(FExConstraintParams* target, EnExConstraintParamNames type, FString str){Pack.setActive(target, type, str);}
 	virtual void execute() override { Pack.update(); }
 	virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 
 class EXACTOSIM_API ExUpdateConstraintVector : public ExBasicCommand
@@ -75,7 +74,7 @@ public:
 	}
 	virtual void execute() override { Pack.update(); }
 	virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 class EXACTOSIM_API ExUpdateConstraintFloat : public ExBasicCommand
 {
@@ -87,7 +86,7 @@ public:
 	}
 	virtual void execute() override { Pack.update(); }
 	virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 class EXACTOSIM_API ExUpdateConstraintInt : public ExBasicCommand
 {
@@ -99,7 +98,7 @@ public:
 	}
 	virtual void execute() override { Pack.update(); }
 	virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 class EXACTOSIM_API ExUpdateConstraintType : public ExBasicCommand
 {
@@ -111,7 +110,7 @@ public:
 	}
 	virtual void execute() override { Pack.update(); }
 	virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 //exacto Sim Component
 class EXACTOSIM_API ExUpdComponentString : public ExBasicCommand
@@ -121,7 +120,7 @@ public:
 	ExUpdComponentString(FExComponentParams * trg, EnExComponentParamNames type, FString val){Pack.setActive(trg, type, val);}
 	virtual void execute() override { Pack.update(); }
 	virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 class EXACTOSIM_API ExUpdComponentVector: public ExBasicCommand
 {
@@ -130,7 +129,11 @@ public:
     ExUpdComponentVector(FExComponentParams * trg, EnExComponentParamNames type, FVector val){Pack.setActive(trg, type, val);}
     virtual void execute() override { Pack.update(); }
     virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget( FExCommonParams** trg) override
+    {
+	    *trg = Pack.getTarget();
+    	__nop();
+    }
 };
 class EXACTOSIM_API ExUpdComponentRotator: public ExBasicCommand
 {
@@ -139,7 +142,7 @@ public:
     ExUpdComponentRotator(FExComponentParams * trg, EnExComponentParamNames type, FRotator val){Pack.setActive(trg, type, val);}
     virtual void execute() override { Pack.update(); }
     virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 class EXACTOSIM_API ExUpdComponentFloat: public ExBasicCommand
 {
@@ -148,7 +151,16 @@ public:
     ExUpdComponentFloat(FExComponentParams * trg, EnExComponentParamNames type, float val){Pack.setActive(trg, type, val);}
     virtual void execute() override { Pack.update(); }
     virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
+};
+class EXACTOSIM_API ExUpdComponentInt: public ExBasicCommand
+{
+	TExPack<FExComponentParams, EnExComponentParamNames, int32> Pack;
+public:
+    ExUpdComponentInt(FExComponentParams * trg, EnExComponentParamNames type, int32 val){Pack.setActive(trg, type, val);}
+    virtual void execute() override { Pack.update(); }
+    virtual void unExecute() override { Pack.revert(); }
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 //exacto Sim Complex
 class EXACTOSIM_API ExUpdComplexString : public ExBasicCommand
@@ -158,35 +170,40 @@ public:
 	ExUpdComplexString(FExComplexParams * trg, EnExComplexParamNames type, FString val){Pack.setActive(trg, type, val);}
 	virtual void execute() override { Pack.update(); }
 	virtual void unExecute() override { Pack.revert(); }
-	virtual void getTarget(FExCommonParams* trg) override{trg = Pack.getTarget();}
+	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
 // create Constraint, Component
-class EXACTOSIM_API ExCreate : public ExBasicCommand
+class EXACTOSIM_API ExConstructor : public ExBasicCommand
 {
 	FExCommonParams * Params = nullptr; //for manipulating -- have to deleted outside
 	FExCommonParams * Store = nullptr; // for storing data
 public:
-	explicit ExCreate(FExConstraintParams* trg);
-	explicit ExCreate(FExComponentParams * trg);
-	explicit ExCreate(FExComplexParams * trg);
-	virtual ~ExCreate() override;
-	virtual void execute() override;
-	virtual void unExecute() override;
-	virtual void getTarget(FExCommonParams* trg) override{trg = Params;}
-	
+	virtual ~ExConstructor() override;
+	ExConstructor(FExConstraintParams * trg, ExFactoryOperator * factory);
+	ExConstructor(FExComponentParams * trg, ExFactoryOperator * factory);
+	ExConstructor(FExComplexParams * trg, ExFactoryOperator * factory);
+	void construct();
+	void deconstruct();
+	virtual void getTarget(FExCommonParams** trg) override {*trg = Params;}
 };
-class EXACTOSIM_API ExDelete : public ExBasicCommand
+
+class EXACTOSIM_API ExCreate : public ExConstructor
 {
-	FExCommonParams * Params = nullptr; //for manipulating -- have to deleted outside
-	FExCommonParams * Store = nullptr; // for storing data
 public:
-	explicit ExDelete(FExConstraintParams * trg);
-	explicit ExDelete(FExComponentParams * trg);
-	explicit ExDelete(FExComplexParams * trg);
-	virtual ~ExDelete() override;
-	virtual void execute() override;
-	virtual void unExecute() override;
-	virtual void getTarget(FExCommonParams* trg) override;
+	ExCreate(FExConstraintParams *trg, ExFactoryOperator * factory) : ExConstructor(trg,factory){}
+	ExCreate(FExComponentParams *trg, ExFactoryOperator * factory) : ExConstructor(trg,factory){}
+	ExCreate(FExComplexParams *trg, ExFactoryOperator * factory) : ExConstructor(trg,factory){}
+	virtual void execute() override {construct();}
+	virtual void unExecute() override{deconstruct();}
+};
+class EXACTOSIM_API ExDelete : public ExConstructor
+{
+public:
+	ExDelete(FExConstraintParams *trg, ExFactoryOperator * factory) : ExConstructor(trg,factory){}
+	ExDelete(FExComponentParams *trg, ExFactoryOperator * factory) : ExConstructor(trg,factory){}
+	ExDelete(FExComplexParams *trg, ExFactoryOperator * factory) : ExConstructor(trg,factory){}
+	virtual void execute() override {deconstruct();}
+	virtual void unExecute() override{construct();}
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEvExCommander, FExCommonParams * );
@@ -195,10 +212,11 @@ class EXACTOSIM_API ExCommander
 {
 	TArray<ExBasicCommand*> DoneCommands;
 	ExBasicCommand * Command = nullptr;
-	FExConstraintParams * ActiveConstraint = nullptr;
+	FExCommonParams * ActiveParam = nullptr;
 	int DoneCommandMax = 20;
+	ExFactoryOperator * Factory;
 public:
-	ExCommander(){}
+	ExCommander(ExFactoryOperator * factory) : Factory(factory){}
 	~ExCommander()
 	{
 		for (int32 i = 0; i < DoneCommands.Num(); i++)
@@ -208,27 +226,29 @@ public:
 		}
 		DoneCommands.Empty(); //don't know for what?
 	}
-	void setActiveConstraint(FExConstraintParams * constraint)
-	{
-		ActiveConstraint = constraint;	
-	}
+	void setActiveObject(FExComplexParams * params){ActiveParam = params;}
+	void setActiveObject(FExComponentParams * params){ActiveParam = params;}
+	void setActiveObject(FExConstraintParams * constraint){	ActiveParam = constraint;}
 	void updateConstraint( EnExConstraintParamNames type, FVector vec);
+	void updateConstraint( FExConstraintParams * params, EnExConstraintParamNames type, FString str);
 	void updateConstraint( EnExConstraintParamNames type, FString str);
 	void updateConstraint( EnExConstraintParamNames type, float val);
-	void updateConstraint( EnExConstraintParamNames type, int val);
+	void updateConstraint( EnExConstraintParamNames type, int32 val);
 	void updateConstraint( EnExConstraintParamNames type, ExSimPhyzHelpers::Constraint val);
 
+	void updateComponent( EnExComponentParamNames type, FString val);
 	void updateComponent(FExComponentParams * component, EnExComponentParamNames type, FString val);
 	void updateComponent(FExComponentParams * component, EnExComponentParamNames type, FVector val);
 	void updateComponent(FExComponentParams * component, EnExComponentParamNames type, FRotator val);
 	void updateComponent(FExComponentParams * component, EnExComponentParamNames type, float val);
+	void updateComponent(FExComponentParams * component, EnExComponentParamNames type, int32 val);
 
 	void updateComplex(FExComplexParams * complex, EnExComplexParamNames, FString val);
 
 
-	void createConstraint(FExConstraintParams * constraint);
-	void createComponent(FExComponentParams * component);
-	
+	void update(int type, FString val);
+	void create();
+	void remove();	
 
 	void undo();
 
@@ -238,12 +258,19 @@ public:
 		{
 			Command = DoneCommands.Pop();
 			Command->unExecute();
-			Command->getTarget(params);
+			Command->getTarget(&params);
 			delete Command;			
 		}
 	}
 private:
 	void executeCommand();
+	bool isConstraint();
+	FExConstraintParams * getConstraint();
+	bool isComponent();
+	FExComponentParams * getComponent();
+	bool isComplex();
+	FExComplexParams * getComplex();
+
 public:
 	FEvExCommander EcEvOnCommand;
 	

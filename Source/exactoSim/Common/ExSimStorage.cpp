@@ -15,6 +15,11 @@ AExSimStorage::AExSimStorage()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+
+	ParamsOperator = new ExFactoryOperator();
+	CoCoCoProvider = new ExCommander(ParamsOperator);
+	CoCoCoProvider->EcEvOnCommand.AddUObject(this, &AExSimStorage::onCommandRegistered);//(this, &AExSimStorage::onCommandRegistered);
+	
 	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SMPL,			std::string ("Simple"));
 	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SPHERE,			std::string ("Sphere"));
 	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_ROCK_SMALL,		std::string ("Rock_S"));
@@ -39,7 +44,8 @@ AExSimStorage::AExSimStorage()
 
 	//создаем хранилище для новых объектов
 	ExSimComplexList.Empty();
-	ExSimComplex * complex = new ExSimComplex();
+	FExComplexParams * params = ParamsOperator->createComplexParams();
+	ExSimComplex * complex = ParamsOperator->createComplex(params);
 	// complex->basis = nullptr;
 	complex->setName( "FreeObjects");
 	ExSimComplexList.Add(complex);
@@ -68,9 +74,7 @@ AExSimStorage::AExSimStorage()
 
 	createNewConstraint(); //TODO: is it necessary????
  
-	CoCoCoProvider = new ExCommander();
 
-	CoCoCoProvider->EcEvOnCommand.AddUObject(this, &AExSimStorage::onCommandRegistered);//(this, &AExSimStorage::onCommandRegistered);
 	
 }
 
@@ -123,30 +127,82 @@ void AExSimStorage::createTest(FString name, float mass, FVector loc, FRotator r
 
 void AExSimStorage::onCommandRegistered(FExCommonParams * params)
 {
-	if (params->getType()==EnExParamTypes::CONSTRAINT)
+	if (params->getType() == EnExParamTypes::CONSTRAINT)
 	{
-		ExSimConstraintPair * pair = static_cast<ExSimConstraintPair*>(params->getOwner());
-		static_assert(pair != nullptr);
-		update(pair);
+		if (params->isMarkedToCreate())
+			createConstraint(static_cast<FExConstraintParams*>(params));
+		else if (params->isMarkedToDelete())
+			deleteConstraint(static_cast<FExConstraintParams*>(params));
+		else
+		{
+			ExSimConstraintPair* pair = static_cast<ExSimConstraintPair*>(params->getOwner());
+			check(pair != nullptr);
+			update(pair);
+		}
+			
 	}
 	else if (params->getType()==EnExParamTypes::COMPONENT)
 	{
-		ExSimComponent * component = static_cast<ExSimComponent*>(params->getOwner());
-		static_assert(component != nullptr);
-		update(component);
+		if (params->isMarkedToCreate())
+			createComponent(static_cast<FExComponentParams*>(params));
+		else if (params->isMarkedToDelete())
+			deleteComponent(static_cast<FExComponentParams*>(params));
+		else
+		{
+			ExSimComponent * component = static_cast<ExSimComponent*>(params->getOwner());
+			if (component != nullptr)
+				update(component);
+		}
 	}
 	else if (params->getType()==EnExParamTypes::COMPLEX)
 	{
-		ExSimComplex * complex = static_cast<ExSimComplex*>(params->getOwner());
-		static_assert(complex != nullptr);
-		update(complex);
+		if (params->isMarkedToCreate())
+			createComplex(static_cast<FExComplexParams*>(params));
+		else if (params->isMarkedToDelete())
+			deleteComplex(static_cast<FExComplexParams*>(params));
+		else
+		{
+			ExSimComplex * complex = static_cast<ExSimComplex*>(params->getOwner());
+			check(complex != nullptr);
+			update(complex);
+		}
 	}
+}
+void AExSimStorage::createConstraint(FExConstraintParams* pconv)
+{
+	ExSimConstraintPair* pair = ParamsOperator->createConstraintPair(pconv);
+	ExSimComponent* compA = static_cast<ExSimComponent*>(pconv->getDataPointer());
+	ExSimComponent* compB = static_cast<ExSimComponent*>(pconv->getAdditionalPointer());
+	CurrentScene->createConstraint(pair, compA, compB);
+}
+
+void AExSimStorage::deleteConstraint(FExConstraintParams* pconv)
+{
+	ExSimConstraintPair* pair = ParamsOperator->createConstraintPair(pconv);
+	ExSimComponent* compA = static_cast<ExSimComponent*>(pconv->getDataPointer());
+	compA->removeConstraint(pair);
+	CurrentScene->deleteConstraint(pair);
+	ParamsOperator->deleteConstraintPair(pair);
+}
+
+void AExSimStorage::createComponent(FExComponentParams* params)
+{
+	params->resetMarkers();
+	ExSimComponent * component = ParamsOperator->createComponent(params);
+	createComponent(component);
+}
+
+void AExSimStorage::createComplex(FExComplexParams* params)
+{
+	ExSimComplex * complex = ParamsOperator->createComplex(params);
+	createComplex(complex);
 }
 
 
 void AExSimStorage::createConstraint(ExSimComponent * parent_component, ExSimComponent * target_component)
 {
-	if (CurrentScene->checkConstraint(CurrentConstraintPtr))
+	ExSimConstraintPair * pair = static_cast<ExSimConstraintPair*>(CurrentConstraintPtr);
+	if (CurrentScene->checkConstraint(pair))
 		return;
 	//Add to parent complex or create new one
 	if (parent_component->getBasis() == ExSimComplexList[0])
@@ -157,17 +213,13 @@ void AExSimStorage::createConstraint(ExSimComponent * parent_component, ExSimCom
 	// ExSimConstraintPair * p = CurrentScene->createConstraint(parent_component, target_component, CurrentConstraintPtr->getParams());
 	// delete CurrentConstraintPtr;
 	// CurrentConstraintPtr = p;
-	CoCoCoProvider->createConstraint(CurrentConstraintPtr->getParams());
+	CoCoCoProvider->create();
 	
 	//rebase component
 	if (target_component)
 		CoCoCoProvider->updateComponent(target_component->getParams(), EnExComponentParamNames::C_BASIS_NAME, parent_component->getBasis()->getName());
 	
 }
-void AExSimStorage::createConstraint(FString* target, FString* parent)
-{
-}
-
 
 
 void AExSimStorage::setSceneObjName(FString name, FString type_name)
@@ -294,10 +346,37 @@ void AExSimStorage::selectComplex(ExSimComponent* trg)
 
 void AExSimStorage::loadComplex()
 {
-	ExSimComplex * complex = new ExSimComplex();
-	ExWorld->ExFileManager->loadEsComplexParams(TEXT("Magnet"), complex);
-	if (complex)
-		createComplex(complex);
+	const FString name = TEXT("Magnet");
+	AExSimFileManager::es_complex_params complex_params;
+	ExWorld->ExFileManager->loadEsComplexParams(name, &complex_params);
+	FExComplexParams* cparams = ParamsOperator->createComplexParams(&complex_params.string_list);
+	ExSimComplex* trg = ParamsOperator->createComplex(cparams);
+	for (const auto& component : complex_params.components)
+	{
+		ExSimComponent* trg_component = ParamsOperator->createComponent(
+			ParamsOperator->createComponentParams(&component->string_list));
+		for (auto& constraint : component->constraints)
+		{
+			FExConstraintParams* params = ParamsOperator->createConstraintParams(&constraint->string_list);
+			ExSimConstraintPair* constraint_pair = ParamsOperator->createConstraintPair(params);
+			trg_component->addConstraint(constraint_pair);
+		}
+		trg->addComponent(trg_component);
+	}
+
+	
+	if (trg)
+		createComplex(trg);
+}
+void AExSimStorage::saveComplex(ExSimComplex* target)
+{
+	if (target)
+		ExWorld->ExFileManager->save(target);
+}
+void AExSimStorage::loadExSimComplex()
+{
+	TArray<AExSimFileManager::es_complex_params * > c_p_list;
+	ExWorld->ExFileManager->loadEsComplexParams(c_p_list);
 }
 
 void AExSimStorage::saveComplex()
@@ -305,40 +384,30 @@ void AExSimStorage::saveComplex()
 	saveComplex(CurrentComplex);
 }
 
-void AExSimStorage::saveComplex(ExSimComplex* target)
-{
-	if (target)
-		ExWorld->ExFileManager->save(target);
-}
-
 void AExSimStorage::saveComplex(int index)
 {
 	saveComplex(ExSimComplexList[index]);
 }
 
-void AExSimStorage::loadExSimComplex()
-{
-	TArray<AExSimFileManager::es_complex_params * > c_p_list;
-	ExWorld->ExFileManager->loadEsComplexParams(c_p_list);
-}
+
 
 void AExSimStorage::createNewConstraint()
 {
 
-	ExSimConstraintPair * params = new ExSimConstraintPair();
+	ExSimConstraintPair * params = ParamsOperator->createConstraintPair(ParamsOperator->createConstraintParams());
 
 	setOptVPP(params);
 }
 
 void AExSimStorage::updateOptVPP()
 {
-	setOptVPP(CurrentConstraintPtr);
+	setOptVPP(static_cast<ExSimConstraintPair*>(CurrentConstraintPtr));
 }
 
 void AExSimStorage::setOptVPP(ExSimConstraintPair* params)
 {
 	CurrentConstraintPtr = params;//???
-	CoCoCoProvider->setActiveConstraint(params->getParams());
+	CoCoCoProvider->setActiveObject(params->getParams());
 
 	ExConstraintDict::updateNames(&OptionNamesPtr, params->getParams()->constr_type);
 	ExConstraintDict::updateValues(&OptionValuesPtr,params->getParams());
@@ -346,12 +415,56 @@ void AExSimStorage::setOptVPP(ExSimConstraintPair* params)
 
 	
 }
+void AExSimStorage::updateCommand(FExCommonParams* params, TArray<ParamHolder>* holder)
+{
+	if (params->isComponent())
+		updateCommand(static_cast<FExComponentParams*> (params), holder);
+}
+void AExSimStorage::updateCommand(FExComponentParams* params, TArray<ParamHolder>* holder)
+{
+	updateHolderByTemplate<FExComponentParams, EnExComponentParamNames, ExComponentDict>(params, holder);
+	CoCoCoProvider->setActiveObject(params);
+}
+
+void AExSimStorage::updateCommand(FExComplexParams* params, TArray<ParamHolder>* holder)
+{
+	updateHolderByTemplate<FExComplexParams, EnExComplexParamNames, ExComplexDict>(params, holder);
+	CoCoCoProvider->setActiveObject(params);
+}
+
+void AExSimStorage::updateCommand(FExConstraintParams* params, TArray<ParamHolder>* holder)
+{
+	updateHolderByTemplate<FExConstraintParams, EnExConstraintParamNames, ExConstraintDict>(params, holder);
+	CoCoCoProvider->setActiveObject(params);
+}
+
+
+void AExSimStorage::initComplexCommand(TArray<ParamHolder>* holder)
+{
+	updateCommand(ParamsOperator->createComplexParams(), holder);
+}
+
+void AExSimStorage::initComponentCommand(TArray<ParamHolder>* holder)
+{
+	updateCommand(ParamsOperator->createComponentParams(), holder);
+}
+
+void AExSimStorage::initConstraintCommand(TArray<ParamHolder>* holder)
+{
+	updateCommand(ParamsOperator->createConstraintParams(), holder);
+}
+
+void AExSimStorage::selectCommand(ExSimComponent* trg, TArray<ParamHolder>* holder)
+{
+	updateCommand(trg->getParams(), holder);
+}
+
 
 void AExSimStorage::updateConstraint()
 {
 	if (CurrentScene&&CurrentConstraintPtr)
 	{
-		CurrentScene->updateConstraint(CurrentConstraintPtr);
+		CurrentScene->updateConstraint(static_cast<ExSimConstraintPair*>(CurrentConstraintPtr));
 	}
 }
 
@@ -384,36 +497,65 @@ void AExSimStorage::update(ExSimComplex* complex)
 	complex->update();
 }
 
-void AExSimStorage::updateConstraintCommand(EnExConstraintParamNames type, FString str)
+void AExSimStorage::createCommand()
+{
+	CoCoCoProvider->create();
+}
+
+void AExSimStorage::deleteCommand()
+{
+	CoCoCoProvider->remove();
+}
+
+void AExSimStorage::updateCommand(int type, FString str)
+{
+	CoCoCoProvider->update(type, str);
+}
+
+
+void AExSimStorage::updateCommand(EnExComplexParamNames type, FString str)
+{
+}
+
+void AExSimStorage::updateCommand(EnExComponentParamNames type, FString str)
+{
+	if (CurrentConstraintPtr->isComponent())
+	{
+		ExSimComponent * trg = static_cast<ExSimComponent*>(CurrentConstraintPtr);
+		CoCoCoProvider->updateComponent(trg->getParams(), type, str);
+	}
+}
+void AExSimStorage::updateCommand(EnExConstraintParamNames type, FString str)
 {
 	CoCoCoProvider->updateConstraint(type, str);
 	//update constraint
-	updateConstraint();
-	if (EssEvOnConstraintChanged.IsBound())
-	{
-		EssEvOnConstraintChanged.Broadcast(static_cast<int>(type), str);
-	}
+	// updateConstraint();
+	// if (EssEvOnConstraintChanged.IsBound())
+	// {
+	// 	EssEvOnConstraintChanged.Broadcast(static_cast<int>(type), str);
+	// }
 }
 
-void AExSimStorage::undoConstraintCommand()
+void AExSimStorage::undoCommand()
 {
 	CoCoCoProvider->undo();
 	//update constraint
-	updateConstraint();
-	if (EssEvOnConstraintChanged.IsBound())
-	{
-		EssEvOnConstraintChanged.Broadcast(-1, TEXT("None"));
-	}
+	// updateConstraint();
+	// if (EssEvOnConstraintChanged.IsBound())
+	// {
+	// 	EssEvOnConstraintChanged.Broadcast(-1, TEXT("None"));
+	// }
 }
 
 
 
 void AExSimStorage::createComplex(ExSimComponent* component, FString new_complex_name)
 {
-	ExSimComplex * base = new ExSimComplex();
-	base->setName( new_complex_name);
-	base->setBasis( component);
-	base->getComponentsList()->Add(component);
+	FExComplexParams * params = ParamsOperator->createComplexParams();
+	params->Name = new_complex_name;
+	params->BasisName = component->getName();
+	ExSimComplex * base = ParamsOperator->createComplex(params);
+	base->addComponent(component);
 	ExSimComplex * old = component->getBasis();
 	ExSimComplexList.Add(base);
 	component->setBasis( base);
@@ -447,12 +589,21 @@ void AExSimStorage::createComponent(FString name, FString path, float mass, FVec
 
 
 
+void AExSimStorage::deleteComplex(FExComplexParams* params)
+{
+	ExSimComplex * complex = static_cast<ExSimComplex*>(params->getOwner());
+	complex->moveComponents(ExSimComplexList[0]);
+	ExSimComplexList.Remove(complex);
+	ParamsOperator->deleteComplex(complex);
+}
+
+
 void AExSimStorage::createComplex(ExSimComplex* complex)
 {
 	for (ExSimComponent* component : *complex->getComponentsList())
 	{
 		const auto comp_params = component->getParams();
-		CurrentScene->addObjByPath(component);
+		CurrentScene->createComponent(component);
 		component->setBasis(complex);
 		if (comp_params->Name == complex->getBasisName())
 			complex->setBasis(component);
@@ -476,12 +627,18 @@ void AExSimStorage::createComponent(ExSimComponent* component)
 {
 	ExSimComplex* complex = ExSimComplexList[0]; //to free object list
 	const auto comp_params = component->getParams();
-	CurrentScene->addObjByPath(component);
+	CurrentScene->createComponent(component);
 	component->setBasis(complex);
 	if (comp_params->Name == complex->getBasisName())
 		complex->setBasis(component);
 }
+void AExSimStorage::deleteComponent(FExComponentParams* params)
+{
+	ExSimComponent * component = static_cast<ExSimComponent*>(params->getOwner());
+	CurrentScene->deleteComponent(component);
 
+	ParamsOperator->deleteComponent(component);
+}
 void AExSimStorage::createConstraintPair(ExSimConstraintPair* pair)
 {
 	const FExConstraintParams* params = pair->getParams();
@@ -517,40 +674,38 @@ void AExSimStorage::createTestObjects()
 	float stiff = Stiffness;
 	float dump = Dumping;
 
-	ExSimComplex * basic = new ExSimComplex();
-	basic->setName("Magnet");
-	basic->setBasisName(magnet_name);
+	FExComplexParams * complex_params = ParamsOperator->createComplexParams();
+	complex_params->Name = TEXT("Magnet");
+	
+	ExSimComplex * basic = ParamsOperator->createComplex(complex_params);
 	{
-		ExSimComponent * component = new ExSimComponent();
-		FExComponentParams * params = new FExComponentParams();
+		FExComponentParams * params = ParamsOperator->createComponentParams();
 		params->Mass = 100.f;
 		params->Name = magnet_name;
 		params->Path = TEXT("Class'/Game/Blueprint/Scene/BP_ESB_Magnet.BP_ESB_Magnet_C'");
 		params->Position = magnet_pos;
 		params->Rotation = FRotator::ZeroRotator;
-		component->setParams(params);
+		ExSimComponent * component = ParamsOperator->createComponent(params);
 		{
-			FExConstraintParams* pparams = new FExConstraintParams();
+			FExConstraintParams* pparams = ParamsOperator->createConstraintParams();
 			pparams->pivot_p = magnet_relpivot0;
 			pparams->name_p = magnet_name;
 			pparams->constr_type = ExSimPhyzHelpers::Constraint::P2P;
 			pparams->name_constraint = TEXT("Magnet_P2P_1");
 			pparams->impulse_clamp = 30.f;
 			pparams->tau = 0.001f;
-			ExSimConstraintPair * pair = new ExSimConstraintPair();
-			pair->setParams(pparams);
+			ExSimConstraintPair * pair = ParamsOperator->createConstraintPair(pparams);
 			component->addConstraint(pair);
 		}
 		{
-			FExConstraintParams* pparams = new FExConstraintParams();
+			FExConstraintParams* pparams = ParamsOperator->createConstraintParams();
 			pparams->pivot_p = magnet_relpivot1;
 			pparams->name_p = magnet_name;
 			pparams->constr_type = ExSimPhyzHelpers::Constraint::P2P;
 			pparams->name_constraint = TEXT("Magnet_P2P_2");
 			pparams->impulse_clamp = 30.f;
 			pparams->tau = 0.001f;
-			ExSimConstraintPair* pair = new ExSimConstraintPair();
-			pair->setParams(pparams);
+			ExSimConstraintPair * pair = ParamsOperator->createConstraintPair(pparams);
 			component->addConstraint(pair);
 		}
 		{
@@ -566,7 +721,7 @@ void AExSimStorage::createTestObjects()
   //   	params->enables_spring = 7;
   //   	params->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
   //   	params->name_constraint = TEXT("g6dof spring");
-			FExConstraintParams* pparams = new FExConstraintParams();
+			FExConstraintParams* pparams = ParamsOperator->createConstraintParams();
 			pparams->name_p = magnet_name;
 			pparams->name_t = spring_name;
 			pparams->constr_type = ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING;
@@ -582,34 +737,31 @@ void AExSimStorage::createTestObjects()
 			pparams->stiff_lin = FVector(stiff, stiff, stiff);
 			pparams->dump_lin = FVector(dump, dump, dump);
 			pparams->enables_spring = 7;
-			ExSimConstraintPair* pair = new ExSimConstraintPair();
-			pair->setParams(pparams);
+			ExSimConstraintPair * pair = ParamsOperator->createConstraintPair(pparams);
 			component->addConstraint(pair);
 		}
 		basic->addComponent(component);
 	}
 
 	{
-		ExSimComponent* component = new ExSimComponent();
-		FExComponentParams* params = new FExComponentParams();
+		FExComponentParams* params = ParamsOperator->createComponentParams();
 		params->Mass = 1.f;
 		params->Name = spring_name;
 		params->Path = TEXT("Class'/Game/Blueprint/Scene/BP_ESB_Spring.BP_ESB_Spring_C'");
 		params->Position = spring_pos;
 		params->Rotation = FRotator::ZeroRotator;
-		component->setParams(params);
+		ExSimComponent* component = ParamsOperator->createComponent(params);
 
 
 		{
-			FExConstraintParams* pparams = new FExConstraintParams();
+			FExConstraintParams* pparams = ParamsOperator->createConstraintParams();
 			pparams->pivot_p = spring_pt;
 			pparams->name_p = spring_name;
 			pparams->constr_type = ExSimPhyzHelpers::Constraint::P2P;
 			pparams->name_constraint = TEXT("Spring_P2P_1");
 			pparams->impulse_clamp = 30.f;
 			pparams->tau = 0.001f;
-			ExSimConstraintPair* pair = new ExSimConstraintPair();
-			pair->setParams(pparams);
+			ExSimConstraintPair * pair = ParamsOperator->createConstraintPair(pparams);
 			component->addConstraint(pair);
 		}
 		
@@ -655,7 +807,7 @@ void AExSimStorage::createTestObjects2()
 			if (component->getName() == magnet_name)
 			{
 				{
-					FExConstraintParams* pp = new FExConstraintParams();
+					FExConstraintParams* pp = ParamsOperator->createConstraintParams();
 					pp->pivot_p = magnet_relpivot0;
 					// pp->axis_p = component->getTarget()->GetActorLocation();
 					pp->name_p = component->getName();
@@ -668,7 +820,7 @@ void AExSimStorage::createTestObjects2()
 				}
 				
 				{
-					FExConstraintParams* pp = new FExConstraintParams();
+					FExConstraintParams* pp = ParamsOperator->createConstraintParams();
 					pp->pivot_p = magnet_relpivot1;
 					// pp->axis_p = component->getTarget()->GetActorLocation();
 					pp->name_p = component->getName();
@@ -701,7 +853,7 @@ void AExSimStorage::createTestObjects2()
 	
 		if (spring)
 		{
-			FExConstraintParams* fix_params = new FExConstraintParams();
+			FExConstraintParams* fix_params = ParamsOperator->createConstraintParams();
 			fix_params->pivot_p = spring_pt;
 			// fix_params->axis_p = spring->getTarget()->GetActorLocation();
 			fix_params->name_p = spring->getName();
@@ -712,7 +864,7 @@ void AExSimStorage::createTestObjects2()
 			ExSimConstraintPair* p = CurrentScene->fixP2P(spring, fix_params);
 			spring->getConstraints()->Add(p);
 	
-			FExConstraintParams* params = new FExConstraintParams();
+			FExConstraintParams* params = ParamsOperator->createConstraintParams();
 			params->pivot_p = PivotP;
 			params->pivot_t = PivotT;
 			params->low_lim_lin = LowLimLin;
