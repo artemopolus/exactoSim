@@ -75,13 +75,9 @@ void UExSimMainWidget::testDrawFunction()
 	{
 		for (int y = 0; y < 50; y++)
 			drawPtOnCanvas(x, 50 + y, 0, 0, 0, 100);
-		
-
 	}
 	updateCanvas();
 }
-
-
 
 
 void UExSimMainWidget::setPixelColor(uint8*& pointer, uint8 red, uint8 green, uint8 blue, uint8 alpha)
@@ -109,10 +105,8 @@ void UExSimMainWidget::updateDebugText(const std::string str)
 
 void UExSimMainWidget::updateDebugText(FString str)
 {
-	
 	DebugText->SetText(FText::FromString(str));
 }
-
 
 
 void UExSimMainWidget::setVisibilityOptionsPanel(bool onoff)
@@ -126,15 +120,7 @@ void UExSimMainWidget::setVisibilityOptionsPanel(bool onoff)
 	{
 		value = ESlateVisibility::Hidden;
 	}
-	
-	
 }
-
-
-
-
-
-
 
 
 static void sendDebug(FString text, FColor color = FColor::Green)
@@ -208,11 +194,8 @@ void UExSimMainWidget::onChangeModeButtonClicked()
 }
 
 
-
-
 UExSimMainWidget::~UExSimMainWidget()
 {
-	
 }
 
 
@@ -242,11 +225,10 @@ void UExSimMainWidget::setClickerClass(UClass* tmpl)
 }
 
 
-
-
 void UExSimMainWidget::onConstraintResetClicked()
 {
 }
+
 void UExSimMainWidget::addButtonToStorage(FString name)
 {
 	//if (!OptionsButton_Ok)
@@ -289,7 +271,7 @@ void UExSimMainWidget::onTempListButtonClicked()
 			if (ButtonTempList[i]->tag == -1) //create new constraint
 			{
 				DataStorage->createNewConstraint();
-				deleteConstraintOptions();
+				resetTemporary();
 				getInputTableOptions();
 				addInputTable();
 			}
@@ -314,7 +296,7 @@ void UExSimMainWidget::onTempListButtonClicked()
 				CurrentConstraint = constraint;
 				DataStorage->setOptVPP(constraint);
 				
-				deleteConstraintOptions();
+				resetTemporary();
 				getInputTableOptions();
 				addInputTable();
 			}
@@ -401,35 +383,34 @@ void UExSimMainWidget::setCurrentToTarget()
 {
 	TargetActor = CurrentActor;
 	if (ParentActor == TargetActor)
-		ParentActor = nullptr;	
+		ParentActor = nullptr;
 }
 
 
-
-bool UExSimMainWidget::getVectorFromString(FString list, FString splitter, FVector & out)
+bool UExSimMainWidget::getVectorFromString(FString list, FString splitter, FVector& out)
 {
 	TArray<FString> values;
 	list.ParseIntoArray(values, *splitter, true);
 	if (values.Num() == 3)
 	{
-		out.X = FCString::Atof(*values[0]);	
-		out.Y = FCString::Atof(*values[1]);	
-		out.Z = FCString::Atof(*values[2]);	
+		out.X = FCString::Atof(*values[0]);
+		out.Y = FCString::Atof(*values[1]);
+		out.Z = FCString::Atof(*values[2]);
 		return true;
 	}
 	return false;
 }
 
 
-
-bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, EnExConstraintParamNames checker, TArray<bool> & vect)
+bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget* option, EnExConstraintParamNames checker,
+                                            TArray<bool>& vect)
 {
-	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr[ checker ])
+	if (option->ValueName->GetText().ToString() == DataStorage->OptionNamesPtr[checker])
 	{
 		TArray<FString> values;
 		FString list = option->ValueText->GetText().ToString();
 		list.ParseIntoArray(values, TEXT(";"), true);
-		for (auto & val :values)
+		for (auto& val : values)
 		{
 			if (FCString::Atoi(*val) == 0)
 				vect.Add(false);
@@ -442,7 +423,7 @@ bool UExSimMainWidget::checkBoolArrayOption(UExEditableWidget * option, EnExCons
 }
 
 bool UExSimMainWidget::checkStringOption(UExEditableWidget* option, EnExConstraintParamNames checker,
-	FString& name)
+                                         FString& name)
 {
 	if (option->getName() == DataStorage->OptionNamesPtr.FindRef( checker ))
 	{
@@ -465,36 +446,20 @@ bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, EnExConstra
 void UExSimMainWidget::onOptionsButtonOkClicked()
 {
 	//delete table of constraint option 
-	deleteConstraintOptions();
+	resetTemporary();
 	DataStorage->createCommand();
 	// DataStorage->createConstraint(ParentActor, TargetActor);
 }
 
 
-void UExSimMainWidget::deleteConstraintOptions()
-{
-	if (OptionsButton_Ok)
-	OptionsButton_Ok->RemoveFromParent();
-	if (OptionsButton_Esc)
-	OptionsButton_Esc->RemoveFromParent();
-	
-	StorageWrapBox->ClearChildren();
-	clearOptionFromTable();
-	for (auto & select : SelectorList)
-		select->RemoveFromRoot();
-	SelectorList.Empty();	
-}
-
-
-
-
 void UExSimMainWidget::onConstraintEscClicked()
 {
-	deleteConstraintOptions();
+	resetTemporary();
 }
 
 void UExSimMainWidget::addInputTable(TArray<AExSimStorage::ParamHolder> options)
 {
+	resetTemporary();
 	for (const auto option : options)
 	{
 		if (option.EditType == EnExParamEdit::EDITABLE)
@@ -561,30 +526,23 @@ void UExSimMainWidget::addOptionToTable()
 	}
 }
 
-void UExSimMainWidget::clearOptionFromTable()
-{
-	for (auto & option : EditableList)
-		option->RemoveFromParent(); // don't delete widget directly
-	EditableList.Empty();
-}
 
 void UExSimMainWidget::addInputTable()
 {
-	UExSelector * sl = CreateWidget<UExSelector>(this, SelectorClass);
+	UExSelector* sl = CreateWidget<UExSelector>(this, SelectorClass);
 	sl->init(TEXT("Constraint: "), 0, 0);
 	for (int i = 0; i < static_cast<int>(ExSimPhyzHelpers::NONE); i++)
 		sl->addSelectorValue(ExSimPhyzHelpers::getNameFromConstraint(static_cast<ExSimPhyzHelpers::Constraint>(i)));
 	sl->EventOnSelectorValueChanged.AddDynamic(this, &UExSimMainWidget::onSelectorWidgetChanged);
 	SelectorList.Add(sl);
 	StorageWrapBox->AddChild(sl);
-	
+
 
 	addOptionToTable();
 	addConstraintButtonOk();
 	addConstraintButtonEsc();
-
-	
 }
+
 void UExSimMainWidget::addSelectableToStorageWB(FString name, TArray<FString> value, int id, int type)
 {
 	UExSelector * sl = CreateWidget<UExSelector>(this, SelectorClass);
@@ -697,11 +655,9 @@ void UExSimMainWidget::onSaveClicked()
 }
 
 
-
-
 bool UExSimMainWidget::Initialize()
 {
-	updateDebugText(std::string("test"));	
+	updateDebugText(std::string("test"));
 	/*if (DebugText)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Debug text is inited"));
@@ -709,21 +665,16 @@ bool UExSimMainWidget::Initialize()
 		DebugText->SetText(FText::FromString(str.c_str()));
 	}*/
 
-	
 
 	if (DataStorage)
 	{
-		std::string * str = DataStorage->GenObjType.Find(GenObjKey++);
+		std::string* str = DataStorage->GenObjType.Find(GenObjKey++);
 		DataStorage->setTargetWidget(this);
 		// DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
 
 		//GetOwningPlayer()->bShowMouseCursor = true;
-		
 	}
 
-	
-
-	
 
 	if (GenerateButton)
 	{
@@ -735,13 +686,13 @@ bool UExSimMainWidget::Initialize()
 		ChangeModeButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onChangeModeButtonClicked);
 	}
 
-	if (SaveButton&&LoadButton&&CreateComponentButton)
+	if (SaveButton && LoadButton && CreateComponentButton)
 	{
 		SaveButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onSaveClicked);
 		LoadButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onLoadClicked);
 		CreateComponentButton->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onCreateComponentClicked);
 	}
-	
+
 	return Super::Initialize();
 }
 
@@ -750,7 +701,7 @@ void UExSimMainWidget::initSimMainWidget()
 	if (DataStorage)
 	{
 		DataStorage->setTargetWidget(this);
-		
+
 		// DataStorage->EssEvOnConstraintChanged.AddDynamic(this, &UExSimMainWidget::onDataStorageConstraintChanged);
 
 		DataStorage->getCommander()->EcEvOnCommand.AddUObject(this, &UExSimMainWidget::onCommanderUpdated);
@@ -762,13 +713,37 @@ void UExSimMainWidget::initSimMainWidget()
 void UExSimMainWidget::updateExSmWidget()
 {
 	FString out = TEXT("Selected:\n");
-	if(ParentActor)
-		out += TEXT("Parent: ") + ParentActor->getName() + TEXT("\nComplex: ") + ParentActor->getComplexName() + TEXT("\n");
+	if (ParentActor)
+		out += TEXT("Parent: ") + ParentActor->getName() + TEXT("\nComplex: ") + ParentActor->getComplexName() +
+			TEXT("\n");
 	if (TargetActor)
 		out += TEXT("Target: ") + TargetActor->getName() + TEXT("\n");
 
 	updateDebugText(out);
 
 	clearButtonTempList();
-	
+}
+
+void UExSimMainWidget::clearOptionFromTable()
+{
+	for (auto& option : EditableList)
+		option->RemoveFromParent(); // don't delete widget directly
+	EditableList.Empty();
+	for (auto& select : SelectorList)
+		select->RemoveFromParent();
+	SelectorList.Empty();
+	for (auto& select : ClickerList)
+		select->RemoveFromParent();
+	ClickerList.Empty();
+}
+
+void UExSimMainWidget::resetTemporary()
+{
+	if (OptionsButton_Ok)
+		OptionsButton_Ok->RemoveFromParent();
+	if (OptionsButton_Esc)
+		OptionsButton_Esc->RemoveFromParent();
+	clearOptionFromTable();
+
+	StorageWrapBox->ClearChildren();
 }

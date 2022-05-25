@@ -72,7 +72,6 @@ AExSimStorage::AExSimStorage()
 
 
 
-	createNewConstraint(); //TODO: is it necessary????
  
 
 	

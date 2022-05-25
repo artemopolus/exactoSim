@@ -492,7 +492,6 @@ void AExScene::removeCar()
 
 void AExScene::updateComponent(ExSimComponent* component)
 {
-	//todo: update component phyz
 	auto params = component->getParams();
 	if(component->getName() != params->Name)
 		component->setName(params->Name);
@@ -503,7 +502,7 @@ void AExScene::updateComponent(ExSimComponent* component)
 		if (body)
 			component->setBody(body);
 	}
-	if(!params->IsOnPhysics)
+	// if(!params->IsOnPhysics)
 	{
 		auto obj = component->getTarget();
 		obj->SetActorLocation(params->Position);

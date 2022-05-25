@@ -120,7 +120,7 @@ private:
 
 	bool getVectorFromString(FString list, FString splitter, FVector & out);
 
-	void deleteConstraintOptions();
+	void resetTemporary();
 
 	void addOptionToTable();
 	void addOptionToTable( TMap<int, FString> names, TMap<FString, FString > values, int id = 0);
