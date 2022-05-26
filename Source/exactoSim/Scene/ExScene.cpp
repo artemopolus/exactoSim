@@ -208,12 +208,15 @@ bool AExScene::addObjByPath(const FString path, const FString name, btRigidBody*
 
 bool AExScene::createComponent(ExSimComponent* component)
 {
+
 	if(!component)
 		return false;
 	auto cparams = component->getParams();
 	if (!cparams)
 		return false;
 	UClass * obj = StaticLoadClass(UObject::StaticClass(), nullptr, *cparams->Path);
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), obj, FoundActors);
 	if ((obj != nullptr)&&ExPhyzX)
 	{
 		FActorSpawnParameters params;

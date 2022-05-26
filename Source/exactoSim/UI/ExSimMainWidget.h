@@ -215,14 +215,19 @@ private:
 	int GenObjKey = 0;
 	int ConstrKey = ExSimPhyzHelpers::Constraint::NONE;
 
-	
-	
-	TArray<UExEditableWidget *> EditableList;
-	TArray<UExSelector *> SelectorList;
-	TArray<UExButtonWidget *> ButtonTempList;
-	TArray<UExClickerWidget *> ClickerList;
-	UExButtonWidget * OptionsButton_Ok = nullptr;
-	UExButtonWidget * OptionsButton_Esc = nullptr;
+
+	UPROPERTY()
+	TArray<UExEditableWidget*> EditableList;
+	UPROPERTY()
+	TArray<UExSelector*> SelectorList;
+	UPROPERTY()
+	TArray<UExButtonWidget*> ButtonTempList;
+	UPROPERTY()
+	TArray<UExClickerWidget*> ClickerList;
+	UPROPERTY()
+	UExButtonWidget* OptionsButton_Ok = nullptr;
+	UPROPERTY()
+	UExButtonWidget* OptionsButton_Esc = nullptr;
 	UExButtonWidget * OptionsButton_Reset = nullptr;
 
 	UClass * SelectorClass;

@@ -759,9 +759,13 @@ void UExSimMainWidget::clearOptionFromTable()
 void UExSimMainWidget::resetTemporary()
 {
 	if (OptionsButton_Ok)
+	{
 		OptionsButton_Ok->RemoveFromParent();
+	}
 	if (OptionsButton_Esc)
+	{
 		OptionsButton_Esc->RemoveFromParent();
+	}
 	clearOptionFromTable();
 
 	StorageWrapBox->ClearChildren();
