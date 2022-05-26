@@ -34,3 +34,8 @@ void AExSmplBox::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AExSmplBox::Destroyed()
+{
+	Super::Destroyed();
+}
+

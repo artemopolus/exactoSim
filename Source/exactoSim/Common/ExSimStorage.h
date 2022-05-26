@@ -142,6 +142,8 @@ public:
 	void createComponent(FExComponentParams * component);
 	void createComplex(FExComplexParams * complex);
 
+	void hideComponent(FExComponentParams * params);
+	void showComponent(FExComponentParams * params);
 	void deleteComponent(FExComponentParams * params);
 	void deleteComplex(FExComplexParams * params);
 	

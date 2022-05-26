@@ -236,7 +236,7 @@ void UExSimMainWidget::addButtonToStorage(FString name)
 		OptionsButton_Ok = CreateWidget<UExButtonWidget>(this, ButtonClass);
 		StorageWrapBox->AddChild(OptionsButton_Ok);
 		OptionsButton_Ok->setName(name);
-		OptionsButton_Ok->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onOptionsButtonOkClicked);
+		OptionsButton_Ok->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onTempButtonOkClicked);
 	//}
 }
 
@@ -252,15 +252,27 @@ void UExSimMainWidget::addSelectToStorage(FString name, TArray<FString> option_l
 	StorageWrapBox->AddChild(selector);
 }
 
-void UExSimMainWidget::addConstraintButtonOk()
+void UExSimMainWidget::addTempButtonOk()
+{
+	addTempButtonOk(TEXT("ok"));
+	OptionsButton_Ok->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onTempButtonOkClicked);
+}
+
+void UExSimMainWidget::addTempButtonDelete()
+{
+	addTempButtonOk(TEXT("Delete"));
+	OptionsButton_Ok->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onTempButtonDeleteClicked);
+}
+
+void UExSimMainWidget::addTempButtonOk(const FString name)
 {
 	UExButtonWidget * bt = CreateWidget<UExButtonWidget>(this, ButtonClass);
 	StorageWrapBox->AddChild(bt);
-	bt->setName("ok");
-	bt->ButtonBase->OnClicked.AddUniqueDynamic(this, &UExSimMainWidget::onOptionsButtonOkClicked);
+	bt->setName(name);
 
 	OptionsButton_Ok = bt;
 }
+
 void UExSimMainWidget::onTempListButtonClicked()
 {
 	for(int i = 0; i < ButtonTempList.Num(); i++)
@@ -288,6 +300,8 @@ void UExSimMainWidget::onTempListButtonClicked()
 				TArray<AExSimStorage::ParamHolder> holder;
 				DataStorage->selectCommand(CurrentActor, &holder);
 				addInputTable(holder);
+				addTempButtonDelete();
+            	addConstraintButtonEsc();
 			}
 			else if (ButtonTempList[i]->tag  > -1)
 			{
@@ -443,12 +457,17 @@ bool UExSimMainWidget::checkVectorOption(UExEditableWidget * option, EnExConstra
 	return false;
 }
 
-void UExSimMainWidget::onOptionsButtonOkClicked()
+void UExSimMainWidget::onTempButtonOkClicked()
 {
 	//delete table of constraint option 
 	resetTemporary();
 	DataStorage->createCommand();
-	// DataStorage->createConstraint(ParentActor, TargetActor);
+}
+
+void UExSimMainWidget::onTempButtonDeleteClicked()
+{
+	resetTemporary();
+	DataStorage->deleteCommand();
 }
 
 
@@ -471,8 +490,7 @@ void UExSimMainWidget::addInputTable(TArray<AExSimStorage::ParamHolder> options)
 			addClickerToStorageWB(option.Name, option.Value[0], 0, option.ParamType);
 		}
 	}
-	addConstraintButtonOk();
-	addConstraintButtonEsc();
+
 }
 
 void UExSimMainWidget::onCreateComponentClicked()
@@ -484,7 +502,8 @@ void UExSimMainWidget::onCreateComponentClicked()
 	DataStorage->initComponentCommand(&options);
 
 	addInputTable(options);
-
+	addTempButtonOk();
+	addConstraintButtonEsc();
 }
 
 void UExSimMainWidget::getInputTableOptions()
@@ -507,7 +526,7 @@ void UExSimMainWidget::addOptionToTable( TMap<int, FString> names, TMap<FString,
 		if (value)
 			addEditableToStorageWB(name, *value, id, type);
 	}
-	addConstraintButtonOk();
+	addTempButtonOk();
 	addConstraintButtonEsc();
 }
 void UExSimMainWidget::addOptionToTable()
@@ -539,7 +558,7 @@ void UExSimMainWidget::addInputTable()
 
 
 	addOptionToTable();
-	addConstraintButtonOk();
+	addTempButtonOk();
 	addConstraintButtonEsc();
 }
 

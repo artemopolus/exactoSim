@@ -1,50 +1,6 @@
 #include "ExCommander.h"
 
 
-ExConstructor::~ExConstructor()
-{
-	if (Store) delete Store;
-}
-
-ExConstructor::ExConstructor(FExConstraintParams* trg, ExFactoryOperator* factory)
-{
-}
-
-ExConstructor::ExConstructor(FExComponentParams* trg, ExFactoryOperator* factory)
-{
-	Params = trg;
-	Store = factory->createComponentParams(trg);
-}
-
-ExConstructor::ExConstructor(FExComplexParams* trg, ExFactoryOperator* factory)
-{
-}
-
-void ExConstructor::construct()
-{
-	if (!Params)
-	{
-		if (Params->getType()==EnExParamTypes::CONSTRAINT)
-		{
-		}
-		else if (Params->getType()==EnExParamTypes::COMPONENT)
-		{
-			FExComponentParams * trg = static_cast<FExComponentParams*>(Params);
-			FExComponentParams * src = static_cast<FExComponentParams*>(Store);
-			*trg = *src;
-		}
-		else if (Params->getType()==EnExParamTypes::COMPLEX)
-		{
-			
-		}
-	}
-	Params->markToCreate();
-}
-
-void ExConstructor::deconstruct()
-{
-	Params->markToDelete();
-}
 
 
 
@@ -108,14 +64,22 @@ void ExCommander::updateConstraint(EnExConstraintParamNames type, FString str)
 
 void ExCommander::executeCommand()
 {
-	Command->execute();
-	DoneCommands.Add(Command);
+
 	if (DoneCommands.Num() >= DoneCommandMax)
 	{
-		Command = DoneCommands[0];
-		DoneCommands.Remove(Command);
-		delete Command;
+		auto first = DoneCommands[0];
+		FExCommonParams * pparam = nullptr;
+		first->getTarget(&pparam);
+		if(pparam->isComponent() && pparam->isMarkedToHide())
+		{
+			pparam->markToDelete();
+			EcEvOnCommand.Broadcast(pparam);
+		}
+		DoneCommands.Remove(first);
+		delete first;
 	}
+	Command->execute();
+	DoneCommands.Add(Command);
 	FExCommonParams* params = nullptr;
 	Command->getTarget(&params);
 	EcEvOnCommand.Broadcast(params);
@@ -282,23 +246,41 @@ void ExCommander::update(int type, FString val)
 void ExCommander::create()
 {
 	if (isConstraint())
-		Command = new ExCreate(getConstraint(), Factory);
+		Command = new ExCreate(getConstraint());
 	else if(isComponent())
-		Command = new ExCreate(getComponent(), Factory);
+		Command = new ExCreate(getComponent());
 	else if(isComplex())
-		Command = new ExCreate(getComplex(), Factory);
+		Command = new ExCreate(getComplex());
 	executeCommand();
 }
 
 void ExCommander::remove()
 {
 	if(isConstraint())
-		Command = new ExDelete(getConstraint(), Factory);
+		Command = new ExDelete(getConstraint());
 	else if (isComponent())
-		Command = new ExDelete(getComponent(), Factory);
+		Command = new ExDelete(getComponent());
 	else if(isComplex())
-		Command = new ExDelete(getComplex(), Factory);
+		Command = new ExDelete(getComplex());
 	else return;
 	executeCommand();
+}
+
+void ExCommander::hide()
+{
+	if(isComponent()) // only component
+	{
+		Command = new ExHide(getComponent());
+		executeCommand();
+	}
+}
+
+void ExCommander::show()
+{
+	if(isComponent()) // only component
+	{
+		Command = new ExShow(getComponent());
+		executeCommand();
+	}
 }
 

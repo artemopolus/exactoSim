@@ -17,7 +17,7 @@ AExSimStorage::AExSimStorage()
 
 
 	ParamsOperator = new ExFactoryOperator();
-	CoCoCoProvider = new ExCommander(ParamsOperator);
+	CoCoCoProvider = new ExCommander();
 	CoCoCoProvider->EcEvOnCommand.AddUObject(this, &AExSimStorage::onCommandRegistered);//(this, &AExSimStorage::onCommandRegistered);
 	
 	GenObjType.Add(AExSimStorage::exsim_genobj_type::EXGT_SMPL,			std::string ("Simple"));
@@ -146,6 +146,10 @@ void AExSimStorage::onCommandRegistered(FExCommonParams * params)
 			createComponent(static_cast<FExComponentParams*>(params));
 		else if (params->isMarkedToDelete())
 			deleteComponent(static_cast<FExComponentParams*>(params));
+		else if (params->isMarkedToHide())
+			hideComponent(static_cast<FExComponentParams*>(params));
+		else if (params->isMarkedToShow())
+			showComponent(static_cast<FExComponentParams*>(params));
 		else
 		{
 			ExSimComponent * component = static_cast<ExSimComponent*>(params->getOwner());
@@ -195,6 +199,18 @@ void AExSimStorage::createComplex(FExComplexParams* params)
 {
 	ExSimComplex * complex = ParamsOperator->createComplex(params);
 	createComplex(complex);
+}
+
+void AExSimStorage::hideComponent(FExComponentParams* params)
+{
+	ExSimComponent * component = static_cast<ExSimComponent*>(params->getOwner());
+	CurrentScene->hideComponent(component);
+}
+
+void AExSimStorage::showComponent(FExComponentParams* params)
+{
+	ExSimComponent * component = static_cast<ExSimComponent*>(params->getOwner());
+	CurrentScene->showComponent(component);
 }
 
 
@@ -267,24 +283,19 @@ void AExSimStorage::manipulateGenerator(FVector loc, FRotator rot)
 
 bool AExSimStorage::touchActor(AActor* actor, FString & output)
 {
-	if (!CurrentScene)
-		return false;
-	for (int i = 0; i < actor->Tags.Num(); i++)
+	if (CurrentScene && CurrentScene->checkOwnership(actor))
 	{
-		if (actor->Tags[i].ToString() == CurrentScene->BaseTag)
+		AExSmplBox* target = static_cast<AExSmplBox*>(actor);
+		if (!target->getEScomponent())
+			return false;
+		output += TEXT("Component name: ") + target->getEScomponent()->getTarget()->GetName() + TEXT("\n");
+		output += TEXT("Basis: ") + target->getEScomponent()->getBasis()->getName() + TEXT("\n");
+		output += TEXT("Constraints:\n");
+		for (const auto elem : *target->getEScomponent()->getConstraints())
 		{
-			AExSmplBox * target = static_cast<AExSmplBox*>(actor);
-			if (!target->getEScomponent())
-				return false;
-			output += TEXT("Component name: ") + target->getEScomponent()->getTarget()->GetName() + TEXT("\n");
-			output += TEXT("Basis: ") + target->getEScomponent()->getBasis()->getName() + TEXT("\n");
-			output += TEXT("Constraints:\n");
-			for (const auto elem : *target->getEScomponent()->getConstraints())
-			{
-				output += FString(ConstrType.Find(elem->getType())->c_str()) + TEXT("\n");
-			}
-			return true;
+			output += FString(ConstrType.Find(elem->getType())->c_str()) + TEXT("\n");
 		}
+		return true;
 	}
 	return false;
 }
@@ -503,7 +514,7 @@ void AExSimStorage::createCommand()
 
 void AExSimStorage::deleteCommand()
 {
-	CoCoCoProvider->remove();
+	CoCoCoProvider->hide();
 }
 
 void AExSimStorage::updateCommand(int type, FString str)

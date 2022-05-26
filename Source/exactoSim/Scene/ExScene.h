@@ -76,6 +76,8 @@ public:
 		FVector impulse = FVector(0,0,0), FVector impulse_pos = FVector(0,0,0));
 	
 	bool createComponent(ExSimComponent * component);
+	void hideComponent(ExSimComponent * component);
+	void showComponent(ExSimComponent * component);
 	void deleteComponent(ExSimComponent * component);
 	
 	void deleteSceneObjByPrefix(std::string prefix);
@@ -115,6 +117,8 @@ public:
 	void moveTrgBody(FVector location);
 	void letTrgBody();
 	bool getTrgBody(AActor ** actor);
+
+	bool checkOwnership(AActor * actor) const;
 	
 	
 private:

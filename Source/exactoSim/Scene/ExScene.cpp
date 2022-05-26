@@ -7,6 +7,7 @@
 
 #include "exactoSim/Common/ExSimStorage.h"
 #include "Generators/CarGenerator.h"
+#include "Kismet/GameplayStatics.h"
 #include "Runtime/JsonUtilities/Public/JsonObjectConverter.h"
 
 // Sets default values
@@ -236,6 +237,24 @@ bool AExScene::createComponent(ExSimComponent* component)
 	return true;
 }
 
+void AExScene::hideComponent(ExSimComponent* component)
+{
+	APawn * trg = static_cast<APawn*>(component->getTarget());
+	if (trg)
+	{
+		trg->SetActorHiddenInGame(true);
+	}
+}
+
+void AExScene::showComponent(ExSimComponent* component)
+{
+	APawn * trg = static_cast<APawn*>(component->getTarget());
+	if (trg)
+	{
+		trg->SetActorHiddenInGame(false);
+	}
+}
+
 void AExScene::deleteComponent(ExSimComponent * component)
 {
 	auto body = component->getBody();
@@ -243,7 +262,9 @@ void AExScene::deleteComponent(ExSimComponent * component)
 		ExPhyzX->removeRigidBody(body);
 	APawn * trg = static_cast<APawn*>(component->getTarget());
 	if (trg)
+	{
 		trg->Destroy();
+	}
 }
 bool AExScene::addObjByPath(ExSimComponent** component, const FString path, const FString name, float mass,
                             FVector location, FRotator rotation, bool use_genloc, FVector impulse, FVector impulse_pos)
@@ -502,7 +523,7 @@ void AExScene::updateComponent(ExSimComponent* component)
 		if (body)
 			component->setBody(body);
 	}
-	// if(!params->IsOnPhysics)
+	if(!params->IsOnPhysics)
 	{
 		auto obj = component->getTarget();
 		obj->SetActorLocation(params->Position);
@@ -905,6 +926,18 @@ bool AExScene::getTrgBody(AActor** actor)
 	{
 		*actor = static_cast<AActor*>(PickedBody->getUserPointer());
 		if (*actor)
+			return true;
+	}
+	return false;
+}
+
+bool AExScene::checkOwnership(AActor* actor) const
+{
+	if (actor->IsHidden())
+		return false;
+	for (int i = 0; i < actor->Tags.Num(); i++)
+	{
+		if ( actor->Tags[i].ToString() == BaseTag)
 			return true;
 	}
 	return false;

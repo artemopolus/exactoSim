@@ -49,8 +49,11 @@ public:
 		void onChangeModeButtonClicked();
 
 	UFUNCTION()
-		void onOptionsButtonOkClicked();
-
+		void onTempButtonOkClicked();
+	
+	UFUNCTION()
+		void onTempButtonDeleteClicked();
+	
 	UFUNCTION()
 		void onTempListButtonClicked();
 
@@ -96,7 +99,9 @@ public:
 	void addButtonToStorage(FString name);
 	void addSelectToStorage(FString name, TArray<FString> option_list);
 
-	void addConstraintButtonOk();
+	void addTempButtonOk();
+	void addTempButtonDelete();
+	void addTempButtonOk( const FString name);
 	void addConstraintButtonEsc();
 	void addConstraintButtonReset();
 
