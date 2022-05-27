@@ -59,13 +59,9 @@ public:
 		enables_spring = 0;
 		setType(EnExParamTypes::CONSTRAINT);
 	}
-	void setAdditionalPointer( ExSimObject * data){additionalPointer = data;}
-	ExSimObject * getAdditionalPointer()
-	{
-		ExSimObject * tmp = additionalPointer;
-		additionalPointer = nullptr;
-		return tmp;
-	}
+	virtual void setDataPointer(ExSimObject* data) override{DataPointer = data; name_p = data->getName();}
+	void setAdditionalPointer( ExSimObject * data)	{	additionalPointer = data;	name_t = data->getName();}
+	ExSimObject * getAdditionalPointer() const		{	return additionalPointer;	}
 };
 
 enum class EnExConstraintParamNames : int32

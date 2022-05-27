@@ -282,10 +282,8 @@ void UExSimMainWidget::onTempListButtonClicked()
 			sendDebug(ButtonTempList[i]->getButtonName());
 			if (ButtonTempList[i]->tag == -1) //create new constraint
 			{
-				DataStorage->createNewConstraint();
-				resetTemporary();
-				getInputTableOptions();
-				addInputTable();
+				sendDebug(TEXT("Create constraint table"));
+				createConstraintParamTable();
 			}
 			else if (ButtonTempList[i]->tag == -2)
 			{
@@ -297,22 +295,20 @@ void UExSimMainWidget::onTempListButtonClicked()
 			}
 			else if (ButtonTempList[i]->tag == -4)
 			{
-				TArray<AExSimStorage::ParamHolder> holder;
-				DataStorage->selectCommand(CurrentActor, &holder);
-				addInputTable(holder);
-				addTempButtonDelete();
-            	addConstraintButtonEsc();
+
+				editComponentParamTable();
 			}
 			else if (ButtonTempList[i]->tag  > -1)
 			{
 				const auto cstr = *CurrentActor->getConstraints();
 				auto * constraint = cstr[ButtonTempList[i]->tag];
 				CurrentConstraint = constraint;
-				DataStorage->setOptVPP(constraint);
+				editConstraintParamTable();
+				// DataStorage->setOptVPP(constraint);
 				
-				resetTemporary();
-				getInputTableOptions();
-				addInputTable();
+				// resetTemporary();
+				// getInputTableOptions();
+				// addInputTable();
 			}
 		}
 	}
@@ -388,6 +384,7 @@ FString UExSimMainWidget::getParTrgInfo()
 
 void UExSimMainWidget::setCurrentToParent()
 {
+	DataStorage->setConstraintParentCommand(CurrentActor);
 	ParentActor = CurrentActor;
 	if (ParentActor == TargetActor)
 		TargetActor = nullptr;
@@ -395,6 +392,7 @@ void UExSimMainWidget::setCurrentToParent()
 
 void UExSimMainWidget::setCurrentToTarget()
 {
+	DataStorage->setConstraintTargetCommand(CurrentActor);
 	TargetActor = CurrentActor;
 	if (ParentActor == TargetActor)
 		ParentActor = nullptr;
@@ -495,15 +493,8 @@ void UExSimMainWidget::addInputTable(TArray<AExSimStorage::ParamHolder> options)
 
 void UExSimMainWidget::onCreateComponentClicked()
 {
-	if (EditableList.Num())
-		clearOptionFromTable();
 	sendDebug(TEXT("Create component"));
-	TArray<AExSimStorage::ParamHolder> options;
-	DataStorage->initComponentCommand(&options);
-
-	addInputTable(options);
-	addTempButtonOk();
-	addConstraintButtonEsc();
+	createComponentParamTable();
 }
 
 void UExSimMainWidget::getInputTableOptions()
@@ -624,27 +615,46 @@ void UExSimMainWidget::onCommanderUpdated(FExCommonParams * params)
 
 void UExSimMainWidget::updateEditable(FExCommonParams* params)
 {
+	// if (params->getType() != CurrentTableType)
+	// {
+	// 	if (params->isConstraint())
+	// 	{
+	// 		CurrentConstraint = static_cast<ExSimConstraintPair*>(params->getOwner());
+	// 		editConstraintParamTable();
+	// 	}
+	// 	else if(params->isComponent())
+	// 	{
+	// 		CurrentActor = static_cast<ExSimComponent*>(params->getOwner());
+	// 		editComponentParamTable();
+	// 	}
+	// 	return;
+	// }
 	TArray<AExSimStorage::ParamHolder> options;
 	DataStorage->updateCommand(params,&options);
-	for (auto& opt : options)
-	{
-		if(opt.EditType == EnExParamEdit::EDITABLE)
-		{
-			for (auto& ed : EditableList)
-			{
-				if (opt.ParamType == ed->getType())
-					ed->update(opt.Value[0]);
-			}
-		}
-		else if(opt.EditType == EnExParamEdit::SELECTABLE)
-		{
-			for(auto & sel : SelectorList)
-			{
-				if(opt.ParamType == sel->getType())
-					sel->setCurrentValue(opt.Value[0]);
-			}
-		}
-	}
+	clearOptionFromTable();
+	addInputTable(options);
+	addTempButtonOk();
+	addConstraintButtonEsc();
+
+	// for (auto& opt : options)
+	// {
+	// 	if(opt.EditType == EnExParamEdit::EDITABLE)
+	// 	{
+	// 		for (auto& ed : EditableList)
+	// 		{
+	// 			if (opt.ParamType == ed->getType())
+	// 				ed->update(opt.Value[0]);
+	// 		}
+	// 	}
+	// 	else if(opt.EditType == EnExParamEdit::SELECTABLE)
+	// 	{
+	// 		for(auto & sel : SelectorList)
+	// 		{
+	// 			if(opt.ParamType == sel->getType())
+	// 				sel->setCurrentValue(opt.Value[0]);
+	// 		}
+	// 	}
+	// }
 }
 
 void UExSimMainWidget::updateEditableAll()
@@ -769,4 +779,49 @@ void UExSimMainWidget::resetTemporary()
 	clearOptionFromTable();
 
 	StorageWrapBox->ClearChildren();
+}
+
+void UExSimMainWidget::createComponentParamTable()
+{
+	resetTemporary();
+	TArray<AExSimStorage::ParamHolder> options;
+	DataStorage->initComponentCommand(&options);
+	addInputTable(options);
+	addTempButtonOk();
+	addConstraintButtonEsc();
+	CurrentTableType = EnExParamTypes::COMPONENT;
+}
+
+void UExSimMainWidget::createConstraintParamTable()
+{
+	resetTemporary();
+	TArray<AExSimStorage::ParamHolder> options;
+	DataStorage->initConstraintCommand(&options);
+	addInputTable(options);
+	addTempButtonOk();
+	addConstraintButtonEsc();
+	CurrentTableType = EnExParamTypes::CONSTRAINT;
+}
+
+void UExSimMainWidget::editComponentParamTable()
+{
+	resetTemporary();
+	TArray<AExSimStorage::ParamHolder> holder;
+	DataStorage->selectCommand(CurrentActor, &holder);
+	addInputTable(holder);
+	addTempButtonDelete();
+	addConstraintButtonEsc();
+	CurrentTableType = EnExParamTypes::COMPONENT;
+}
+
+void UExSimMainWidget::editConstraintParamTable()
+{
+	resetTemporary();
+	TArray<AExSimStorage::ParamHolder> holder;
+	DataStorage->selectCommand(CurrentConstraint, &holder);
+	addInputTable(holder);
+	addTempButtonDelete();
+	addConstraintButtonEsc();
+	CurrentTableType = EnExParamTypes::CONSTRAINT;
+	
 }

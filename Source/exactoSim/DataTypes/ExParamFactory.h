@@ -34,6 +34,7 @@ class EXACTOSIM_API ExComponentParamFactory : public ExParamFactory
 	FString InitName = TEXT("Component");
 	FString InitPath = TEXT("Class'/Game/Blueprint/Scene/BP_ExSmplBox_Simple.BP_ExSmplBox_Simple_C'");
 public:
+	void setStartPosition(const FVector pos) {StartPosition = pos;}
 	virtual FExCommonParams* factoryMethod() override
 	{
 		static int32 index = 0;

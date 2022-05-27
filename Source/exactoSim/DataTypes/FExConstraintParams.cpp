@@ -115,34 +115,48 @@ void ExConstraintDict::fromNameValuePairsToParams(TMap<FString, FString>* src, F
 
 void ExConstraintDict::getInitValues(TMap<EnExConstraintParamNames, TArray<FString>>* trg, FExConstraintParams* params)
 {
-	trg->FindOrAdd(EnExConstraintParamNames::parent_axis) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->axis_p));
-	trg->FindOrAdd(EnExConstraintParamNames::target_axis) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->axis_t));
-	trg->FindOrAdd(EnExConstraintParamNames::dump_ang) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->dump_ang));
-	trg->FindOrAdd(EnExConstraintParamNames::dump_lin) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->dump_lin));
-	trg->FindOrAdd(EnExConstraintParamNames::low_lim_ang) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->low_lim_ang));
-	trg->FindOrAdd(EnExConstraintParamNames::low_lim_lin) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->low_lim_lin));
-	trg->FindOrAdd(EnExConstraintParamNames::parent_pivot) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->pivot_p));
-	trg->FindOrAdd(EnExConstraintParamNames::target_pivot) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->pivot_t));
-	trg->FindOrAdd(EnExConstraintParamNames::stiff_ang) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->stiff_ang));
-	trg->FindOrAdd(EnExConstraintParamNames::stiff_lin) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->stiff_lin));
-	trg->FindOrAdd(EnExConstraintParamNames::upp_lim_ang) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->upp_lim_ang));
-	trg->FindOrAdd(EnExConstraintParamNames::low_lim_lin) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->upp_lim_lin));
+	trg->FindOrAdd(EnExConstraintParamNames::constraint_t) = ExSimPhyzHelpers::getConstraintsList(params->constr_type);
+	
+	if (params->constr_type == ExSimPhyzHelpers::Constraint::GEN6DOF_SPRING)
+	{
+		trg->FindOrAdd(EnExConstraintParamNames::parent_axis) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->axis_p));
+		trg->FindOrAdd(EnExConstraintParamNames::target_axis) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->axis_t));
+		trg->FindOrAdd(EnExConstraintParamNames::dump_ang) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->dump_ang));
+		trg->FindOrAdd(EnExConstraintParamNames::dump_lin) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->dump_lin));
+		trg->FindOrAdd(EnExConstraintParamNames::low_lim_ang) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->low_lim_ang));
+		trg->FindOrAdd(EnExConstraintParamNames::low_lim_lin) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->low_lim_lin));
+		trg->FindOrAdd(EnExConstraintParamNames::parent_pivot) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->pivot_p));
+		trg->FindOrAdd(EnExConstraintParamNames::target_pivot) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->pivot_t));
+		trg->FindOrAdd(EnExConstraintParamNames::stiff_ang) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->stiff_ang));
+		trg->FindOrAdd(EnExConstraintParamNames::stiff_lin) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->stiff_lin));
+		trg->FindOrAdd(EnExConstraintParamNames::upp_lim_ang) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->upp_lim_ang));
+		trg->FindOrAdd(EnExConstraintParamNames::upp_lim_lin) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->upp_lim_lin));
 
 
 	
-	trg->FindOrAdd(EnExConstraintParamNames::constraint_name) = ExConvert::getArrayString(params->name_constraint); 
-	trg->FindOrAdd(EnExConstraintParamNames::parent_name) = ExConvert::getArrayString(params->name_p); 
-	trg->FindOrAdd(EnExConstraintParamNames::target_name) = ExConvert::getArrayString(params->name_t); 
+		trg->FindOrAdd(EnExConstraintParamNames::constraint_name) = ExConvert::getArrayString(params->name_constraint); 
+		trg->FindOrAdd(EnExConstraintParamNames::parent_name) = ExConvert::getArrayString(params->name_p); 
+		trg->FindOrAdd(EnExConstraintParamNames::target_name) = ExConvert::getArrayString(params->name_t); 
 
-	trg->FindOrAdd(EnExConstraintParamNames::impulse_clamp) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->impulse_clamp)); 
-	trg->FindOrAdd(EnExConstraintParamNames::lower_limit) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->lower_limit)); 
-	trg->FindOrAdd(EnExConstraintParamNames::tau) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->tau)); 
-	trg->FindOrAdd(EnExConstraintParamNames::upper_limit) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->upper_limit)); 
+		trg->FindOrAdd(EnExConstraintParamNames::impulse_clamp) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->impulse_clamp)); 
+		trg->FindOrAdd(EnExConstraintParamNames::lower_limit) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->lower_limit)); 
+		trg->FindOrAdd(EnExConstraintParamNames::tau) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->tau)); 
+		trg->FindOrAdd(EnExConstraintParamNames::upper_limit) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->upper_limit)); 
 
 
-	trg->FindOrAdd(EnExConstraintParamNames::enables_spring) = ExConvert::getArrayString(ExConvert::getBoolStrFromInt(params->enables_spring, 6));
+		trg->FindOrAdd(EnExConstraintParamNames::enables_spring) = ExConvert::getArrayString(ExConvert::getBoolStrFromInt(params->enables_spring, 6));
+	}
+	else if (params->constr_type == ExSimPhyzHelpers::Constraint::P2P)
+	{
+		trg->FindOrAdd(EnExConstraintParamNames::parent_pivot) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->pivot_p));
+		trg->FindOrAdd(EnExConstraintParamNames::target_pivot) = ExConvert::getArrayString(ExConvert::getStrFromVec(params->pivot_t));
+		trg->FindOrAdd(EnExConstraintParamNames::tau) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->tau)); 
+		trg->FindOrAdd(EnExConstraintParamNames::impulse_clamp) = ExConvert::getArrayString(ExConvert::getStrFromFloat(params->impulse_clamp)); 
+		trg->FindOrAdd(EnExConstraintParamNames::constraint_name) = ExConvert::getArrayString(params->name_constraint); 
+		trg->FindOrAdd(EnExConstraintParamNames::parent_name) = ExConvert::getArrayString(params->name_p); 
+		trg->FindOrAdd(EnExConstraintParamNames::target_name) = ExConvert::getArrayString(params->name_t); 		
+	}
 
-	trg->FindOrAdd(EnExConstraintParamNames::constraint_t) = ExSimPhyzHelpers::getConstraintsList(params->constr_type); 
 	
 }
 

@@ -2,6 +2,7 @@
 
 ExFactoryOperator::ExFactoryOperator()
 {
+	ComponentParam.setStartPosition(FVector(0,0,50));
 }
 
 FExConstraintParams* ExFactoryOperator::createConstraintParams()

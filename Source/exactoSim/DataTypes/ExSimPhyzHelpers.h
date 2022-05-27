@@ -10,7 +10,8 @@ enum class  EnExParamTypes : int
 {
 	CONSTRAINT = 0,
 	COMPONENT,
-	COMPLEX
+	COMPLEX,
+	NONE
 };
 
 class EXACTOSIM_API ExSimPhyzHelpers

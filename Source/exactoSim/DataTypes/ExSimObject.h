@@ -12,4 +12,5 @@ public:
 	bool isComponent() const{return ObjType == EnExParamTypes::COMPONENT;}
 	bool isComplex() const{return ObjType == EnExParamTypes::COMPLEX;}
 	virtual void update() = 0;
+	virtual FString getName() = 0;
 };

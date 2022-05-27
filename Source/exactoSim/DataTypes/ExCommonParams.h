@@ -17,6 +17,8 @@ struct EXACTOSIM_API FExCommonParams
 	GENERATED_BODY()
 
 public:
+	virtual ~FExCommonParams() = default;
+
 	enum class Action : int32
 	{
 		NOTHING = 0,
@@ -43,15 +45,8 @@ public:
 	void setOwner(ExSimObject * trg){Owner = trg;}
 	ExSimObject * getOwner()const{return Owner;}
 
-	void setDataPointer(ExSimObject * data){DataPointer = data;}
-	ExSimObject * getDataPointer()
-	{
-		if(DataPointer == nullptr)
-			return nullptr;
-		ExSimObject * data = DataPointer;
-		DataPointer = nullptr;
-		return data;
-	}
+	virtual void setDataPointer(ExSimObject * data){DataPointer = data;}
+	virtual ExSimObject * getDataPointer()	const	{	return DataPointer;	}
 
 	bool isConstraint() const {return ParamType == EnExParamTypes::CONSTRAINT;}
 	bool isComponent() const {return ParamType == EnExParamTypes::COMPONENT;}
@@ -60,6 +55,7 @@ private:
 	EnExParamTypes ParamType = EnExParamTypes::CONSTRAINT;
 	Action Need = Action::NOTHING;
 	ExSimObject * Owner = nullptr;
+protected:
 	ExSimObject * DataPointer = nullptr;	
 };
 

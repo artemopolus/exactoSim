@@ -36,7 +36,7 @@ public:
 		setObjType(EnExParamTypes::CONSTRAINT);
 	}
 	~ExSimConstraintPair(){}
-	FString getName(){return Name;}
+	virtual FString getName() override {return Name;}
 	FExConstraintParams * getParams() const {return Params;}
 	btTypedConstraint * getConstraint() const {return Constraint;}
 	ExSimPhyzHelpers::Constraint getType() const {return Type;}
@@ -79,8 +79,8 @@ public:
 		Params->setOwner(this);
 	}
 	bool getConstraintNames(TArray<FString>* names);
-	
-	FString getName(){return  Name;}
+
+	virtual FString getName() override {return  Name;}
 	FString getPath(){return Path;}
 	AActor * getTarget(){return Target;}
 	btRigidBody * getBody(){return Body;}
@@ -133,7 +133,7 @@ public:
 	}
 	void setParams(FExComplexParams * params){Params = params;}
 
-	FString getName(){return Name;}
+	virtual FString getName() override {return Name;}
 	FString getBasisName(){return BasisName;}
 	ExSimComponent * getBasis(){return Basis;}
 	TArray<ExSimComponent*> * getComponentsList(){return &Components;}

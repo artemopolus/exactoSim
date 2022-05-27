@@ -233,6 +233,24 @@ void ExCommander::updateComplex(FExComplexParams* complex, EnExComplexParamNames
 	}
 }
 
+void ExCommander::setConstraintParent(ExSimComponent* trg)
+{
+	if(isConstraint())
+	{
+		Command = new ExUpdConstraintParent(getConstraint(),trg);
+		executeCommand();
+	}
+}
+
+void ExCommander::setConstraintTarget(ExSimComponent* trg)
+{
+	if(isConstraint())
+	{
+		Command = new ExUpdConstraintTarget(getConstraint(),trg);
+		executeCommand();
+	}
+}
+
 void ExCommander::update(int type, FString val)
 {
 	if (isConstraint())

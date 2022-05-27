@@ -113,6 +113,13 @@ public:
 
 	
 private:
+
+	void createComponentParamTable();
+	void createConstraintParamTable();
+
+	void editComponentParamTable();
+	void editConstraintParamTable();	
+	
 	void setCurrentToParent();
 	void setCurrentToTarget();
 	void getInputTableOptions();
@@ -243,7 +250,7 @@ private:
 	ExSimComponent * TargetActor;
 	ExSimComponent * ParentActor;
 
-	
+	EnExParamTypes CurrentTableType = EnExParamTypes::NONE;
 		
 
 	

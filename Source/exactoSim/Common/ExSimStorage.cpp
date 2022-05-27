@@ -130,13 +130,18 @@ void AExSimStorage::onCommandRegistered(FExCommonParams * params)
 	{
 		if (params->isMarkedToCreate())
 			createConstraint(static_cast<FExConstraintParams*>(params));
+		else if (params->isMarkedToShow())
+			activateConstraint(static_cast<FExConstraintParams*>(params));
+		else if (params->isMarkedToHide())
+			deactivateConstraint(static_cast<FExConstraintParams*>(params));
 		else if (params->isMarkedToDelete())
 			deleteConstraint(static_cast<FExConstraintParams*>(params));
 		else
 		{
 			ExSimConstraintPair* pair = static_cast<ExSimConstraintPair*>(params->getOwner());
-			check(pair != nullptr);
-			update(pair);
+			// check(pair != nullptr);
+			if(pair)
+				update(pair);
 		}
 			
 	}
@@ -174,17 +179,35 @@ void AExSimStorage::onCommandRegistered(FExCommonParams * params)
 void AExSimStorage::createConstraint(FExConstraintParams* pconv)
 {
 	ExSimConstraintPair* pair = ParamsOperator->createConstraintPair(pconv);
-	ExSimComponent* compA = static_cast<ExSimComponent*>(pconv->getDataPointer());
-	ExSimComponent* compB = static_cast<ExSimComponent*>(pconv->getAdditionalPointer());
-	CurrentScene->createConstraint(pair, compA, compB);
+	createConstraint(pair);
+}
+
+void AExSimStorage::createConstraint(ExSimConstraintPair* pair)
+{
+	if (pair)
+	{
+		auto pconv = pair->getParams();
+		ExSimComponent* compA = static_cast<ExSimComponent*>(pconv->getDataPointer());
+		ExSimComponent* compB = static_cast<ExSimComponent*>(pconv->getAdditionalPointer());
+		CurrentScene->createConstraint(pair, compA, compB);
+	}
+}
+
+void AExSimStorage::activateConstraint(FExConstraintParams* param)
+{
+	ExSimConstraintPair* pair = static_cast<ExSimConstraintPair*>(param->getOwner());
+	createConstraint(pair);
+}
+
+void AExSimStorage::deactivateConstraint(FExConstraintParams* param)
+{
+	ExSimConstraintPair* pair = static_cast<ExSimConstraintPair*>(param->getOwner());
+	CurrentScene->deleteConstraint(pair);
 }
 
 void AExSimStorage::deleteConstraint(FExConstraintParams* pconv)
 {
-	ExSimConstraintPair* pair = ParamsOperator->createConstraintPair(pconv);
-	ExSimComponent* compA = static_cast<ExSimComponent*>(pconv->getDataPointer());
-	compA->removeConstraint(pair);
-	CurrentScene->deleteConstraint(pair);
+	ExSimConstraintPair* pair = static_cast<ExSimConstraintPair*>(pconv->getOwner());
 	ParamsOperator->deleteConstraintPair(pair);
 }
 
@@ -429,6 +452,9 @@ void AExSimStorage::updateCommand(FExCommonParams* params, TArray<ParamHolder>* 
 {
 	if (params->isComponent())
 		updateCommand(static_cast<FExComponentParams*> (params), holder);
+	else if(params->isConstraint())
+		updateCommand(static_cast<FExConstraintParams*> (params), holder);
+		
 }
 void AExSimStorage::updateCommand(FExComponentParams* params, TArray<ParamHolder>* holder)
 {
@@ -464,9 +490,22 @@ void AExSimStorage::initConstraintCommand(TArray<ParamHolder>* holder)
 	updateCommand(ParamsOperator->createConstraintParams(), holder);
 }
 
-void AExSimStorage::selectCommand(ExSimComponent* trg, TArray<ParamHolder>* holder)
+void AExSimStorage::selectCommand(ExSimObject* trg, TArray<ParamHolder>* holder)
 {
-	updateCommand(trg->getParams(), holder);
+	if(trg->isComponent())
+		updateCommand(static_cast<ExSimComponent*>(trg)->getParams(), holder);
+	else if (trg->isConstraint())
+		updateCommand(static_cast<ExSimConstraintPair*>(trg)->getParams(), holder);
+}
+
+void AExSimStorage::setConstraintParentCommand(ExSimComponent* comp)
+{
+	CoCoCoProvider->setConstraintParent(comp);
+}
+
+void AExSimStorage::setConstraintTargetCommand(ExSimComponent* comp)
+{
+	CoCoCoProvider->setConstraintTarget(comp);
 }
 
 

@@ -131,12 +131,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void createTest(FString name, float mass = 1.0f, FVector loc = FVector(0,0,50), FRotator rot = FRotator(0,0,0));
 
-		void onCommandRegistered(FExCommonParams * params);
+	void onCommandRegistered(FExCommonParams* params);
 
-	void createComponent(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0,0,0), FRotator rot = FRotator(0,0,0), bool use_genloc = true);
-	void createConstraint(ExSimComponent * target, ExSimComponent * parent);
-	
+	void createComponent(FString name, FString path, float mass = 1.0f, FVector loc = FVector(0, 0, 0),
+	                     FRotator rot = FRotator(0, 0, 0), bool use_genloc = true);
+	void createConstraint(ExSimComponent* target, ExSimComponent* parent);
+
 	void createConstraint( FExConstraintParams * params);
+	void createConstraint( ExSimConstraintPair * pair);
+	void activateConstraint(FExConstraintParams * param);
+	void deactivateConstraint( FExConstraintParams * param);
 	void deleteConstraint( FExConstraintParams * params);
 
 	void createComponent(FExComponentParams * component);
@@ -196,7 +200,10 @@ public:
 	void initComponentCommand(TArray<ParamHolder> * holder);
 	void initConstraintCommand(TArray<ParamHolder> * holder);
 
-	void selectCommand(ExSimComponent* trg, TArray<ParamHolder> * holder);
+	void selectCommand(ExSimObject* trg, TArray<ParamHolder> * holder);
+
+	void setConstraintParentCommand(ExSimComponent * comp);
+	void setConstraintTargetCommand(ExSimComponent * comp);
 
 	void createCommand();
 	
@@ -236,10 +243,11 @@ void AExSimStorage::updateHolderByTemplate(Tparams* params, TArray<ParamHolder>*
 	Tdict::getInitValues(&tmp_values, params);
 	Tdict::getDefaultNames(&tmp_names);
 	Tdict::getEditTypeCreate(&tmp_edit);
-	for (const auto& name : tmp_names)
+	for (const auto & value : tmp_values)
 	{
-		const auto key = name.Key;
-		holder->Add(ParamHolder(name.Value, key, *tmp_values.Find(key), *tmp_edit.Find(key)));
+		const auto key = value.Key;
+		const auto name = * tmp_names.Find(key);
+		holder->Add(ParamHolder(name, key, value.Value, *tmp_edit.Find(key)));
 	}
 }
 

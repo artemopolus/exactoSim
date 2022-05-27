@@ -162,6 +162,25 @@ public:
     virtual void unExecute() override { Pack.revert(); }
 	virtual void getTarget(FExCommonParams** trg) override{*trg = Pack.getTarget();}
 };
+class EXACTOSIM_API ExUpdConstraintParent : public ExBasicCommand
+{
+protected:
+	FExConstraintParams * Trg = nullptr;
+	ExSimObject * Value = nullptr;
+	ExSimObject * Store = nullptr;
+public:
+	ExUpdConstraintParent(FExConstraintParams * params, ExSimComponent * comp) : Trg(params), Value(comp){}
+	virtual void execute() override{ Store = Trg->getDataPointer(); Trg->setDataPointer(Value);}
+	virtual void unExecute() override {Trg->setDataPointer(Store);}
+	virtual void getTarget(FExCommonParams** trg) override {*trg = Trg;}
+};
+class EXACTOSIM_API ExUpdConstraintTarget : public ExUpdConstraintParent
+{
+public:	
+	ExUpdConstraintTarget(FExConstraintParams * params, ExSimComponent * comp) : ExUpdConstraintParent(params, comp){}
+	virtual void execute() override{ Store = Trg->getAdditionalPointer(); Trg->setAdditionalPointer(Value);}
+	virtual void unExecute() override {Trg->setAdditionalPointer(Store);}
+};
 //exacto Sim Complex
 class EXACTOSIM_API ExUpdComplexString : public ExBasicCommand
 {
@@ -192,8 +211,8 @@ public:
 	explicit ExCreate( FExConstraintParams *trg)	: ExConstructor(trg){}
 	explicit ExCreate(FExComponentParams *trg)		: ExConstructor(trg){}
 	explicit ExCreate(FExComplexParams *trg)		: ExConstructor(trg){}
-	virtual void execute() override {construct();}
-	virtual void unExecute() override{deconstruct();}
+	virtual void execute() override		{construct();	}
+	virtual void unExecute() override	{deconstruct();	}
 };
 class EXACTOSIM_API ExDelete : public ExConstructor
 {
@@ -201,8 +220,8 @@ public:
 	explicit ExDelete(FExConstraintParams *trg)	: ExConstructor(trg){}
 	explicit ExDelete(FExComponentParams *trg)	: ExConstructor(trg){}
 	explicit ExDelete(FExComplexParams *trg)	: ExConstructor(trg){}
-	virtual void execute() override {deconstruct();}
-	virtual void unExecute() override{construct();}
+	virtual void execute() override		{deconstruct();	}
+	virtual void unExecute() override	{construct();	}
 };
 class EXACTOSIM_API ExHide : public ExConstructor
 {
@@ -254,6 +273,9 @@ public:
 	void updateComponent(FExComponentParams * component, EnExComponentParamNames type, int32 val);
 
 	void updateComplex(FExComplexParams * complex, EnExComplexParamNames, FString val);
+
+	void setConstraintParent( ExSimComponent * trg);
+	void setConstraintTarget( ExSimComponent * trg);
 
 
 	void update(int type, FString val);
